@@ -8,6 +8,7 @@ interface Product {
   title: string;
   description: string;
   price: number;
+  costPrice: number;
   stock: number;
   category: string;
   imageUrl: string;
@@ -16,11 +17,10 @@ interface Product {
 export default function ProductsManagement() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '', description: '', price: '', stock: '', category: '', imageUrl: ''
+    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: ''
   });
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function ProductsManagement() {
     return () => unsubscribe();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.imageUrl && !selectedFile) {
@@ -41,53 +41,58 @@ export default function ProductsManagement() {
       return;
     }
 
-    if (isSaving) return;
-    setIsSaving(true);
-    
-    let finalImageUrl = formData.imageUrl;
+    // Capture values before closing the modal
+    const currentFormData = { ...formData };
+    const currentSelectedFile = selectedFile;
+    const currentEditingId = editingId;
 
-    try {
-      // 1. Upload to Cloudinary if file is selected
-      if (selectedFile) {
-        const uploadData = new FormData();
-        uploadData.append('file', selectedFile);
-        uploadData.append('upload_preset', 'kwxslhnw'); // User's preset
-        
-        const res = await fetch('https://api.cloudinary.com/v1_1/dzsiqw51v/image/upload', {
-          method: 'POST',
-          body: uploadData
-        });
-        const data = await res.json();
-        
-        if (!res.ok) {
-          throw new Error(data.error?.message || 'Failed to upload image');
+    // Instantly close the form and reset so the user isn't blocked
+    setIsModalOpen(false);
+    resetForm();
+
+    // Run the actual save/upload process in the background
+    (async () => {
+      let finalImageUrl = currentFormData.imageUrl;
+
+      try {
+        // 1. Upload to Cloudinary if file is selected
+        if (currentSelectedFile) {
+          const uploadData = new FormData();
+          uploadData.append('file', currentSelectedFile);
+          uploadData.append('upload_preset', 'kwxslhnw');
+          
+          const res = await fetch('https://api.cloudinary.com/v1_1/dzsiqw51v/image/upload', {
+            method: 'POST',
+            body: uploadData
+          });
+          const data = await res.json();
+          
+          if (!res.ok) {
+            throw new Error(data.error?.message || 'Failed to upload image');
+          }
+          finalImageUrl = data.secure_url;
         }
-        finalImageUrl = data.secure_url;
-      }
 
-      // 2. Save to Firestore
-      const dataToSave: any = {
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-        imageUrl: finalImageUrl
-      };
+        // 2. Save to Firestore
+        const dataToSave: any = {
+          ...currentFormData,
+          price: Number(currentFormData.price),
+          costPrice: Number(currentFormData.costPrice),
+          stock: Number(currentFormData.stock),
+          imageUrl: finalImageUrl
+        };
 
-      if (editingId) {
-        await updateDoc(doc(db, 'products', editingId), dataToSave);
-      } else {
-        dataToSave.createdAt = new Date();
-        await addDoc(collection(db, 'products'), dataToSave);
+        if (currentEditingId) {
+          await updateDoc(doc(db, 'products', currentEditingId), dataToSave);
+        } else {
+          dataToSave.createdAt = new Date();
+          await addDoc(collection(db, 'products'), dataToSave);
+        }
+      } catch (error) {
+        console.error('Error saving product:', error);
+        alert('Failed to save product in the background.');
       }
-      
-      setIsModalOpen(false);
-      resetForm();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      alert('Failed to save product.');
-    } finally {
-      setIsSaving(false);
-    }
+    })();
   };
 
   const handleDelete = async (id: string) => {
@@ -101,6 +106,7 @@ export default function ProductsManagement() {
       title: product.title,
       description: product.description,
       price: product.price.toString(),
+      costPrice: (product.costPrice || 0).toString(),
       stock: product.stock.toString(),
       category: product.category,
       imageUrl: product.imageUrl
@@ -110,7 +116,7 @@ export default function ProductsManagement() {
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', price: '', stock: '', category: '', imageUrl: '' });
+    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '' });
     setEditingId(null);
     setSelectedFile(null);
   };
@@ -198,6 +204,10 @@ export default function ProductsManagement() {
                   <input required type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none transition-colors" />
                 </div>
                 <div>
+                  <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Cost Price (৳)</label>
+                  <input required type="number" value={formData.costPrice} onChange={e => setFormData({...formData, costPrice: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none transition-colors" />
+                </div>
+                <div>
                   <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Stock</label>
                   <input required type="number" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none transition-colors" />
                 </div>
@@ -221,15 +231,8 @@ export default function ProductsManagement() {
                   </div>
                 </div>
               </div>
-              <button disabled={isSaving} type="submit" className="w-full bg-[#ff4e00] hover:bg-[#e64600] disabled:bg-[#ff4e00]/50 disabled:cursor-not-allowed text-white p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2">
-                {isSaving ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Saving...
-                  </>
-                ) : (
-                  editingId ? 'Update Product' : 'Save Product'
-                )}
+              <button type="submit" className="w-full bg-[#ff4e00] hover:bg-[#e64600] text-white p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2">
+                {editingId ? 'Update Product' : 'Save Product'}
               </button>
             </form>
           </div>

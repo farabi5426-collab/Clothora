@@ -19,6 +19,9 @@ import DeliveryManagement from './pages/admin/DeliveryManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
 
+import { Toaster } from 'react-hot-toast';
+import CustomerDashboard from './pages/store/CustomerDashboard';
+
 export default function App() {
   const { checkAuth } = useAuthStore();
 
@@ -28,10 +31,12 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="bottom-center" toastOptions={{ style: { background: '#111', color: '#fff', border: '1px solid #ffffff15', borderRadius: '0px', textTransform: 'uppercase', fontSize: '12px', fontWeight: 'bold', letterSpacing: '0.1em' } }} />
       <Routes>
         {/* Public Storefront */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/account" element={<CustomerDashboard />} />
 
         {/* Admin Secured Routes */}
         <Route path="/admin" element={<AdminLayout />}>

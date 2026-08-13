@@ -24,6 +24,7 @@ export default function Home() {
   const { items, toggleCart, addToCart } = useCartStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
@@ -31,6 +32,7 @@ export default function Home() {
       const prods: Product[] = [];
       snapshot.forEach((doc) => prods.push({ id: doc.id, ...doc.data() } as Product));
       setProducts(prods);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);

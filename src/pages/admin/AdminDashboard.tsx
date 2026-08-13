@@ -7,7 +7,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     products: 0,
     orders: 0,
-    revenue: 0
+    revenue: 0,
+    netProfit: 0
   });
 
   useEffect(() => {
@@ -16,16 +17,19 @@ export default function AdminDashboard() {
       setStats(prev => ({ ...prev, products: snapshot.size }));
     });
 
-    // Listen to orders count and calculate revenue
+    // Listen to orders count, calculate revenue and net profit
     const unsubscribeOrders = onSnapshot(query(collection(db, 'orders')), (snapshot) => {
       let totalRev = 0;
+      let totalCost = 0;
       snapshot.forEach(doc => {
         const data = doc.data();
         if (data.status !== 'Cancelled') {
           totalRev += (data.totalAmount || 0);
+          const itemsCost = (data.items || []).reduce((sum: number, item: any) => sum + ((item.costPrice || 0) * (item.quantity || 1)), 0);
+          totalCost += itemsCost;
         }
       });
-      setStats(prev => ({ ...prev, orders: snapshot.size, revenue: totalRev }));
+      setStats(prev => ({ ...prev, orders: snapshot.size, revenue: totalRev, netProfit: totalRev - totalCost }));
     });
 
     return () => {
@@ -44,7 +48,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-[#111] border border-[#ffffff15] p-6">
           <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Total Products</h3>
@@ -68,11 +72,22 @@ export default function AdminDashboard() {
         <div className="bg-[#111] border border-[#ffffff15] p-6">
           <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Total Revenue</h3>
+            <TrendingUp className="w-5 h-5 text-green-500" />
+          </div>
+          <div className="pt-6 flex items-baseline gap-2">
+            <span className="text-xl font-bold text-green-500">৳</span>
+            <p className="text-4xl font-black text-white">{stats.revenue.toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="bg-[#111] border border-[#ffffff15] p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Net Profit</h3>
             <TrendingUp className="w-5 h-5 text-[#ff4e00]" />
           </div>
           <div className="pt-6 flex items-baseline gap-2">
             <span className="text-xl font-bold text-[#ff4e00]">৳</span>
-            <p className="text-4xl font-black text-white">{stats.revenue.toLocaleString()}</p>
+            <p className="text-4xl font-black text-white">{stats.netProfit.toLocaleString()}</p>
           </div>
         </div>
       </div>

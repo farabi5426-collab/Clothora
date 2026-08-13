@@ -10,33 +10,30 @@ export default function ChatWidget() {
   const [name, setName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [message, setMessage] = useState('');
-  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) return;
     
-    setSending(true);
-    try {
-      await addDoc(collection(db, 'messages'), {
-        senderName: name,
-        senderEmail: email,
-        content: message,
-        createdAt: new Date()
-      });
-      setSent(true);
-      setMessage('');
-      setTimeout(() => {
-        setSent(false);
-        setIsOpen(false);
-      }, 3000);
-    } catch (error) {
-      console.error('Failed to send message', error);
-      alert('Failed to send message. Please try again.');
-    } finally {
-      setSending(false);
-    }
+    // Instantly show success message
+    setSent(true);
+    
+    // Background task
+    addDoc(collection(db, 'messages'), {
+      senderName: name,
+      senderEmail: email,
+      content: message,
+      createdAt: new Date()
+    }).catch((error) => {
+      console.error('Failed to send message in background', error);
+    });
+
+    setMessage('');
+    setTimeout(() => {
+      setSent(false);
+      setIsOpen(false);
+    }, 3000);
   };
 
   return (
@@ -89,11 +86,10 @@ export default function ChatWidget() {
                 </div>
                 <button
                   type="submit"
-                  disabled={sending}
-                  className="w-full flex items-center justify-center gap-2 bg-[#ff4e00] hover:bg-[#e64600] text-white p-3 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-[#ff4e00] hover:bg-[#e64600] text-white p-3 text-xs font-bold uppercase tracking-widest"
                 >
                   <Send className="w-4 h-4" />
-                  {sending ? 'Sending...' : 'Send Message'}
+                  Send Message
                 </button>
               </form>
             )}

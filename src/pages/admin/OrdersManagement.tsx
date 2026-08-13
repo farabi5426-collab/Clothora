@@ -38,7 +38,13 @@ export default function OrdersManagement() {
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
+      if (newStatus === 'Shipped') {
+        const trackingId = window.prompt("Enter Tracking URL/ID for this shipment:");
+        if (trackingId === null) return; // User cancelled
+        await updateDoc(doc(db, 'orders', orderId), { status: newStatus, trackingId });
+      } else {
+        await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
+      }
     } catch (error) {
       console.error('Error updating status:', error);
       alert('Failed to update status.');
@@ -86,12 +92,18 @@ export default function OrdersManagement() {
                   <select 
                     value={order.status}
                     onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className="bg-[#1a1a1a] border border-[#ffffff15] p-2 text-xs font-bold uppercase tracking-widest text-white focus:border-[#ff4e00] outline-none cursor-pointer"
+                    className="bg-[#1a1a1a] border border-[#ffffff15] p-2 text-xs font-bold uppercase tracking-widest text-white focus:border-[#ff4e00] outline-none cursor-pointer w-full mb-2"
                   >
                     <option value="Pending">Pending</option>
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
                   </select>
+                  {order.status === 'Shipped' && (order as any).trackingId && (
+                    <div className="text-[10px] text-[#ffffff60] uppercase tracking-widest truncate max-w-[150px]" title={(order as any).trackingId}>
+                      TRK: {(order as any).trackingId}
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
