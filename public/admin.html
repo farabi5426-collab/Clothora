@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Upload Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6 font-sans">
+
+    <div class="max-w-2xl mx-auto space-y-6">
+        
+        <!-- Google Drive Integration Section -->
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+            <div class="flex justify-between items-start mb-2">
+                <h2 class="text-2xl font-black text-gray-900 uppercase tracking-tight">Google Drive Backup</h2>
+            </div>
+            <p class="text-gray-500 mb-6 text-sm">Sign in to back up your product data directly to Google Drive.</p>
+            
+            <div id="authSection" class="flex flex-col gap-4">
+                <button id="googleSignInBtn" class="flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors w-full sm:w-auto">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-5 h-5">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                        <path fill="none" d="M0 0h48v48H0z"></path>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+
+            <div id="driveSection" class="hidden flex-col gap-4">
+                <div class="flex items-center gap-2 text-sm text-green-600 font-bold mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span id="userEmailDisplay">Connected</span>
+                </div>
+                <button id="backupBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg uppercase tracking-widest transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <span id="backupBtnText">Backup Products to Drive</span>
+                    <svg id="backupSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+                <div id="backupStatus" class="text-sm font-bold mt-2 hidden"></div>
+                
+                <button id="logoutBtn" class="text-gray-500 hover:text-red-500 text-sm font-bold underline text-left mt-2 w-fit">Sign out</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+            <h1 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Admin Panel</h1>
+            <p class="text-gray-500 mb-8 text-sm">Add a new product to your storefront.</p>
+
+            <form id="productForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 uppercase tracking-wide">Product Name</label>
+                    <input type="text" id="productName" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" placeholder="e.g. Premium Cotton T-Shirt">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 uppercase tracking-wide">Price (৳)</label>
+                    <input type="number" id="productPrice" required min="0" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" placeholder="e.g. 500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 uppercase tracking-wide">Description</label>
+                    <textarea id="productDesc" required rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" placeholder="Product details..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 uppercase tracking-wide">Product Image</label>
+                    <input type="file" id="productImage" required accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors">
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                    <span id="btnText">Upload Product</span>
+                    <!-- Loading Spinner (Hidden by default) -->
+                    <svg id="loadingSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div id="statusMessage" class="mt-4 text-center font-bold text-sm hidden"></div>
+        </div>
+    </div>
+
+    <!-- Firebase v10 Modular SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // ==========================================
+        // PASTE YOUR FIREBASE CONFIGURATION HERE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgGPhYbqdDeIEigXx7YP_n19F8XX0eNMw",
+            authDomain: "gen-lang-client-0228474543.firebaseapp.com",
+            projectId: "gen-lang-client-0228474543",
+            storageBucket: "gen-lang-client-0228474543.firebasestorage.app",
+            messagingSenderId: "662231425255",
+            appId: "1:662231425255:web:67dd1ac6e4b025ac7a0242"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // Setup Google Auth Provider with Drive Scope
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/drive.file');
+
+        // Cloudinary Configuration
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzsiqw51v/image/upload";
+        const UPLOAD_PRESET = "kwxslhnw";
+
+        // DOM Elements
+        const form = document.getElementById('productForm');
+        const btnText = document.getElementById('btnText');
+        const spinner = document.getElementById('loadingSpinner');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        // Drive Backup Elements
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authSection = document.getElementById('authSection');
+        const driveSection = document.getElementById('driveSection');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        const backupBtn = document.getElementById('backupBtn');
+        const backupBtnText = document.getElementById('backupBtnText');
+        const backupSpinner = document.getElementById('backupSpinner');
+        const backupStatus = document.getElementById('backupStatus');
+
+        // --- AUTHENTICATION & DRIVE LOGIC ---
+        let currentAccessToken = null;
+
+        // Listen for auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                authSection.classList.add('hidden');
+                driveSection.classList.remove('hidden');
+                driveSection.classList.add('flex');
+                userEmailDisplay.textContent = `Connected as ${user.email}`;
+            } else {
+                // User is signed out
+                authSection.classList.remove('hidden');
+                driveSection.classList.add('hidden');
+                driveSection.classList.remove('flex');
+                currentAccessToken = null;
+            }
+        });
+
+        // Sign In
+        googleSignInBtn.addEventListener('click', async () => {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                currentAccessToken = credential.accessToken;
+            } catch (error) {
+                console.error("Auth Error:", error);
+                alert("Failed to sign in. Please make sure Google Sign-In is enabled in your Firebase Console Authentication settings.");
+            }
+        });
+
+        // Sign Out
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+        });
+
+        // Backup to Drive
+        backupBtn.addEventListener('click', async () => {
+            if (!currentAccessToken) {
+                alert("Session expired. Please sign in again.");
+                await signOut(auth);
+                return;
+            }
+
+            backupBtn.disabled = true;
+            backupBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            backupBtnText.textContent = "Backing up...";
+            backupSpinner.classList.remove('hidden');
+            backupStatus.classList.add('hidden');
+
+            try {
+                // 1. Fetch all products from Firestore
+                const querySnapshot = await getDocs(collection(db, "products"));
+                const products = [];
+                querySnapshot.forEach((doc) => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+
+                // 2. Create JSON file content
+                const fileContent = JSON.stringify(products, null, 2);
+                const metadata = {
+                    name: `Store_Backup_${new Date().toISOString().split('T')[0]}.json`,
+                    mimeType: 'application/json'
+                };
+
+                // 3. Upload to Google Drive using multipart upload
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+                const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentAccessToken}`
+                    },
+                    body: form
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to upload to Google Drive");
+                }
+
+                backupStatus.textContent = "Successfully backed up to Google Drive!";
+                backupStatus.className = "text-sm font-bold mt-2 text-green-600";
+                backupStatus.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error("Backup Error:", error);
+                backupStatus.textContent = "Backup failed: " + error.message;
+                backupStatus.className = "text-sm font-bold mt-2 text-red-500";
+                backupStatus.classList.remove('hidden');
+            } finally {
+                backupBtn.disabled = false;
+                backupBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                backupBtnText.textContent = "Backup Products to Drive";
+                backupSpinner.classList.add('hidden');
+            }
+        });
+
+        // --- PRODUCT UPLOAD LOGIC ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!auth.currentUser) {
+                showStatus('Please sign in with Google first to upload products.', 'text-red-500');
+                return;
+            }
+
+            const name = document.getElementById('productName').value;
+            const price = document.getElementById('productPrice').value;
+            const desc = document.getElementById('productDesc').value;
+            const file = document.getElementById('productImage').files[0];
+
+            if (!file) {
+                showStatus('Please select an image.', 'text-red-500');
+                return;
+            }
+
+            // UI Loading State
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            btnText.textContent = "Uploading Image...";
+            spinner.classList.remove('hidden');
+            statusMessage.classList.add('hidden');
+
+            try {
+                // 1. Upload Image to Cloudinary
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLOAD_PRESET);
+
+                const cloudinaryRes = await fetch(CLOUDINARY_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const cloudinaryData = await cloudinaryRes.json();
+                
+                if (!cloudinaryRes.ok) {
+                    throw new Error(cloudinaryData.error?.message || 'Failed to upload image to Cloudinary');
+                }
+
+                const secureUrl = cloudinaryData.secure_url;
+                btnText.textContent = "Saving to Database...";
+
+                // 2. Save Data to Firestore
+                await addDoc(collection(db, "products"), {
+                    name: name,
+                    price: Number(price),
+                    description: desc,
+                    imageUrl: secureUrl,
+                    createdAt: new Date()
+                });
+
+                // Success State
+                form.reset();
+                showStatus('Product uploaded successfully!', 'text-green-600');
+
+            } catch (error) {
+                console.error("Error:", error);
+                showStatus('Error: ' + error.message, 'text-red-500');
+            } finally {
+                // Reset UI State
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btnText.textContent = "Upload Product";
+                spinner.classList.add('hidden');
+            }
+        });
+
+        function showStatus(message, colorClass) {
+            statusMessage.textContent = message;
+            statusMessage.className = `mt-4 text-center font-bold text-sm ${colorClass}`;
+            statusMessage.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

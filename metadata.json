@@ -1,0 +1,8 @@
+{
+  "name": "Clothora",
+  "description": "Trendy apparel dropshipping e-commerce store with admin panel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "project_name": "Clothora",
+  "collections": [
+    {
+      "name": "users",
+      "document_id": "uid",
+      "fields": [
+        { "name": "uid", "type": "string" },
+        { "name": "email", "type": "string" },
+        { "name": "displayName", "type": "string" },
+        { "name": "role", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "name": "products",
+      "document_id": "auto-generated",
+      "fields": [
+        { "name": "title", "type": "string" },
+        { "name": "description", "type": "string" },
+        { "name": "price", "type": "number" },
+        { "name": "stock", "type": "number" },
+        { "name": "category", "type": "string" },
+        { "name": "imageUrl", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    },
+    {
+      "name": "orders",
+      "document_id": "auto-generated",
+      "fields": [
+        { "name": "customerId", "type": "string" },
+        { "name": "customerDetails", "type": "map" },
+        { "name": "items", "type": "array" },
+        { "name": "totalAmount", "type": "number" },
+        { "name": "status", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ]
+    }
+  ]
+}
