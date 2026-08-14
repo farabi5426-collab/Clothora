@@ -109,18 +109,18 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
         </div>
         <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 md:px-16 pt-24 pb-32 flex flex-col justify-end min-h-[70vh]">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-none mb-6 drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-none mb-6 drop-shadow-2xl">
             ELEVATE YOUR<br />
             <span className="text-[#ff4e00]">STREETWEAR</span>
           </h1>
           <p className="text-base md:text-xl text-[#ffffff80] max-w-[650px] mb-12 font-bold drop-shadow-lg leading-relaxed">
             PREMIUM OVERSIZED STREETWEAR, ANIME-INSPIRED DESIGNS, AND GRAPHIC APPAREL CRAFTED FOR THOSE WHO DARE TO STAND OUT. DISCOVER OUR LATEST DROPS.
           </p>
-          <div className="flex flex-wrap gap-4">
-            <a href="#shop" className="bg-[#ff4e00] text-white px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ffffff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ffffff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+            <a href="#shop" className="w-full sm:w-auto justify-center bg-[#ff4e00] text-white px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ffffff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ffffff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
               SHOP NEW DROPS <ArrowRight className="w-5 h-5" />
             </a>
-            <a href="#shop" className="bg-transparent border-2 border-[#ff4e00] text-[#ff4e00] px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ff4e00] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ff4e00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
+            <a href="#shop" className="w-full sm:w-auto justify-center bg-transparent border-2 border-[#ff4e00] text-[#ff4e00] px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ff4e00] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ff4e00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
               EXPLORE CATEGORIES
             </a>
           </div>
@@ -190,13 +190,13 @@ export default function Home() {
               </div>
             </div>
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                  {Array(4).fill(0).map((_, i) => (
                   <div key={i} className="bg-[#111] border border-[#ffffff15] p-4 flex flex-col h-[400px] animate-pulse"></div>
                  ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {bestSellers.map(renderProductCard)}
               </div>
             )}
@@ -215,13 +215,13 @@ export default function Home() {
               </div>
             </div>
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                  {Array(4).fill(0).map((_, i) => (
                   <div key={i} className="bg-[#111] border border-[#ffffff15] p-4 flex flex-col h-[400px] animate-pulse"></div>
                  ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {newArrivals.map(renderProductCard)}
               </div>
             )}

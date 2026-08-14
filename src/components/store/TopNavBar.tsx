@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { motion, AnimatePresence } from 'motion/react';
+import { Menu, X } from 'lucide-react';
 
 export default function TopNavBar() {
   const { user, logout } = useAuthStore();
   const { items, toggleCart } = useCartStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -26,32 +28,39 @@ export default function TopNavBar() {
 
   return (
     <header className="sticky top-0 w-full z-50 border-b-2 border-surface-bright bg-surface/90 backdrop-blur-md">
-      <div className="flex justify-between items-center h-20 px-[16px] md:px-[64px] w-full max-w-[1920px] mx-auto">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-[24px] md:text-[32px] font-black tracking-tighter text-on-surface flex items-center gap-2">
+      <div className="flex justify-between items-center h-20 px-4 md:px-16 w-full max-w-[1920px] mx-auto">
+        <div className="flex items-center gap-4">
+          <button 
+            className="md:hidden text-on-surface hover:text-primary transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+          <Link to="/" className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface flex items-center gap-2">
             CLOTHORA
           </Link>
         </div>
 
-        <nav className="hidden md:flex gap-[24px] items-center h-full">
-          <Link to="/" className="text-[14px] font-bold uppercase tracking-[0.1em] text-primary border-b-2 border-primary h-full flex items-center pt-1">
+        <nav className="hidden md:flex gap-6 items-center h-full">
+          <Link to="/" className="text-sm font-bold uppercase tracking-[0.1em] text-primary border-b-2 border-primary h-full flex items-center pt-1">
             Shop
           </Link>
-          <a href="/#new-arrivals" className="text-[14px] font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
+          <a href="/#new-arrivals" className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
             New Arrivals
           </a>
-          <a href="/#naruto" className="text-[14px] font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
+          <a href="/#naruto" className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
             Naruto Collection
           </a>
-          <a href="/#about" className="text-[14px] font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
+          <a href="/#about" className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
             About
           </a>
         </nav>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6">
           <button aria-label="search" className="text-on-surface hover:text-primary transition-colors">
             <span className="material-symbols-outlined">search</span>
           </button>
+
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button 
@@ -74,7 +83,7 @@ export default function TopNavBar() {
                   <Link 
                     to="/account" 
                     onClick={() => setIsDropdownOpen(false)}
-                    className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-on-surface hover:bg-surface-bright hover:text-primary transition-colors text-left"
+                    className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-on-surface hover:bg-surface-bright hover:text-primary transition-colors text-left"
                   >
                     Order History
                   </Link>
@@ -82,7 +91,7 @@ export default function TopNavBar() {
                     <Link 
                       to="/admin" 
                       onClick={() => setIsDropdownOpen(false)}
-                      className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-on-surface hover:bg-surface-bright hover:text-primary transition-colors text-left"
+                      className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-on-surface hover:bg-surface-bright hover:text-primary transition-colors text-left"
                     >
                       Admin Panel
                     </Link>
@@ -92,7 +101,7 @@ export default function TopNavBar() {
                       logout();
                       setIsDropdownOpen(false);
                     }}
-                    className="px-4 py-3 text-[12px] font-bold uppercase tracking-widest text-error hover:bg-error-container hover:text-on-error-container transition-colors text-left w-full"
+                    className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-error hover:bg-error-container hover:text-on-error-container transition-colors text-left w-full"
                   >
                     Logout
                   </button>
@@ -101,10 +110,11 @@ export default function TopNavBar() {
               </AnimatePresence>
             </div>
           ) : (
-            <Link to="/login" aria-label="person" className="text-on-surface hover:text-primary transition-colors">
+            <Link to="/login" aria-label="person" className="text-on-surface hover:text-primary transition-colors hidden sm:block">
               <span className="material-symbols-outlined">person</span>
             </Link>
           )}
+
           <button 
             onClick={toggleCart} 
             aria-label="shopping_bag" 
@@ -124,6 +134,38 @@ export default function TopNavBar() {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden border-t-2 border-surface-bright bg-surface overflow-hidden"
+          >
+            <nav className="flex flex-col p-4 gap-4">
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-primary p-2 border-l-2 border-primary">
+                Shop
+              </Link>
+              <a href="/#new-arrivals" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
+                New Arrivals
+              </a>
+              <a href="/#naruto" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
+                Naruto Collection
+              </a>
+              <a href="/#about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
+                About
+              </a>
+              {!user && (
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
+                  Login / Register
+                </Link>
+              )}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
