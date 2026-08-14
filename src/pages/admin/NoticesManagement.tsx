@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2, X, Upload } from 'lucide-react';
 
 interface Notice {
   id: string;
@@ -15,6 +15,7 @@ export default function NoticesManagement() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ title: '', content: '', imageUrl: '', isActive: true });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'notices'), orderBy('createdAt', 'desc'));
@@ -28,17 +29,40 @@ export default function NoticesManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await addDoc(collection(db, 'notices'), {
-        ...formData,
-        createdAt: new Date()
-      });
-      setIsModalOpen(false);
-      setFormData({ title: '', content: '', imageUrl: '', isActive: true });
-    } catch (error) {
-      console.error('Error adding notice:', error);
-      alert('Failed to save notice.');
-    }
+    const currentFormData = { ...formData };
+    const currentSelectedFile = selectedFile;
+    
+    setIsModalOpen(false);
+    setFormData({ title: '', content: '', imageUrl: '', isActive: true });
+    setSelectedFile(null);
+
+    (async () => {
+      let finalImageUrl = currentFormData.imageUrl;
+      try {
+        if (currentSelectedFile) {
+          const uploadData = new FormData();
+          uploadData.append('file', currentSelectedFile);
+          uploadData.append('upload_preset', 'kwxslhnw');
+          
+          const res = await fetch('https://api.cloudinary.com/v1_1/dzsiqw51v/image/upload', {
+            method: 'POST',
+            body: uploadData
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error?.message || 'Failed to upload image');
+          finalImageUrl = data.secure_url;
+        }
+
+        await addDoc(collection(db, 'notices'), {
+          ...currentFormData,
+          imageUrl: finalImageUrl,
+          createdAt: new Date()
+        });
+      } catch (error) {
+        console.error('Error adding notice:', error);
+        alert('Failed to save notice.');
+      }
+    })();
   };
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
@@ -107,6 +131,7 @@ export default function NoticesManagement() {
                 <X className="w-6 h-6" />
               </button>
             </div>
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Title</label>
@@ -116,10 +141,26 @@ export default function NoticesManagement() {
                 <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Content</label>
                 <textarea required rows={3} value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none" />
               </div>
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Image URL (Optional)</label>
-                <input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none" />
+              
+              <div className="space-y-2">
+                <label className="block text-xs uppercase tracking-widest text-[#ffffff60]">Image (Optional)</label>
+                <div className="flex gap-4 items-center">
+                  <label className="cursor-pointer bg-[#1a1a1a] border border-[#ffffff15] hover:border-[#ff4e00] p-3 flex-1 flex justify-center items-center gap-2 transition-colors">
+                    <Upload className="w-4 h-4 text-[#ffffff60]" />
+                    <span className="text-xs uppercase tracking-widest text-[#ffffff60]">
+                      {selectedFile ? selectedFile.name : 'Upload File'}
+                    </span>
+                    <input type="file" accept="image/*" className="hidden" onChange={e => {
+                      if (e.target.files && e.target.files[0]) {
+                        setSelectedFile(e.target.files[0]);
+                      }
+                    }} />
+                  </label>
+                </div>
+                <div className="text-center text-[#ffffff40] text-[10px] uppercase tracking-widest font-bold">OR PASTE URL</div>
+                <input placeholder="https://..." value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none text-xs" />
               </div>
+
               <button type="submit" className="w-full bg-[#ff4e00] hover:bg-[#e64600] text-white p-4 text-xs font-bold uppercase tracking-widest mt-6">
                 Publish Notice
               </button>

@@ -2,13 +2,23 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore, setLogLevel } from 'firebase/firestore';
 
+const getEnv = (key: string, fallback: string) => {
+  // Try to get from import.meta.env (Vite)
+  // @ts-ignore
+  const val = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env[key] : undefined;
+  if (val && val !== 'undefined' && val !== 'null' && val !== '') {
+    return val;
+  }
+  return fallback;
+};
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDgGPhYbqdDeIEigXx7YP_n19F8XX0eNMw",
-  authDomain: "gen-lang-client-0228474543.firebaseapp.com",
-  projectId: "gen-lang-client-0228474543",
-  storageBucket: "gen-lang-client-0228474543.firebasestorage.app",
-  messagingSenderId: "662231425255",
-  appId: "1:662231425255:web:67dd1ac6e4b025ac7a0242"
+  apiKey: getEnv('VITE_FIREBASE_API_KEY', "AIzaSyDgGPhYbqdDeIEigXx7YP_n19F8XX0eNMw"),
+  authDomain: getEnv('VITE_FIREBASE_AUTH_DOMAIN', "gen-lang-client-0228474543.firebaseapp.com"),
+  projectId: getEnv('VITE_FIREBASE_PROJECT_ID', "gen-lang-client-0228474543"),
+  storageBucket: getEnv('VITE_FIREBASE_STORAGE_BUCKET', "gen-lang-client-0228474543.firebasestorage.app"),
+  messagingSenderId: getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID', "662231425255"),
+  appId: getEnv('VITE_FIREBASE_APP_ID', "1:662231425255:web:67dd1ac6e4b025ac7a0242")
 };
 
 const app = initializeApp(firebaseConfig);
@@ -18,4 +28,3 @@ export const googleProvider = new GoogleAuthProvider();
 
 // Suppress Firestore offline warnings which can spam the console in constrained environments
 setLogLevel('error');
-

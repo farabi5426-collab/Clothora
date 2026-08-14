@@ -1,47 +1,8 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Function to check if the user is an admin
-    function isAdmin() {
-      return request.auth != null && (request.auth.token.email == 'myadminemail@gmail.com' || request.auth.token.email == 'farabi5426@gmail.com');
-    }
-
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if isAdmin();
-    }
-
-    match /products/{productId} {
-      allow read: if true; // Publicly readable
-      allow write: if isAdmin(); // Only admins can modify
-    }
-
-    match /orders/{orderId} {
-      allow read: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.customerId);
-      allow create: if true;
-      allow update, delete: if isAdmin();
-    }
-
-    match /messages/{messageId} {
-      allow read: if isAdmin();
-      allow create: if true;
-      allow update, delete: if isAdmin();
-    }
-
-    match /notices/{noticeId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /promoCodes/{codeId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /settings/{settingId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
