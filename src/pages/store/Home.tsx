@@ -2,14 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { useCartStore } from '../../store/cartStore';
-import { useLayoutStore } from '../../store/layoutStore';
-
-import ClassicGrid from '../../components/store/layouts/ClassicGrid';
-import Lookbook from '../../components/store/layouts/Lookbook';
-import MasonryGrid from '../../components/store/layouts/MasonryGrid';
-import HorizontalGallery from '../../components/store/layouts/HorizontalGallery';
-import MagazineStyle from '../../components/store/layouts/MagazineStyle';
-import SplitScreen from '../../components/store/layouts/SplitScreen';
+import { Truck, CreditCard, RefreshCw, Star, ArrowRight } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -20,14 +13,22 @@ interface Product {
   stock: number;
 }
 
+const CATEGORIES = ["All", "Oversized Tees", "Anime Collection", "Accessories"];
+
+const REVIEWS = [
+  { id: 1, name: "Rakib H.", rating: 5, text: "The acid wash tee is insanely good. Heavyweight material just like they promised." },
+  { id: 2, name: "Sakib A.", rating: 5, text: "Best streetwear brand in BD right now. Delivery was super fast." },
+  { id: 3, name: "Tanvir R.", rating: 4.5, text: "Loved the oversized fit. Customer service was really helpful with the exchange." }
+];
+
 export default function Home() {
   const { addToCart } = useCartStore();
-  const { activeLayout } = useLayoutStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(12)); // Increased limit to 12 for better masonry/magazine layouts
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(12));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const prods: Product[] = [];
       snapshot.forEach((doc) => prods.push({ id: doc.id, ...doc.data() } as Product));
@@ -37,91 +38,244 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  const renderLayout = () => {
-    switch (activeLayout) {
-      case 'layout-lookbook':
-        return <Lookbook products={products} loading={loading} />;
-      case 'layout-masonry':
-        return <MasonryGrid products={products} loading={loading} />;
-      case 'layout-horizontal':
-        return <HorizontalGallery products={products} loading={loading} />;
-      case 'layout-magazine':
-        return <MagazineStyle products={products} loading={loading} />;
-      case 'layout-splitscreen':
-        return <SplitScreen products={products} loading={loading} />;
-      case 'layout-classic':
-      default:
-        return <ClassicGrid products={products} loading={loading} />;
-    }
-  };
+  const filteredProducts = activeCategory === "All" 
+    ? products 
+    : products.filter(p => p.category?.toLowerCase() === activeCategory.toLowerCase());
+
+  // Simulate Best Sellers and New Arrivals by splitting the array
+  const bestSellers = filteredProducts.slice(0, 4);
+  const newArrivals = filteredProducts.slice(4, 12);
+
+  const renderProductCard = (product: Product) => (
+    <div key={product.id} className="group bg-[#111] border border-[#ffffff15] p-4 flex flex-col relative transition-transform hover:-translate-y-2 hover:shadow-[8px_8px_0px_#ff4e00] duration-200 rounded-none">
+      <div className="w-full aspect-[3/4] bg-[#1a1a1a] mb-6 relative overflow-hidden">
+        {product.imageUrl ? (
+          <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[#ffffff40] font-bold uppercase tracking-widest text-xs">
+            NO IMAGE
+          </div>
+        )}
+        {product.stock <= 0 && (
+          <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 text-xs font-bold uppercase tracking-widest shadow-[2px_2px_0px_#fff]">
+            SOLD OUT
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col flex-grow">
+        <span className="text-xs text-[#ff4e00] font-bold uppercase tracking-widest mb-2">
+          {product.category || 'Uncategorized'}
+        </span>
+        <h3 className="text-lg font-black text-white uppercase leading-tight mb-4">
+          {product.title}
+        </h3>
+        <div className="mt-auto">
+          {/* Social Proof Star Rating */}
+          <div className="flex items-center gap-1 mb-2">
+            <Star className="w-3.5 h-3.5 fill-[#ff4e00] text-[#ff4e00]" />
+            <span className="text-[#ffffff80] text-xs font-bold tracking-wider">4.8 (124)</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-black text-white">
+              ৳{product.price}
+            </span>
+            <button 
+              disabled={product.stock <= 0}
+              onClick={() => addToCart({
+                id: product.id,
+                title: product.title,
+                price: product.price,
+                imageUrl: product.imageUrl || ''
+              })}
+              className="w-12 h-12 bg-[#ff4e00] text-white flex items-center justify-center shadow-[2px_2px_0px_#ffffff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <main>
+    <main className="bg-[#0a0a0a] min-h-screen text-white font-sans selection:bg-[#ff4e00] selection:text-white pb-16">
       {/* Hero Section */}
-      <section className="bg-surface relative border-b-2 border-surface-bright overflow-hidden">
+      <section className="relative border-b border-[#ffffff15] overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="w-full h-full object-cover opacity-50 bg-[url('https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+          <div className="w-full h-full object-cover opacity-30 bg-[url('https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
         </div>
-        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-[16px] md:px-[64px] pt-[80px] pb-[120px] flex flex-col justify-end min-h-[70vh]">
-          <h1 className="text-[64px] md:text-[120px] font-black text-on-surface uppercase tracking-tighter leading-none mb-6 drop-shadow-2xl">
-            ACID <span className="text-primary">WASH</span><br />
+        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 md:px-16 pt-24 pb-32 flex flex-col justify-end min-h-[70vh]">
+          <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none mb-6 drop-shadow-2xl">
+            ACID <span className="text-[#ff4e00]">WASH</span><br />
             SHINOBI
           </h1>
-          <p className="text-[18px] md:text-[24px] text-on-surface-variant max-w-[600px] mb-[48px] font-bold drop-shadow-lg">
+          <p className="text-lg md:text-xl text-[#ffffff80] max-w-[600px] mb-12 font-bold drop-shadow-lg">
             PREMIUM HEAVYWEIGHT TEES FEATURING HAND-DYED ACID WASH TEXTURES AND HIGH-DEFINITION GRAPHICS.
           </p>
-          <div className="flex flex-wrap gap-[24px]">
-            <a href="#new-arrivals" className="bg-primary text-on-primary px-[48px] py-[24px] text-[16px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-theme">
-              SHOP COLLECTION <span className="material-symbols-outlined">arrow_forward</span>
+          <div className="flex flex-wrap gap-4">
+            <a href="#shop" className="bg-[#ff4e00] text-white px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ffffff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ffffff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
+              SHOP COLLECTION <ArrowRight className="w-5 h-5" />
+            </a>
+            <a href="#shop" className="bg-transparent border-2 border-[#ff4e00] text-[#ff4e00] px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ff4e00] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ff4e00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
+              VIEW LOOKBOOK
             </a>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section id="new-arrivals" className="w-full max-w-[1920px] mx-auto px-[16px] md:px-[64px] py-[120px]">
-        <div className="flex justify-between items-end mb-[64px]">
-          <div>
-            <h2 className="text-[48px] font-black text-on-surface uppercase tracking-tighter leading-none">NEW ARRIVALS</h2>
-            <p className="text-[16px] text-primary font-bold uppercase tracking-[0.1em] mt-2">FRESH FROM THE VAULT</p>
+      {/* Trust Signals */}
+      <section className="border-b border-[#ffffff15] bg-[#111]">
+        <div className="w-full max-w-[1920px] mx-auto px-4 md:px-16 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-[#ffffff15]">
+            <div className="flex items-center justify-center gap-4 py-4 md:py-0">
+              <Truck className="w-8 h-8 text-[#ff4e00]" />
+              <div className="text-left">
+                <h4 className="font-black uppercase tracking-widest text-sm text-white">Fast Delivery</h4>
+                <p className="text-xs text-[#ffffff60] uppercase tracking-wider">All Over Bangladesh</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-4 py-4 md:py-0">
+              <CreditCard className="w-8 h-8 text-[#ff4e00]" />
+              <div className="text-left">
+                <h4 className="font-black uppercase tracking-widest text-sm text-white">Secure Payment</h4>
+                <p className="text-xs text-[#ffffff60] uppercase tracking-wider">100% Safe Checkout</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-4 py-4 md:py-0">
+              <RefreshCw className="w-8 h-8 text-[#ff4e00]" />
+              <div className="text-left">
+                <h4 className="font-black uppercase tracking-widest text-sm text-white">7-Days Return</h4>
+                <p className="text-xs text-[#ffffff60] uppercase tracking-wider">Easy Exchange Policy</p>
+              </div>
+            </div>
           </div>
-          <a href="#" className="hidden md:flex items-center gap-2 text-on-surface hover:text-primary transition-colors text-[14px] font-bold uppercase tracking-[0.1em]">
-            VIEW ALL <span className="material-symbols-outlined">arrow_forward</span>
-          </a>
         </div>
+      </section>
 
-        {renderLayout()}
+      {/* Category Navigation (Pills) */}
+      <section className="w-full max-w-[1920px] mx-auto px-4 md:px-16 pt-16" id="shop">
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-6 py-2 rounded-full border border-[#ffffff15] text-xs md:text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
+                activeCategory === cat 
+                  ? 'bg-[#ff4e00] text-white border-[#ff4e00] shadow-[0_0_15px_rgba(255,78,0,0.4)]' 
+                  : 'bg-[#111] text-[#ffffff80] hover:text-white hover:border-[#ff4e00] hover:shadow-[0_0_10px_rgba(255,78,0,0.2)]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Product Discovery: Best Sellers & New Arrivals */}
+      <section className="w-full max-w-[1920px] mx-auto px-4 md:px-16 py-16 space-y-24">
+        
+        {/* Best Sellers */}
+        {bestSellers.length > 0 && (
+          <div>
+            <div className="flex justify-between items-end mb-10 border-b border-[#ffffff15] pb-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none flex items-center gap-3">
+                  🔥 Best Sellers
+                </h2>
+                <p className="text-xs text-[#ff4e00] font-bold uppercase tracking-[0.1em] mt-2">Most Wanted Drops</p>
+              </div>
+            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="bg-[#111] border border-[#ffffff15] p-4 flex flex-col h-[400px] animate-pulse"></div>
+                 ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {bestSellers.map(renderProductCard)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* New Arrivals */}
+        {newArrivals.length > 0 && (
+          <div>
+            <div className="flex justify-between items-end mb-10 border-b border-[#ffffff15] pb-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none flex items-center gap-3">
+                  ✨ New Arrivals
+                </h2>
+                <p className="text-xs text-[#ff4e00] font-bold uppercase tracking-[0.1em] mt-2">Fresh From The Vault</p>
+              </div>
+            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="bg-[#111] border border-[#ffffff15] p-4 flex flex-col h-[400px] animate-pulse"></div>
+                 ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {newArrivals.map(renderProductCard)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Empty State / No Products Found */}
+        {!loading && filteredProducts.length === 0 && (
+          <div className="text-center py-24 bg-[#111] border border-[#ffffff15]">
+            <p className="text-[#ffffff60] font-bold uppercase tracking-widest mb-4">No drops found for this category.</p>
+            <button onClick={() => setActiveCategory("All")} className="text-[#ff4e00] font-black uppercase tracking-widest hover:underline">
+              View All Collections
+            </button>
+          </div>
+        )}
 
       </section>
 
-      {/* Sectors / Categories */}
-      <section className="w-full max-w-[1920px] mx-auto px-[16px] md:px-[64px] py-[120px] border-t-2 border-surface-bright">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[24px]">
-          <a href="#" className="group relative h-[400px] md:h-[600px] bg-surface-container-low border-2 border-surface-bright overflow-hidden rounded-theme">
-             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-500 mix-blend-overlay"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center p-[48px] text-center">
-               <h3 className="text-[48px] md:text-[64px] font-black text-on-surface uppercase tracking-tighter leading-none mb-[16px] drop-shadow-lg">
-                 MENSWEAR
-               </h3>
-               <span className="bg-primary text-on-primary px-[24px] py-[12px] font-bold uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] rounded-theme">
-                 EXPLORE
-               </span>
-             </div>
-          </a>
-          <a href="#" className="group relative h-[400px] md:h-[600px] bg-surface-container-low border-2 border-surface-bright overflow-hidden rounded-theme">
-             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621072156002-e2f5dc6b19a3?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-500 mix-blend-overlay"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center p-[48px] text-center">
-               <h3 className="text-[48px] md:text-[64px] font-black text-on-surface uppercase tracking-tighter leading-none mb-[16px] drop-shadow-lg">
-                 ACCESSORIES
-               </h3>
-               <span className="bg-primary text-on-primary px-[24px] py-[12px] font-bold uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] rounded-theme">
-                 EXPLORE
-               </span>
-             </div>
-          </a>
+      {/* Social Proof: Customer Reviews */}
+      <section className="w-full max-w-[1920px] mx-auto px-4 md:px-16 py-16 border-t border-[#ffffff15] bg-[#0a0a0a]">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none mb-2">
+            What Our Customers Say
+          </h2>
+          <p className="text-xs text-[#ffffff60] font-bold uppercase tracking-widest">Real Reviews from Real Ninjas</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {REVIEWS.map(review => (
+            <div key={review.id} className="bg-[#111] border border-[#ffffff15] p-8 relative group hover:border-[#ff4e00] transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Star className="w-16 h-16 text-[#ff4e00] fill-[#ff4e00]" />
+              </div>
+              <div className="flex items-center gap-1 mb-4">
+                {Array(Math.floor(review.rating)).fill(0).map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-[#ff4e00] text-[#ff4e00]" />
+                ))}
+                {review.rating % 1 !== 0 && <Star className="w-4 h-4 fill-[#ff4e00]/50 text-[#ff4e00]" />}
+              </div>
+              <p className="text-[#ffffff90] text-sm leading-relaxed mb-6 italic">
+                "{review.text}"
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center font-black text-[#ff4e00] border border-[#ffffff15]">
+                  {review.name.charAt(0)}
+                </div>
+                <div>
+                  <h4 className="text-white text-sm font-bold uppercase tracking-wider">{review.name}</h4>
+                  <span className="text-[#ffffff40] text-[10px] uppercase tracking-widest flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Verified Buyer
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
+
     </main>
   );
 }
