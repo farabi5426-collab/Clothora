@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
@@ -16,10 +15,7 @@ export default function ChatWidget() {
     e.preventDefault();
     if (!name || !email || !message) return;
     
-    // Instantly show success message
     setSent(true);
-    
-    // Background task
     addDoc(collection(db, 'messages'), {
       senderName: name,
       senderEmail: email,
@@ -28,7 +24,7 @@ export default function ChatWidget() {
     }).catch((error) => {
       console.error('Failed to send message in background', error);
     });
-
+    
     setMessage('');
     setTimeout(() => {
       setSent(false);
@@ -37,59 +33,52 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-[100]">
       {isOpen ? (
-        <div className="w-80 sm:w-96 bg-[#111] border border-[#ffffff15] shadow-2xl flex flex-col">
-          <div className="flex items-center justify-between p-4 border-b border-[#ffffff15] bg-[#1a1a1a]">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white">Contact Us</h3>
-            <button onClick={() => setIsOpen(false)} className="text-[#ffffff60] hover:text-white transition-colors">
-              <X className="w-5 h-5" />
+        <div className="w-80 sm:w-96 bg-surface border-2 border-surface-bright shadow-[8px_8px_0px_rgba(0,0,0,1)] flex flex-col mb-4">
+          <div className="flex items-center justify-between p-[16px] border-b-2 border-surface-bright bg-surface-container-low">
+            <h3 className="text-[16px] font-black uppercase tracking-tighter text-on-surface">CONTACT US</h3>
+            <button onClick={() => setIsOpen(false)} className="text-on-surface hover:text-primary transition-colors">
+              <span className="material-symbols-outlined">close</span>
             </button>
           </div>
           
-          <div className="p-6">
+          <div className="p-[24px]">
             {sent ? (
-              <div className="text-center py-8">
-                <p className="text-green-500 font-bold uppercase tracking-widest text-sm mb-2">Message Sent!</p>
-                <p className="text-xs text-[#ffffff60]">We will get back to you shortly.</p>
+              <div className="text-center py-[48px]">
+                <p className="text-[#4ade80] font-black uppercase tracking-[0.1em] text-[18px] mb-[8px]">MESSAGE SENT!</p>
+                <p className="text-[12px] text-on-surface-variant font-bold uppercase tracking-widest">WE WILL GET BACK TO YOU SHORTLY.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <input
-                    required
-                    placeholder="Your Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-xs text-white focus:border-[#ff4e00] outline-none"
-                  />
-                </div>
-                <div>
-                  <input
-                    required
-                    type="email"
-                    placeholder="Your Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-xs text-white focus:border-[#ff4e00] outline-none"
-                  />
-                </div>
-                <div>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder="How can we help you?"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-xs text-white focus:border-[#ff4e00] outline-none resize-none"
-                  />
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-[16px]">
+                <input
+                  required
+                  placeholder="YOUR NAME"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-surface border-2 border-surface-bright p-[12px] text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface focus:border-primary outline-none"
+                />
+                <input
+                  required
+                  type="email"
+                  placeholder="YOUR EMAIL"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-surface border-2 border-surface-bright p-[12px] text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface focus:border-primary outline-none"
+                />
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="HOW CAN WE HELP YOU?"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full bg-surface border-2 border-surface-bright p-[12px] text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface focus:border-primary outline-none resize-none"
+                />
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-[#ff4e00] hover:bg-[#e64600] text-white p-3 text-xs font-bold uppercase tracking-widest"
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary p-[16px] text-[14px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_#5c1900] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#5c1900] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
                 >
-                  <Send className="w-4 h-4" />
-                  Send Message
+                  SEND MESSAGE <span className="material-symbols-outlined">send</span>
                 </button>
               </form>
             )}
@@ -98,9 +87,9 @@ export default function ChatWidget() {
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-14 h-14 bg-[#ff4e00] hover:bg-[#e64600] text-white flex items-center justify-center shadow-[0_0_30px_rgba(255,78,0,0.3)] hover:scale-105 transition-all"
+          className="w-[64px] h-[64px] bg-primary text-on-primary flex items-center justify-center shadow-[4px_4px_0px_#5c1900] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#5c1900] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all rounded-none"
         >
-          <MessageCircle className="w-6 h-6" />
+          <span className="material-symbols-outlined text-[32px]">chat</span>
         </button>
       )}
     </div>

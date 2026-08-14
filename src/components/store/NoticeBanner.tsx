@@ -29,10 +29,10 @@ export default function NoticeBanner() {
   return (
     <div className="w-full flex flex-col">
       {notices.map((notice) => (
-        <div key={notice.id} className="bg-[#ff4e00] text-white px-4 py-3 flex items-center justify-center gap-3">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <div className="text-xs font-bold uppercase tracking-widest text-center">
-            {notice.title}: <span className="font-normal opacity-90">{notice.content}</span>
+        <div key={notice.id} className="bg-primary text-on-primary border-b-2 border-surface-bright px-4 py-3 flex items-center justify-center gap-3">
+          <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
+          <div className="text-[12px] font-black uppercase tracking-[0.1em] text-center">
+            {notice.title}: <span className="font-bold">{notice.content}</span>
           </div>
         </div>
       ))}

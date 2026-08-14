@@ -1,1 +1,145 @@
 @import "tailwindcss";
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-border-theme: var(--border-color);
+  --radius-theme: var(--border-radius);
+
+  --color-surface: var(--bg-secondary);
+  --color-surface-dim: var(--bg-primary);
+  --color-surface-bright: var(--border-color);
+  --color-surface-container-lowest: var(--bg-primary);
+  --color-surface-container-low: var(--bg-secondary);
+  --color-surface-container: var(--bg-secondary);
+  --color-surface-container-high: var(--border-color);
+  --color-surface-container-highest: var(--border-color);
+  --color-on-surface: var(--text-primary);
+  --color-on-surface-variant: var(--text-secondary);
+  --color-inverse-surface: var(--text-primary);
+  --color-inverse-on-surface: var(--bg-primary);
+  --color-outline: var(--border-color);
+  --color-outline-variant: var(--border-color);
+  --color-surface-tint: var(--accent);
+  --color-primary: var(--accent);
+  --color-on-primary: var(--bg-primary);
+  --color-primary-container: var(--accent);
+  --color-on-primary-container: var(--text-primary);
+  --color-inverse-primary: var(--accent);
+  --color-secondary: var(--bg-secondary);
+  --color-on-secondary: var(--text-primary);
+  --color-secondary-container: var(--bg-secondary);
+  --color-on-secondary-container: var(--text-primary);
+  --color-tertiary: var(--accent);
+  --color-on-tertiary: var(--bg-primary);
+  --color-tertiary-container: var(--accent);
+  --color-on-tertiary-container: var(--text-primary);
+  --color-error: #ff4e4e;
+  --color-on-error: #ffffff;
+  --color-error-container: #4a0000;
+  --color-on-error-container: #ffdad6;
+  
+  --color-background: var(--bg-primary);
+  --color-on-background: var(--text-primary);
+  --color-surface-variant: var(--border-color);
+
+  --font-display-xl: 'Inter', sans-serif;
+  --font-headline-lg: 'Inter', sans-serif;
+  --font-headline-lg-mobile: 'Inter', sans-serif;
+  --font-headline-md: 'Inter', sans-serif;
+  --font-body-lg: 'Inter', sans-serif;
+  --font-body-md: 'Inter', sans-serif;
+  --font-label-bold: 'Inter', sans-serif;
+  
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem; 
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+  
+  --spacing-unit: 4px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 24px;
+  --spacing-stack-lg: 48px;
+}
+
+@layer base {
+  :root, .theme-neon-shinobi {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --accent: #ff4e00;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-radius: 0px;
+  }
+  
+  .theme-minimal-zen {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --accent: #2b2b2b;
+    --border-color: #e9ecef;
+    --border-radius: 8px;
+  }
+  
+  .theme-cyberpunk {
+    --bg-primary: #020204;
+    --bg-secondary: #0a0a12;
+    --text-primary: #00ff41;
+    --text-secondary: #008f11;
+    --accent: #ff00ff;
+    --border-color: #003b00;
+    --border-radius: 4px;
+  }
+  
+  .theme-y2k {
+    --bg-primary: #e6e6fa;
+    --bg-secondary: #ffffff;
+    --text-primary: #ff1493;
+    --text-secondary: #ba55d3;
+    --accent: #00ced1;
+    --border-color: #dda0dd;
+    --border-radius: 24px;
+  }
+  
+  .theme-earth {
+    --bg-primary: #f4ede4;
+    --bg-secondary: #ebdcd0;
+    --text-primary: #4a3f35;
+    --text-secondary: #8c7b6c;
+    --accent: #8b5a2b;
+    --border-color: #d1c0b1;
+    --border-radius: 12px;
+  }
+  
+  .theme-monochrome {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f0f0f0;
+    --text-primary: #000000;
+    --text-secondary: #555555;
+    --accent: #000000;
+    --border-color: #cccccc;
+    --border-radius: 2px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    font-family: var(--font-body-md);
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+}
