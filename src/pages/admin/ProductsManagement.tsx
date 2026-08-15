@@ -125,14 +125,20 @@ export default function ProductsManagement() {
         // 2. Save to Firestore
         const dataToSave: any = {
           ...currentFormData,
-          price: Number(currentFormData.price),
-          costPrice: Number(currentFormData.costPrice),
-          stock: Number(currentFormData.stock),
-          imageUrl: finalImageUrl,
-          imageUrls: finalImageUrls,
-          videoUrl: finalVideoUrl,
-          showInBanner: currentFormData.showInBanner
+          title: currentFormData.title || '',
+          description: currentFormData.description || '',
+          category: (currentFormData.category || '').trim(),
+          price: Number(currentFormData.price) || 0,
+          costPrice: Number(currentFormData.costPrice) || 0,
+          stock: Number(currentFormData.stock) || 0,
+          imageUrl: finalImageUrl || '',
+          imageUrls: finalImageUrls || [],
+          videoUrl: finalVideoUrl || '',
+          showInBanner: Boolean(currentFormData.showInBanner)
         };
+        
+        // Remove undefined values to prevent Firestore crash
+        Object.keys(dataToSave).forEach(key => dataToSave[key] === undefined && delete dataToSave[key]);
 
         if (currentEditingId) {
           await updateDoc(doc(db, 'products', currentEditingId), dataToSave);
@@ -155,13 +161,13 @@ export default function ProductsManagement() {
 
   const openEdit = (product: Product) => {
     setFormData({
-      title: product.title,
-      description: product.description,
-      price: product.price.toString(),
+      title: product.title || '',
+      description: product.description || '',
+      price: product.price?.toString() || '0',
       costPrice: (product.costPrice || 0).toString(),
-      stock: product.stock.toString(),
-      category: product.category,
-      imageUrl: product.imageUrl,
+      stock: product.stock?.toString() || '0',
+      category: product.category || '',
+      imageUrl: product.imageUrl || '',
       imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : []),
       videoUrl: product.videoUrl || '',
       showInBanner: product.showInBanner || false

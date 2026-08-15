@@ -279,7 +279,7 @@ export default function Home() {
 
   const filteredProducts = activeCategory === "All" 
     ? products 
-    : products.filter(p => p.category?.toLowerCase() === activeCategory.toLowerCase());
+    : products.filter(p => (p.category || '').trim().toLowerCase() === activeCategory.trim().toLowerCase());
 
   // Simulate Best Sellers and New Arrivals by splitting the array
   const bestSellers = filteredProducts.slice(0, 4);
