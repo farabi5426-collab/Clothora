@@ -165,7 +165,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [heroIndex, setHeroIndex] = useState(0);
-  const [heroVideos, setHeroVideos] = useState<{id: string, url: string}[]>([]);
+  const [heroDbVideos, setHeroDbVideos] = useState<{id: string, url: string}[]>([]);
+  const [productBannerVideos, setProductBannerVideos] = useState<{id: string, url: string}[]>([]);
+  const heroVideos = [...heroDbVideos, ...productBannerVideos];
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [flyingImages, setFlyingImages] = useState<{id: number, src: string, startX: number, startY: number}[]>([]);
@@ -224,9 +226,24 @@ export default function Home() {
     const unsubV = onSnapshot(vq, (snapshot) => {
       const vids: {id: string, url: string}[] = [];
       snapshot.forEach(doc => vids.push({ id: doc.id, url: doc.data().url }));
-      setHeroVideos(vids);
+      setHeroDbVideos(vids);
     });
     return () => unsubV();
+  }, []);
+
+  useEffect(() => {
+    const pq = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubP = onSnapshot(pq, (snapshot) => {
+      const pVids: {id: string, url: string}[] = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.showInBanner && data.videoUrl) {
+          pVids.push({ id: doc.id, url: data.videoUrl });
+        }
+      });
+      setProductBannerVideos(pVids);
+    });
+    return () => unsubP();
   }, []);
 
   useEffect(() => {
@@ -248,6 +265,7 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
+  
   const filteredProducts = activeCategory === "All" 
     ? products 
     : products.filter(p => p.category?.toLowerCase() === activeCategory.toLowerCase());

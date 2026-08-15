@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
-import { collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, query, orderBy } from 'firebase/firestore';
 import { Trash2, Video, Plus, X, UploadCloud } from 'lucide-react';
 
 interface BannerVideo {
   id: string;
   url: string;
   createdAt: any;
+  source?: "hero" | "product";
+  productId?: string;
 }
 
 export default function BannersManagement() {
-  const [videos, setVideos] = useState<BannerVideo[]>([]);
+  const [heroVideos, setHeroVideos] = useState<BannerVideo[]>([]);
+  const [productVideos, setProductVideos] = useState<BannerVideo[]>([]);
+  const videos = [...heroVideos, ...productVideos];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
@@ -20,10 +24,25 @@ export default function BannersManagement() {
     const q = query(collection(db, 'heroVideos'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const vids: BannerVideo[] = [];
-      snapshot.forEach((doc) => vids.push({ id: doc.id, ...doc.data() } as BannerVideo));
-      setVideos(vids);
+      snapshot.forEach((doc) => vids.push({ id: doc.id, ...doc.data(), source: "hero" } as BannerVideo));
+      setHeroVideos(vids);
     });
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const pq = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubP = onSnapshot(pq, (snapshot) => {
+      const pVids: BannerVideo[] = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.showInBanner && data.videoUrl) {
+          pVids.push({ id: doc.id + '_product', url: data.videoUrl, createdAt: data.createdAt, source: "product", productId: doc.id });
+        }
+      });
+      setProductVideos(pVids);
+    });
+    return () => unsubP();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,9 +90,13 @@ export default function BannersManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this video?')) {
-      await deleteDoc(doc(db, 'heroVideos', id));
+  const handleDelete = async (video: BannerVideo) => {
+    if (window.confirm('Are you sure you want to delete this video from the banner?')) {
+      if (video.source === 'product' && video.productId) {
+         await updateDoc(doc(db, 'products', video.productId), { showInBanner: false });
+      } else {
+         await deleteDoc(doc(db, 'heroVideos', video.id));
+      }
     }
   };
 
@@ -118,9 +141,12 @@ export default function BannersManagement() {
                 </td>
                 <td className="p-4 text-xs tracking-widest text-on-surface-variant max-w-xs truncate" title={video.url}>
                   {video.url}
+                  {video.source === 'product' && (
+                    <span className="ml-2 bg-primary/20 text-primary px-2 py-1 text-[10px] rounded-full">Product</span>
+                  )}
                 </td>
                 <td className="p-4 flex justify-end gap-3 h-full items-center pt-8">
-                  <button onClick={() => handleDelete(video.id)} className="text-on-surface-variant hover:text-red-500 transition-colors">
+                  <button onClick={() => handleDelete(video)} className="text-on-surface-variant hover:text-red-500 transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </td>

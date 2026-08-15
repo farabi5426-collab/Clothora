@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useCartStore } from '../../store/cartStore';
-import { ShoppingCart, ArrowLeft, Copy, Check } from 'lucide-react';
+import {  ShoppingCart, ArrowLeft, Copy, Check , Video } from 'lucide-react';
 import { motion } from 'motion/react';
 import toast from 'react-hot-toast';
 
@@ -16,6 +16,7 @@ interface Product {
   stock: number;
   description?: string;
   imageUrls?: string[];
+  videoUrl?: string;
 }
 
 export default function ProductPage() {
@@ -23,6 +24,10 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  useEffect(() => {
+    // if we just loaded product and it has videoUrl, maybe default to video?
+    // setActiveImageIndex(0);
+  }, [product]);
   const [copied, setCopied] = useState(false);
   const { addToCart } = useCartStore();
 
@@ -92,20 +97,36 @@ export default function ProductPage() {
                 {copied ? 'Copied' : 'Copy Link'}
               </button>
             </div>
-            <div className="w-full aspect-[3/4] relative border border-outline-variant mt-10 sm:mt-0">
-              <img 
-                src={product.imageUrls?.[activeImageIndex] || product.imageUrl} 
-                alt={product.title}
-                className="w-full h-full object-cover"
-              />
+            <div className="w-full aspect-[3/4] relative border border-outline-variant mt-10 sm:mt-0 bg-surface-container-lowest">
+              {activeImageIndex === -1 && product.videoUrl ? (
+                <video src={product.videoUrl} className="w-full h-full object-cover" autoPlay loop muted playsInline controls />
+              ) : (
+                <img 
+                  src={product.imageUrls?.[activeImageIndex] || product.imageUrl} 
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
-            {product.imageUrls && product.imageUrls.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {product.imageUrls.map((url, idx) => (
+            
+            {(product.imageUrls || product.videoUrl) && (
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-2">
+                {product.videoUrl && (
+                  <button 
+                    onClick={() => setActiveImageIndex(-1)}
+                    className={`w-20 h-24 flex-shrink-0 border transition-all relative overflow-hidden bg-black ${activeImageIndex === -1 ? 'border-primary opacity-100' : 'border-outline-variant opacity-60 hover:opacity-100'}`}
+                  >
+                    <video src={product.videoUrl} className="w-full h-full object-cover opacity-50" muted playsInline />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Video className="w-6 h-6 text-white drop-shadow-md" />
+                    </div>
+                  </button>
+                )}
+                {product.imageUrls && product.imageUrls.map((url, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`w-20 h-24 flex-shrink-0 border transition-all ${activeImageIndex === idx ? 'border-primary opacity-100' : 'border-outline-variant opacity-50 hover:opacity-100'}`}
+                    className={`w-20 h-24 flex-shrink-0 border transition-all overflow-hidden ${activeImageIndex === idx ? 'border-primary opacity-100' : 'border-outline-variant opacity-60 hover:opacity-100'}`}
                   >
                     <img src={url} alt={`${product.title} ${idx+1}`} className="w-full h-full object-cover" />
                   </button>

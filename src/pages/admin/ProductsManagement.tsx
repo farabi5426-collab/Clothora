@@ -13,15 +13,18 @@ interface Product {
   category: string;
   imageUrl: string;
   imageUrls?: string[];
+  videoUrl?: string;
+  showInBanner?: boolean;
 }
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[]
+    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[], videoUrl: '', showInBanner: false
   });
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export default function ProductsManagement() {
     // Capture values before closing the modal
     const currentFormData = { ...formData };
     const currentSelectedFiles = [...selectedFiles];
+    const currentSelectedVideo = selectedVideo;
     const currentEditingId = editingId;
 
     // Instantly close the form and reset so the user isn't blocked
@@ -90,6 +94,20 @@ export default function ProductsManagement() {
            finalImageUrl = finalImageUrls[0];
         }
 
+        let finalVideoUrl = currentFormData.videoUrl;
+        if (currentSelectedVideo) {
+          const uploadData = new FormData();
+          uploadData.append('file', currentSelectedVideo);
+          uploadData.append('upload_preset', 'kwxslhnw');
+          const res = await fetch('https://api.cloudinary.com/v1_1/dzsiqw51v/video/upload', {
+            method: 'POST',
+            body: uploadData
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error?.message || 'Failed to upload video');
+          finalVideoUrl = data.secure_url;
+        }
+
         // 2. Save to Firestore
         const dataToSave: any = {
           ...currentFormData,
@@ -97,7 +115,9 @@ export default function ProductsManagement() {
           costPrice: Number(currentFormData.costPrice),
           stock: Number(currentFormData.stock),
           imageUrl: finalImageUrl,
-          imageUrls: finalImageUrls
+          imageUrls: finalImageUrls,
+          videoUrl: finalVideoUrl,
+          showInBanner: currentFormData.showInBanner
         };
 
         if (currentEditingId) {
@@ -128,16 +148,20 @@ export default function ProductsManagement() {
       stock: product.stock.toString(),
       category: product.category,
       imageUrl: product.imageUrl,
-      imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])
+      imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : []),
+      videoUrl: product.videoUrl || '',
+      showInBanner: product.showInBanner || false
     });
     setEditingId(product.id);
     setSelectedFiles([]);
+    setSelectedVideo(null);
     setIsModalOpen(true);
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] });
+    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [], videoUrl: '', showInBanner: false });
     setEditingId(null);
+    setSelectedVideo(null);
     setSelectedFiles([]);
   };
 
@@ -300,6 +324,64 @@ export default function ProductsManagement() {
                         </p>
                       )}
                     </div>
+                  </div>
+                </div>
+
+                {/* Video Upload Section */}
+                <div className="col-span-2 border border-outline-variant p-4 bg-surface-container/50 mt-4">
+                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-4">Product Video</label>
+                  
+                  {formData.videoUrl && (
+                    <div className="mb-4 relative w-32 h-20 border border-outline-variant group">
+                       <video src={formData.videoUrl} className="w-full h-full object-cover" muted playsInline />
+                       <button 
+                          type="button" 
+                          onClick={() => setFormData({...formData, videoUrl: ''})}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          title="Remove video"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Video URL (Optional)</label>
+                      <input 
+                        value={formData.videoUrl} 
+                        onChange={e => setFormData({...formData, videoUrl: e.target.value})} 
+                        placeholder="https://..." 
+                        className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none transition-colors" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">OR Upload Video File</label>
+                      <input 
+                        type="file" 
+                        accept="video/*"
+                        onChange={e => setSelectedVideo(e.target.files ? e.target.files[0] : null)}
+                        className="w-full bg-surface-container-low border border-outline-variant p-2 text-on-background focus:border-primary outline-none transition-colors file:mr-4 file:py-1.5 file:px-4 file:border-0 file:text-xs file:font-bold file:bg-surface-container file:text-on-background hover:file:bg-surface-container-high cursor-pointer" 
+                      />
+                      {selectedVideo && (
+                        <p className="text-xs text-primary font-bold mt-2">
+                          1 video selected (will be added on save)
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 flex items-center gap-2">
+                     <input 
+                        type="checkbox" 
+                        id="showInBanner"
+                        checked={formData.showInBanner}
+                        onChange={e => setFormData({...formData, showInBanner: e.target.checked})}
+                        className="w-4 h-4 accent-primary"
+                     />
+                     <label htmlFor="showInBanner" className="text-xs uppercase tracking-widest text-on-background font-bold cursor-pointer">
+                       Show this video in Homepage Banner
+                     </label>
                   </div>
                 </div>
               </div>
