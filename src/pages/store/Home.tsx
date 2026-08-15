@@ -337,11 +337,7 @@ export default function Home() {
         <div className="w-full md:w-1/2 flex justify-center md:justify-end items-center h-auto mt-8 md:mt-0">
           {heroVideos.length > 0 ? (
             <div className="relative w-full max-w-[280px] sm:max-w-[360px] md:max-w-[400px] aspect-[3/4] overflow-visible">
-              {/* Glowing animated border effect */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-primary via-[#ff8800] to-primary rounded-[2rem] opacity-70 blur-md animate-pulse"></div>
-              <div className="absolute -inset-1 bg-gradient-to-tr from-primary to-transparent rounded-[2rem] animate-[spin_4s_linear_infinite] opacity-50"></div>
-              
-              <div className="absolute inset-0 bg-surface-container-lowest border-2 border-primary/50 shadow-[0_0_30px_var(--color-primary)] overflow-hidden rounded-[2rem] z-10">
+              <div className="absolute inset-0 bg-surface-container-lowest border-2 border-primary shadow-[12px_12px_0px_var(--color-primary)] overflow-hidden rounded-none z-10">
                 <AnimatePresence mode="wait">
                   <motion.video 
                     key={currentVideoIndex}
@@ -364,7 +360,7 @@ export default function Home() {
                     {heroVideos.map((_, idx) => (
                       <div 
                         key={idx} 
-                        className={`h-1.5 transition-all duration-300 ${idx === currentVideoIndex ? 'w-6 bg-primary' : 'w-2 bg-white/50'}`} 
+                        className={`h-1.5 transition-all duration-300 ${idx === currentVideoIndex ? 'w-6 bg-primary' : 'w-2 bg-white/50'} rounded-none`} 
                       />
                     ))}
                   </div>
