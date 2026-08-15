@@ -3,6 +3,7 @@ import { db } from '../../lib/firebase';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { useCartStore } from '../../store/cartStore';
 import { Truck, CreditCard, RefreshCw, Star, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Product {
   id: string;
@@ -12,6 +13,39 @@ interface Product {
   category: string;
   stock: number;
 }
+
+const HERO_CONTENT = [
+  {
+    prefix: "ELEVATE YOUR",
+    highlight: "STREETWEAR",
+    description: "PREMIUM OVERSIZED STREETWEAR, ANIME-INSPIRED DESIGNS, AND GRAPHIC APPAREL CRAFTED FOR THOSE WHO DARE TO STAND OUT."
+  },
+  {
+    prefix: "DEFINE YOUR",
+    highlight: "AESTHETIC",
+    description: "BOLD SILHOUETTES AND UNCOMPROMISING QUALITY. DISCOVER STATEMENT PIECES THAT SPEAK VOLUMES WITHOUT SAYING A WORD."
+  },
+  {
+    prefix: "OWN THE",
+    highlight: "NARRATIVE",
+    description: "FASHION IS MORE THAN CLOTHING; IT'S YOUR PERSONAL STORY. EXPRESS YOURSELF WITH OUR LATEST AVANT-GARDE DROPS."
+  },
+  {
+    prefix: "EMBRACE THE",
+    highlight: "UNCONVENTIONAL",
+    description: "BREAK THE RULES OF TRADITIONAL FASHION. EXPERIMENT WITH TEXTURES, LAYERS, AND DESIGNS THAT DEFY THE NORM."
+  },
+  {
+    prefix: "CRAFT YOUR",
+    highlight: "IDENTITY",
+    description: "FROM EVERYDAY ESSENTIALS TO EXCLUSIVE CAPSULES, BUILD A WARDROBE THAT IS UNAPOLOGETICALLY YOU."
+  },
+  {
+    prefix: "CHANNEL YOUR",
+    highlight: "ENERGY",
+    description: "HIGH-IMPACT GRAPHICS AND PREMIUM FABRICS ENGINEERED TO MATCH YOUR HUSTLE AND AMPLIFY YOUR PRESENCE."
+  }
+];
 
 const CATEGORIES = ["All", "Oversized Tees", "Anime Collection", "Accessories"];
 
@@ -26,6 +60,14 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const heroInterval = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % HERO_CONTENT.length);
+    }, 5000);
+    return () => clearInterval(heroInterval);
+  }, []);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(12));
@@ -109,13 +151,35 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
         </div>
         <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 md:px-16 pt-24 pb-32 flex flex-col justify-end min-h-[70vh]">
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-none mb-6 drop-shadow-2xl">
-            ELEVATE YOUR<br />
-            <span className="text-[#ff4e00]">STREETWEAR</span>
-          </h1>
-          <p className="text-base md:text-xl text-[#ffffff80] max-w-[650px] mb-12 font-bold drop-shadow-lg leading-relaxed">
-            PREMIUM OVERSIZED STREETWEAR, ANIME-INSPIRED DESIGNS, AND GRAPHIC APPAREL CRAFTED FOR THOSE WHO DARE TO STAND OUT. DISCOVER OUR LATEST DROPS.
-          </p>
+          <div className="h-[90px] sm:h-[110px] md:h-[160px] lg:h-[200px] relative mb-6">
+            <AnimatePresence mode="wait">
+              <motion.h1
+                key={heroIndex}
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -30, opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="absolute left-0 top-0 text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-none drop-shadow-2xl flex flex-col w-full"
+              >
+                <span>{HERO_CONTENT[heroIndex].prefix}</span>
+                <span className="text-[#ff4e00] mt-1 sm:mt-2">{HERO_CONTENT[heroIndex].highlight}</span>
+              </motion.h1>
+            </AnimatePresence>
+          </div>
+          <div className="min-h-[140px] sm:min-h-[100px] relative mb-12 max-w-[650px]">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={heroIndex}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.5 }}
+                className="absolute left-0 top-0 text-base md:text-xl text-[#ffffff80] font-bold drop-shadow-lg leading-relaxed"
+              >
+                {HERO_CONTENT[heroIndex].description}
+              </motion.p>
+            </AnimatePresence>
+          </div>
           <div className="flex flex-col sm:flex-row flex-wrap gap-4">
             <a href="#shop" className="w-full sm:w-auto justify-center bg-[#ff4e00] text-white px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ffffff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ffffff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
               SHOP NEW DROPS <ArrowRight className="w-5 h-5" />
