@@ -23,7 +23,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+export const db = initializeFirestore(app, { experimentalForceLongPolling: true }, "ai-studio-clothora-036904d7-3e54-49fd-8153-c3b75b405ae1");
 export const googleProvider = new GoogleAuthProvider();
 
 // Suppress Firestore offline warnings which can spam the console in constrained environments
