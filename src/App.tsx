@@ -22,6 +22,7 @@ import ThemeManagement from './pages/admin/ThemeManagement';
 import LayoutManagement from './pages/admin/LayoutManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
+import ProductPage from './pages/store/ProductPage';
 import { Toaster } from 'react-hot-toast';
 import CustomerDashboard from './pages/store/CustomerDashboard';
 import StoreLayout from './layouts/store/StoreLayout';
@@ -47,6 +48,7 @@ export default function App() {
         {/* Public Storefront */}
         <Route element={<StoreLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<CustomerDashboard />} />
         </Route>
