@@ -50,7 +50,6 @@ const HERO_CONTENT = [
   }
 ];
 
-const CATEGORIES = ["All", "Oversized Tees", "Anime Collection", "Accessories"];
 
 const REVIEWS = [
   { id: 1, name: "Rakib H.", rating: 5, text: "The acid wash tee is insanely good. Heavyweight material just like they promised." },
@@ -162,6 +161,7 @@ export default function Home() {
 
   const { addToCart } = useCartStore();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [heroIndex, setHeroIndex] = useState(0);
@@ -255,7 +255,7 @@ export default function Home() {
   }, [heroVideos.length]);
 
   useEffect(() => {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(12));
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const prods: Product[] = [];
       snapshot.forEach((doc) => prods.push({ id: doc.id, ...doc.data() } as Product));
@@ -266,6 +266,17 @@ export default function Home() {
   }, []);
 
   
+  
+  useEffect(() => {
+    const cq = query(collection(db, 'categories'), orderBy('name', 'asc'));
+    const unsubC = onSnapshot(cq, (snapshot) => {
+      const cats: {id: string, name: string}[] = [];
+      snapshot.forEach(doc => cats.push({ id: doc.id, ...doc.data() } as any));
+      setCategories(cats);
+    });
+    return () => unsubC();
+  }, []);
+
   const filteredProducts = activeCategory === "All" 
     ? products 
     : products.filter(p => p.category?.toLowerCase() === activeCategory.toLowerCase());
@@ -406,17 +417,17 @@ export default function Home() {
       {/* Category Navigation (Pills) */}
       <section className="w-full max-w-[1920px] mx-auto px-4 md:px-16 pt-16" id="shop">
         <div className="flex flex-wrap items-center justify-center gap-3">
-          {CATEGORIES.map(cat => (
+          {[ {id: 'all', name: 'All'}, ...categories ].map(cat => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.name)}
               className={`px-6 py-2 rounded-full border border-outline-variant text-xs md:text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
-                activeCategory === cat 
+                activeCategory === cat.name 
                   ? 'bg-primary text-on-background border-primary shadow-[0_0_15px_var(--color-primary)]' 
                   : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-background hover:border-primary hover:shadow-[0_0_10px_var(--color-primary)]'
               }`}
             >
-              {cat}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -425,8 +436,25 @@ export default function Home() {
       {/* Product Discovery: Best Sellers & New Arrivals */}
       <section className="w-full max-w-[1920px] mx-auto px-4 md:px-16 py-16 space-y-24">
         
-        {/* Best Sellers */}
-        {bestSellers.length > 0 && (
+        {/* Category View */}
+        {activeCategory !== 'All' && filteredProducts.length > 0 && (
+          <div>
+            <div className="flex justify-between items-end mb-10 border-b border-outline-variant pb-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-black text-on-background uppercase tracking-tighter leading-none flex items-center gap-3">
+                  {activeCategory}
+                </h2>
+                <p className="text-xs text-primary font-bold uppercase tracking-[0.1em] mt-2">Explore the collection</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {filteredProducts.map(renderProductCard)}
+            </div>
+          </div>
+        )}
+
+        {/* Best Sellers (Only in All) */}
+        {activeCategory === 'All' && bestSellers.length > 0 && (
           <div>
             <div className="flex justify-between items-end mb-10 border-b border-outline-variant pb-4">
               <div>
@@ -451,7 +479,7 @@ export default function Home() {
         )}
 
         {/* New Arrivals */}
-        {newArrivals.length > 0 && (
+        {activeCategory === 'All' && newArrivals.length > 0 && (
           <div>
             <div className="flex justify-between items-end mb-10 border-b border-outline-variant pb-4">
               <div>
