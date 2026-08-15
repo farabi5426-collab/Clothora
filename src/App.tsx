@@ -20,6 +20,7 @@ import PromoCodesManagement from './pages/admin/PromoCodesManagement';
 import DeliveryManagement from './pages/admin/DeliveryManagement';
 import ThemeManagement from './pages/admin/ThemeManagement';
 import LayoutManagement from './pages/admin/LayoutManagement';
+import BannersManagement from './pages/admin/BannersManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
 import ProductPage from './pages/store/ProductPage';
@@ -64,6 +65,7 @@ export default function App() {
           <Route path="delivery" element={<DeliveryManagement />} />
           <Route path="themes" element={<ThemeManagement />} />
           <Route path="layouts" element={<LayoutManagement />} />
+          <Route path="banners" element={<BannersManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>
