@@ -35,7 +35,7 @@ export default function CartDrawer() {
   return (
     <>
       <div 
-        className={`fixed inset-0 bg-[#0e0e0e]/80 backdrop-blur-sm z-[100] transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={toggleCart}
       />
       

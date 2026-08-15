@@ -55,7 +55,7 @@ export default function Login() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-primary flex items-center justify-center shadow-[4px_4px_0px_#5c1900] border-2 border-surface-bright">
+          <div className="w-16 h-16 bg-primary flex items-center justify-center shadow-[4px_4px_0px_var(--color-on-background)] border-2 border-surface-bright">
             <ShoppingBag className="w-8 h-8 text-on-primary" />
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-4 px-4 border-2 border-primary text-xs font-bold uppercase tracking-widest text-on-primary bg-primary hover:bg-[#e64600] transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[4px_4px_0px_#5c1900] hover:shadow-[2px_2px_0px_#5c1900] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:opacity-50"
+              className="w-full flex justify-center py-4 px-4 border-2 border-primary text-xs font-bold uppercase tracking-widest text-on-primary bg-primary hover:bg-primary-container transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[4px_4px_0px_var(--color-on-background)] hover:shadow-[2px_2px_0px_var(--color-on-background)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:opacity-50"
             >
               {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
@@ -146,7 +146,7 @@ export default function Login() {
                 onClick={loginWithGoogle}
                 disabled={loading}
                 type="button"
-                className="w-full flex justify-center py-4 px-4 border-2 border-surface-bright text-xs font-bold uppercase tracking-widest text-on-surface bg-surface-container-high hover:bg-primary hover:text-on-primary hover:border-primary transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[4px_4px_0px_#5c1900] hover:shadow-[2px_2px_0px_#5c1900] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:opacity-50"
+                className="w-full flex justify-center py-4 px-4 border-2 border-surface-bright text-xs font-bold uppercase tracking-widest text-on-surface bg-surface-container-high hover:bg-primary hover:text-on-primary hover:border-primary transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[4px_4px_0px_var(--color-on-background)] hover:shadow-[2px_2px_0px_var(--color-on-background)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:opacity-50"
               >
                 <img 
                   src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 

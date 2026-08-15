@@ -80,11 +80,11 @@ export default function NoticesManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Notices</h1>
-          <p className="text-xs text-[#ffffff60] uppercase tracking-widest">Store announcements</p>
+          <p className="text-xs text-on-surface-variant uppercase tracking-widest">Store announcements</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#ff4e00] hover:bg-[#e64600] text-white px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
+          className="bg-primary hover:bg-primary-container text-on-background px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add Notice
         </button>
@@ -92,21 +92,21 @@ export default function NoticesManagement() {
       
       <div className="grid grid-cols-1 gap-4">
         {notices.map((notice) => (
-          <div key={notice.id} className="bg-[#111] border border-[#ffffff15] p-6 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+          <div key={notice.id} className="bg-surface-container-lowest border border-outline-variant p-6 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-3">
                 <h3 className="font-black text-xl uppercase tracking-tight">{notice.title}</h3>
-                <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${notice.isActive ? 'bg-[#ff4e00]/20 text-[#ff4e00]' : 'bg-zinc-800 text-zinc-400'}`}>
+                <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${notice.isActive ? 'bg-primary/20 text-primary' : 'bg-zinc-800 text-zinc-400'}`}>
                   {notice.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              <p className="text-[#ffffff80] text-sm">{notice.content}</p>
+              <p className="text-on-surface-variant text-sm">{notice.content}</p>
               {notice.imageUrl && (
-                <img src={notice.imageUrl} alt="Notice" className="h-20 w-auto object-cover border border-[#ffffff15] mt-2" />
+                <img src={notice.imageUrl} alt="Notice" className="h-20 w-auto object-cover border border-outline-variant mt-2" />
               )}
             </div>
             <div className="flex gap-4">
-              <button onClick={() => toggleActive(notice.id, notice.isActive)} className="text-xs uppercase font-bold tracking-widest text-white border border-[#ffffff15] px-4 py-2 hover:bg-[#ffffff0a]">
+              <button onClick={() => toggleActive(notice.id, notice.isActive)} className="text-xs uppercase font-bold tracking-widest text-on-background border border-outline-variant px-4 py-2 hover:bg-surface-container">
                 Toggle Status
               </button>
               <button onClick={() => handleDelete(notice.id)} className="text-red-500 border border-red-500/20 px-4 py-2 hover:bg-red-500/10">
@@ -116,7 +116,7 @@ export default function NoticesManagement() {
           </div>
         ))}
         {notices.length === 0 && (
-          <div className="bg-[#111] border border-[#ffffff15] p-12 text-center text-[#ffffff60] uppercase tracking-widest text-xs font-bold">
+          <div className="bg-surface-container-lowest border border-outline-variant p-12 text-center text-on-surface-variant uppercase tracking-widest text-xs font-bold">
             No notices published.
           </div>
         )}
@@ -124,30 +124,30 @@ export default function NoticesManagement() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111] border border-[#ffffff15] w-full max-w-lg p-8">
+          <div className="bg-surface-container-lowest border border-outline-variant w-full max-w-lg p-8">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black uppercase tracking-widest">Create Notice</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#ffffff60] hover:text-white">
+              <button onClick={() => setIsModalOpen(false)} className="text-on-surface-variant hover:text-on-background">
                 <X className="w-6 h-6" />
               </button>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Title</label>
-                <input required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none" />
+                <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Title</label>
+                <input required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">Content</label>
-                <textarea required rows={3} value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none" />
+                <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Content</label>
+                <textarea required rows={3} value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
               </div>
               
               <div className="space-y-2">
-                <label className="block text-xs uppercase tracking-widest text-[#ffffff60]">Image (Optional)</label>
+                <label className="block text-xs uppercase tracking-widest text-on-surface-variant">Image (Optional)</label>
                 <div className="flex gap-4 items-center">
-                  <label className="cursor-pointer bg-[#1a1a1a] border border-[#ffffff15] hover:border-[#ff4e00] p-3 flex-1 flex justify-center items-center gap-2 transition-colors">
-                    <Upload className="w-4 h-4 text-[#ffffff60]" />
-                    <span className="text-xs uppercase tracking-widest text-[#ffffff60]">
+                  <label className="cursor-pointer bg-surface-container-low border border-outline-variant hover:border-primary p-3 flex-1 flex justify-center items-center gap-2 transition-colors">
+                    <Upload className="w-4 h-4 text-on-surface-variant" />
+                    <span className="text-xs uppercase tracking-widest text-on-surface-variant">
                       {selectedFile ? selectedFile.name : 'Upload File'}
                     </span>
                     <input type="file" accept="image/*" className="hidden" onChange={e => {
@@ -157,11 +157,11 @@ export default function NoticesManagement() {
                     }} />
                   </label>
                 </div>
-                <div className="text-center text-[#ffffff40] text-[10px] uppercase tracking-widest font-bold">OR PASTE URL</div>
-                <input placeholder="https://..." value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none text-xs" />
+                <div className="text-center text-on-surface-variant text-[10px] uppercase tracking-widest font-bold">OR PASTE URL</div>
+                <input placeholder="https://..." value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none text-xs" />
               </div>
 
-              <button type="submit" className="w-full bg-[#ff4e00] hover:bg-[#e64600] text-white p-4 text-xs font-bold uppercase tracking-widest mt-6">
+              <button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-background p-4 text-xs font-bold uppercase tracking-widest mt-6">
                 Publish Notice
               </button>
             </form>

@@ -44,45 +44,45 @@ export default function DeliveryManagement() {
   };
 
   if (loading) {
-    return <div className="text-white">Loading...</div>;
+    return <div className="text-on-background">Loading...</div>;
   }
 
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Delivery Charges</h1>
-        <p className="text-xs text-[#ffffff60] uppercase tracking-widest">Manage shipping costs applied at checkout</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-widest">Manage shipping costs applied at checkout</p>
       </div>
 
-      <div className="bg-[#111] border border-[#ffffff15] p-8 space-y-6">
+      <div className="bg-surface-container-lowest border border-outline-variant p-8 space-y-6">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-[#ffffff80] mb-2">
+          <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
             Inside Dhaka Charge (৳)
           </label>
           <input
             type="number"
             value={insideDhaka}
             onChange={(e) => setInsideDhaka(Number(e.target.value))}
-            className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-4 text-white font-bold outline-none focus:border-[#ff4e00] transition-colors"
+            className="w-full bg-surface-container-low border border-outline-variant p-4 text-on-background font-bold outline-none focus:border-primary transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-[#ffffff80] mb-2">
+          <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
             Outside Dhaka Charge (৳)
           </label>
           <input
             type="number"
             value={outsideDhaka}
             onChange={(e) => setOutsideDhaka(Number(e.target.value))}
-            className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-4 text-white font-bold outline-none focus:border-[#ff4e00] transition-colors"
+            className="w-full bg-surface-container-low border border-outline-variant p-4 text-on-background font-bold outline-none focus:border-primary transition-colors"
           />
         </div>
 
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center justify-center gap-2 w-full bg-[#ff4e00] hover:bg-[#e64600] text-white p-4 text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+          className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-container text-on-background p-4 text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {saving ? 'Saving...' : 'Save Settings'}

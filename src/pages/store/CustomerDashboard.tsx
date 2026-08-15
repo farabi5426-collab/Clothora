@@ -74,7 +74,7 @@ export default function CustomerDashboard() {
             <div className="text-center py-[64px] bg-surface-container-low border-2 border-surface-bright p-[24px]">
               <span className="material-symbols-outlined text-[64px] text-on-surface-variant opacity-50 mb-[16px]">inventory_2</span>
               <p className="text-on-surface-variant font-bold uppercase tracking-[0.1em] text-[14px]">NO ORDERS PLACED YET.</p>
-              <Link to="/" className="inline-block mt-[24px] bg-primary text-on-primary px-[32px] py-[16px] text-[14px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_#5c1900] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#5c1900] transition-all">START SHOPPING</Link>
+              <Link to="/" className="inline-block mt-[24px] bg-primary text-on-primary px-[32px] py-[16px] text-[14px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-background)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-background)] transition-all">START SHOPPING</Link>
             </div>
           ) : (
             <div className="space-y-[24px]">
@@ -92,8 +92,8 @@ export default function CustomerDashboard() {
                     <div className="flex items-center gap-[12px] mb-[8px]">
                       <span className="text-on-surface-variant text-[14px] font-black uppercase tracking-[0.1em]">ORDER #{order.id.slice(0, 8)}</span>
                       <span className={`px-[12px] py-[4px] text-[10px] font-black uppercase tracking-[0.1em] border-2 ${
-                        order.status === 'Delivered' ? 'bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]' :
-                        order.status === 'Shipped' ? 'bg-[#60a5fa]/10 text-[#60a5fa] border-[#60a5fa]' :
+                        order.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border-green-500' :
+                        order.status === 'Shipped' ? 'bg-blue-500/10 text-blue-500 border-blue-500' :
                         'bg-primary-container/10 text-primary border-primary'
                       }`}>
                         {order.status}

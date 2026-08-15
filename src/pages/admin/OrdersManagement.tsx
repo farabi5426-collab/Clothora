@@ -56,43 +56,43 @@ export default function OrdersManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Orders</h1>
-          <p className="text-xs text-[#ffffff60] uppercase tracking-widest">Customer purchases</p>
+          <p className="text-xs text-on-surface-variant uppercase tracking-widest">Customer purchases</p>
         </div>
       </div>
       
-      <div className="bg-[#111] border border-[#ffffff15] overflow-x-auto">
+      <div className="bg-surface-container-lowest border border-outline-variant overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[#ffffff15]">
-              <th className="p-4 text-xs font-bold uppercase tracking-widest text-[#ffffff60]">Order ID</th>
-              <th className="p-4 text-xs font-bold uppercase tracking-widest text-[#ffffff60]">Customer Details</th>
-              <th className="p-4 text-xs font-bold uppercase tracking-widest text-[#ffffff60]">Items</th>
-              <th className="p-4 text-xs font-bold uppercase tracking-widest text-[#ffffff60]">Total</th>
-              <th className="p-4 text-xs font-bold uppercase tracking-widest text-[#ffffff60]">Status</th>
+            <tr className="border-b border-outline-variant">
+              <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Order ID</th>
+              <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Customer Details</th>
+              <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Items</th>
+              <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total</th>
+              <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Status</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="border-b border-[#ffffff0a] hover:bg-[#ffffff05] transition-colors">
-                <td className="p-4 text-xs uppercase tracking-widest text-[#ffffff80] font-mono">{order.id.slice(0, 8)}...</td>
+              <tr key={order.id} className="border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors">
+                <td className="p-4 text-xs uppercase tracking-widest text-on-surface-variant font-mono">{order.id.slice(0, 8)}...</td>
                 <td className="p-4">
                   <div className="text-sm font-bold uppercase mb-1">{order.customerDetails?.name || 'Unknown'}</div>
-                  <div className="text-xs text-[#ffffff60]">{order.customerDetails?.phone}</div>
-                  <div className="text-xs text-[#ffffff60] max-w-[200px] truncate" title={order.customerDetails?.address}>{order.customerDetails?.address}</div>
+                  <div className="text-xs text-on-surface-variant">{order.customerDetails?.phone}</div>
+                  <div className="text-xs text-on-surface-variant max-w-[200px] truncate" title={order.customerDetails?.address}>{order.customerDetails?.address}</div>
                 </td>
                 <td className="p-4">
-                  <div className="text-xs text-[#ffffff80] max-w-[200px]">
+                  <div className="text-xs text-on-surface-variant max-w-[200px]">
                     {order.items?.map((item, idx) => (
                       <div key={idx} className="truncate">{item.quantity}x {item.title}</div>
                     ))}
                   </div>
                 </td>
-                <td className="p-4 text-[#ff4e00] font-bold">৳ {order.totalAmount}</td>
+                <td className="p-4 text-primary font-bold">৳ {order.totalAmount}</td>
                 <td className="p-4">
                   <select 
                     value={order.status}
                     onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className="bg-[#1a1a1a] border border-[#ffffff15] p-2 text-xs font-bold uppercase tracking-widest text-white focus:border-[#ff4e00] outline-none cursor-pointer w-full mb-2"
+                    className="bg-surface-container-low border border-outline-variant p-2 text-xs font-bold uppercase tracking-widest text-on-background focus:border-primary outline-none cursor-pointer w-full mb-2"
                   >
                     <option value="Pending">Pending</option>
                     <option value="Shipped">Shipped</option>
@@ -100,7 +100,7 @@ export default function OrdersManagement() {
                     <option value="Cancelled">Cancelled</option>
                   </select>
                   {order.status === 'Shipped' && (order as any).trackingId && (
-                    <div className="text-[10px] text-[#ffffff60] uppercase tracking-widest truncate max-w-[150px]" title={(order as any).trackingId}>
+                    <div className="text-[10px] text-on-surface-variant uppercase tracking-widest truncate max-w-[150px]" title={(order as any).trackingId}>
                       TRK: {(order as any).trackingId}
                     </div>
                   )}
@@ -109,7 +109,7 @@ export default function OrdersManagement() {
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-[#ffffff60] uppercase tracking-widest text-xs">No orders yet.</td>
+                <td colSpan={5} className="p-8 text-center text-on-surface-variant uppercase tracking-widest text-xs">No orders yet.</td>
               </tr>
             )}
           </tbody>

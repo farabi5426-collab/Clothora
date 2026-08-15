@@ -43,51 +43,51 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Dashboard Overview</h1>
-          <p className="text-xs text-[#ffffff60] uppercase tracking-widest">Store Performance Metrics</p>
+          <p className="text-xs text-on-surface-variant uppercase tracking-widest">Store Performance Metrics</p>
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-[#111] border border-[#ffffff15] p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Total Products</h3>
-            <Package className="w-5 h-5 text-[#ff4e00]" />
+        <div className="bg-surface-container-lowest border border-outline-variant p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Products</h3>
+            <Package className="w-5 h-5 text-primary" />
           </div>
           <div className="pt-6">
-            <p className="text-4xl font-black text-white">{stats.products}</p>
+            <p className="text-4xl font-black text-on-background">{stats.products}</p>
           </div>
         </div>
 
-        <div className="bg-[#111] border border-[#ffffff15] p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Total Orders</h3>
-            <ShoppingCart className="w-5 h-5 text-[#ff4e00]" />
+        <div className="bg-surface-container-lowest border border-outline-variant p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Orders</h3>
+            <ShoppingCart className="w-5 h-5 text-primary" />
           </div>
           <div className="pt-6">
-            <p className="text-4xl font-black text-white">{stats.orders}</p>
+            <p className="text-4xl font-black text-on-background">{stats.orders}</p>
           </div>
         </div>
         
-        <div className="bg-[#111] border border-[#ffffff15] p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Total Revenue</h3>
+        <div className="bg-surface-container-lowest border border-outline-variant p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Revenue</h3>
             <TrendingUp className="w-5 h-5 text-green-500" />
           </div>
           <div className="pt-6 flex items-baseline gap-2">
             <span className="text-xl font-bold text-green-500">৳</span>
-            <p className="text-4xl font-black text-white">{stats.revenue.toLocaleString()}</p>
+            <p className="text-4xl font-black text-on-background">{stats.revenue.toLocaleString()}</p>
           </div>
         </div>
 
-        <div className="bg-[#111] border border-[#ffffff15] p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[#ffffff15]">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Net Profit</h3>
-            <TrendingUp className="w-5 h-5 text-[#ff4e00]" />
+        <div className="bg-surface-container-lowest border border-outline-variant p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Net Profit</h3>
+            <TrendingUp className="w-5 h-5 text-primary" />
           </div>
           <div className="pt-6 flex items-baseline gap-2">
-            <span className="text-xl font-bold text-[#ff4e00]">৳</span>
-            <p className="text-4xl font-black text-white">{stats.netProfit.toLocaleString()}</p>
+            <span className="text-xl font-bold text-primary">৳</span>
+            <p className="text-4xl font-black text-on-background">{stats.netProfit.toLocaleString()}</p>
           </div>
         </div>
       </div>

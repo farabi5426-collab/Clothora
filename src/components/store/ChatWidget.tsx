@@ -108,36 +108,36 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100]">
       {isOpen ? (
-        <div className="w-[calc(100vw-32px)] sm:w-[380px] h-[500px] sm:h-[600px] max-h-[80vh] bg-[#111] border border-[#ffffff15] shadow-2xl flex flex-col mb-2 sm:mb-4 overflow-hidden rounded-none">
+        <div className="w-[calc(100vw-32px)] sm:w-[380px] h-[500px] sm:h-[600px] max-h-[80vh] bg-surface-container-lowest border border-outline-variant shadow-2xl flex flex-col mb-2 sm:mb-4 overflow-hidden rounded-none">
           {/* Header */}
-          <div className="flex items-center justify-between p-5 bg-[#ff4e00]">
+          <div className="flex items-center justify-between p-5 bg-primary">
             <div>
-              <h3 className="text-xl font-black uppercase tracking-tighter text-white m-0 leading-none">CLOTHORA SUPPORT</h3>
-              <p className="text-[11px] text-white/90 mt-1.5 font-medium tracking-wide">Streetwear & Anime Apparel Experts</p>
+              <h3 className="text-xl font-black uppercase tracking-tighter text-on-background m-0 leading-none">CLOTHORA SUPPORT</h3>
+              <p className="text-[11px] text-on-background/90 mt-1.5 font-medium tracking-wide">Streetwear & Anime Apparel Experts</p>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => setIsOpen(false)} className="text-white hover:text-white/70 transition-colors">
+              <button onClick={() => setIsOpen(false)} className="text-on-background hover:text-on-background/70 transition-colors">
                 <span className="w-4 h-[2px] bg-current block"></span>
               </button>
-              <button onClick={() => setIsOpen(false)} className="text-white hover:text-white/70 transition-colors">
+              <button onClick={() => setIsOpen(false)} className="text-on-background hover:text-on-background/70 transition-colors">
                 <X className="w-5 h-5 stroke-[2.5]" />
               </button>
             </div>
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto p-5 bg-[#0a0a0a] flex flex-col gap-6">
+          <div className="flex-1 overflow-y-auto p-5 bg-background flex flex-col gap-6">
             {!isRegistered ? (
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                <div className="w-16 h-16 bg-[#ff4e00] text-white flex items-center justify-center rounded-none mb-4">
+                <div className="w-16 h-16 bg-primary text-on-background flex items-center justify-center rounded-none mb-4">
                   <MessageSquareText className="w-8 h-8" />
                 </div>
-                <h4 className="text-lg font-black uppercase tracking-tighter text-white">Welcome!</h4>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#ffffff60]">Please introduce yourself to start chatting.</p>
+                <h4 className="text-lg font-black uppercase tracking-tighter text-on-background">Welcome!</h4>
+                <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Please introduce yourself to start chatting.</p>
                 <form onSubmit={handleRegister} className="w-full space-y-3 mt-4">
-                  <input required placeholder="YOUR NAME" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-4 text-xs font-bold uppercase tracking-[0.1em] text-white focus:border-[#ff4e00] outline-none rounded-none" />
-                  <input required type="email" placeholder="YOUR EMAIL" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-4 text-xs font-bold uppercase tracking-[0.1em] text-white focus:border-[#ff4e00] outline-none rounded-none" />
-                  <button type="submit" className="w-full bg-[#ff4e00] text-white p-4 text-xs font-black uppercase tracking-[0.1em] hover:bg-[#e64600] transition-colors rounded-none">Start Chat</button>
+                  <input required placeholder="YOUR NAME" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant p-4 text-xs font-bold uppercase tracking-[0.1em] text-on-background focus:border-primary outline-none rounded-none" />
+                  <input required type="email" placeholder="YOUR EMAIL" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant p-4 text-xs font-bold uppercase tracking-[0.1em] text-on-background focus:border-primary outline-none rounded-none" />
+                  <button type="submit" className="w-full bg-primary text-on-background p-4 text-xs font-black uppercase tracking-[0.1em] hover:bg-primary-container transition-colors rounded-none">Start Chat</button>
                 </form>
               </div>
             ) : (
@@ -145,21 +145,21 @@ export default function ChatWidget() {
                 {messages.map((msg) => (
                   <div key={msg.id} className={`flex gap-3 ${msg.sender === 'customer' ? 'justify-end' : 'justify-start'}`}>
                     {msg.sender === 'admin' && (
-                      <div className="w-8 h-8 bg-[#ff4e00] flex-shrink-0 flex items-center justify-center text-white font-black text-sm">
+                      <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-background font-black text-sm">
                         C
                       </div>
                     )}
                     <div className={`flex flex-col ${msg.sender === 'customer' ? 'items-end' : 'items-start'} max-w-[85%]`}>
                       <div className={`p-4 text-[13px] leading-relaxed rounded-none shadow-sm ${
                         msg.sender === 'customer' 
-                          ? 'bg-[#ff4e00] text-white' 
-                          : 'bg-[#1a1a1a] text-[#e0e0e0]'
+                          ? 'bg-primary text-on-background' 
+                          : 'bg-surface-container-low text-on-surface'
                       }`}>
                         {msg.text}
                       </div>
-                      <div className={`text-[10px] text-[#ffffff50] mt-1.5 flex items-center gap-1.5 ${msg.sender === 'customer' ? 'justify-end w-full' : 'w-full'}`}>
+                      <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${msg.sender === 'customer' ? 'justify-end w-full' : 'w-full'}`}>
                         {msg.createdAt?.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) || 'Now'}
-                        {msg.sender === 'customer' && <span className="text-[#ff4e00] text-xs">✓✓</span>}
+                        {msg.sender === 'customer' && <span className="text-primary text-xs">✓✓</span>}
                       </div>
                     </div>
                   </div>
@@ -171,16 +171,16 @@ export default function ChatWidget() {
 
           {/* Footer Input */}
           {isRegistered && (
-            <div className="p-4 bg-[#111] border-t border-[#ffffff15]">
+            <div className="p-4 bg-surface-container-lowest border-t border-outline-variant">
               <form onSubmit={sendMessage} className="flex gap-3">
                 <input 
                   type="text" 
                   placeholder="Type your message..." 
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  className="flex-1 bg-[#1a1a1a] p-3.5 text-sm text-white outline-none rounded-none placeholder:text-[#ffffff40]"
+                  className="flex-1 bg-surface-container-low p-3.5 text-sm text-on-background outline-none rounded-none placeholder:text-on-surface-variant"
                 />
-                <button type="submit" disabled={!inputText.trim()} className="bg-[#ff4e00] text-white w-12 flex flex-shrink-0 items-center justify-center rounded-none hover:bg-[#e64600] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" disabled={!inputText.trim()} className="bg-primary text-on-background w-12 flex flex-shrink-0 items-center justify-center rounded-none hover:bg-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   <Send className="w-5 h-5 fill-current" />
                 </button>
               </form>
@@ -190,7 +190,7 @@ export default function ChatWidget() {
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-16 h-16 bg-[#ff4e00] text-white flex items-center justify-center rounded-[20px] shadow-[0_0_40px_rgba(255,78,0,0.4)] hover:scale-105 transition-transform"
+          className="w-16 h-16 bg-primary text-on-background flex items-center justify-center rounded-[20px] shadow-[0_0_40px_var(--color-primary)] hover:scale-105 transition-transform"
         >
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>

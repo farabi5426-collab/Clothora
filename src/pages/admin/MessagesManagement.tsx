@@ -79,46 +79,46 @@ export default function MessagesManagement() {
     <div className="space-y-4 h-full flex flex-col">
       <div>
         <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Messages</h1>
-        <p className="text-xs text-[#ffffff60] uppercase tracking-widest">Live Customer Chat</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-widest">Live Customer Chat</p>
       </div>
       
-      <div className="flex-1 bg-[#111] border border-[#ffffff15] flex overflow-hidden">
+      <div className="flex-1 bg-surface-container-lowest border border-outline-variant flex overflow-hidden">
         {/* Sidebar */}
-        <div className="w-1/3 border-r border-[#ffffff15] flex flex-col">
-          <div className="p-4 border-b border-[#ffffff15] bg-[#1a1a1a]">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#ffffff80]">Active Chats</h2>
+        <div className="w-1/3 border-r border-outline-variant flex flex-col">
+          <div className="p-4 border-b border-outline-variant bg-surface-container-low">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Chats</h2>
           </div>
           <div className="flex-1 overflow-y-auto">
             {chats.map(chat => (
               <div 
                 key={chat.id} 
                 onClick={() => setSelectedChat(chat)}
-                className={`p-4 border-b border-[#ffffff15] cursor-pointer transition-colors ${selectedChat?.id === chat.id ? 'bg-[#ff4e00]/10 border-l-4 border-l-[#ff4e00]' : 'hover:bg-[#1a1a1a] border-l-4 border-l-transparent'}`}
+                className={`p-4 border-b border-outline-variant cursor-pointer transition-colors ${selectedChat?.id === chat.id ? 'bg-primary/10 border-l-4 border-l-[#ff4e00]' : 'hover:bg-surface-container-low border-l-4 border-l-transparent'}`}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <h3 className="font-bold text-sm uppercase text-white truncate">{chat.customerName}</h3>
+                  <h3 className="font-bold text-sm uppercase text-on-background truncate">{chat.customerName}</h3>
                   {chat.unreadAdmin > 0 && (
-                    <span className="bg-[#ff4e00] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{chat.unreadAdmin}</span>
+                    <span className="bg-primary text-on-background text-[10px] font-bold px-2 py-0.5 rounded-full">{chat.unreadAdmin}</span>
                   )}
                 </div>
-                <p className="text-xs text-[#ffffff60] truncate">{chat.lastMessage}</p>
+                <p className="text-xs text-on-surface-variant truncate">{chat.lastMessage}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col bg-[#0a0a0a]">
+        <div className="flex-1 flex flex-col bg-background">
           {selectedChat ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-[#ffffff15] bg-[#1a1a1a] flex items-center gap-4">
-                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center border border-[#ffffff15] text-white">
+              <div className="p-4 border-b border-outline-variant bg-surface-container-low flex items-center gap-4">
+                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center border border-outline-variant text-on-background">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold uppercase text-white">{selectedChat.customerName}</h2>
-                  <p className="text-xs text-[#ffffff60] tracking-widest">{selectedChat.customerEmail}</p>
+                  <h2 className="font-bold uppercase text-on-background">{selectedChat.customerName}</h2>
+                  <p className="text-xs text-on-surface-variant tracking-widest">{selectedChat.customerEmail}</p>
                 </div>
               </div>
 
@@ -128,8 +128,8 @@ export default function MessagesManagement() {
                   <div key={msg.id} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] p-3 text-sm font-medium ${
                       msg.sender === 'admin' 
-                        ? 'bg-[#ff4e00] text-white' 
-                        : 'bg-[#1a1a1a] border border-[#ffffff15] text-white'
+                        ? 'bg-primary text-on-background' 
+                        : 'bg-surface-container-low border border-outline-variant text-on-background'
                     }`}>
                       {msg.text}
                     </div>
@@ -139,23 +139,23 @@ export default function MessagesManagement() {
               </div>
 
               {/* Input */}
-              <div className="p-4 border-t border-[#ffffff15] bg-[#111]">
+              <div className="p-4 border-t border-outline-variant bg-surface-container-lowest">
                 <form onSubmit={sendMessage} className="flex gap-2">
                   <input 
                     type="text" 
                     value={inputText}
                     onChange={e => setInputText(e.target.value)}
                     placeholder="Type your reply..." 
-                    className="flex-1 bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none text-sm"
+                    className="flex-1 bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none text-sm"
                   />
-                  <button type="submit" disabled={!inputText.trim()} className="bg-[#ff4e00] text-white px-6 flex items-center justify-center font-bold uppercase tracking-widest hover:bg-[#e64600] transition-colors disabled:opacity-50">
+                  <button type="submit" disabled={!inputText.trim()} className="bg-primary text-on-background px-6 flex items-center justify-center font-bold uppercase tracking-widest hover:bg-primary-container transition-colors disabled:opacity-50">
                     <Send className="w-4 h-4" />
                   </button>
                 </form>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-[#ffffff60] uppercase tracking-widest text-xs font-bold">
+            <div className="flex-1 flex items-center justify-center text-on-surface-variant uppercase tracking-widest text-xs font-bold">
               Select a chat to start messaging
             </div>
           )}
