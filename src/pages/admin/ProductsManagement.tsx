@@ -51,6 +51,48 @@ export default function ProductsManagement() {
     return () => unsubscribe();
   }, []);
 
+  // Temporary auto-fix for the 3 drop shoulder products
+  useEffect(() => {
+    const fixProducts = async () => {
+      if (localStorage.getItem('fixed_categories_v4')) return;
+      if (products.length === 0 || categories.length === 0) return;
+      
+      const targetCategory = "Drop Shoulder T-Shirt"; 
+      
+      // Ensure category exists
+      if (!categories.find(c => c.name.toLowerCase() === targetCategory.toLowerCase())) {
+         try {
+           await addDoc(collection(db, 'categories'), { name: targetCategory, createdAt: serverTimestamp() });
+         } catch(e) {}
+      }
+
+      const targetTitles = [
+        "BARCELONA AND REAL MADRID STREETWEAR DROP IS HERE! ⚽🔥",
+        "REAL MADRID \"ACID WASH\" DROP SHOULDER T-SHIRT! 👑⚽",
+        "PREMIUM ACID WASH DROP SHOULDER TSHIRT"
+      ];
+      
+      const prodsToFix = products.filter(p => targetTitles.includes(p.title) || p.title.includes("BARCELONA") || p.title.includes("PREMIUM ACID WASH") || p.title.includes("ACID WASH\" DROP"));
+      
+      if (prodsToFix.length > 0) {
+        let hasChanges = false;
+        for (const p of prodsToFix) {
+           if (p.category !== targetCategory) {
+             try {
+               await updateDoc(doc(db, 'products', p.id), { category: targetCategory });
+               hasChanges = true;
+             } catch(e) {}
+           }
+        }
+        if (hasChanges) {
+          toast.success("Products automatically moved to Drop Shoulder T-Shirt!");
+        }
+        localStorage.setItem('fixed_categories_v4', 'true');
+      }
+    };
+    fixProducts();
+  }, [products, categories]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
