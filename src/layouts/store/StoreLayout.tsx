@@ -8,7 +8,7 @@ import ChatWidget from '../../components/store/ChatWidget';
 
 export default function StoreLayout() {
   return (
-    <div className="min-h-screen flex flex-col font-body-md text-on-background bg-background selection:bg-primary-container selection:text-black">
+    <div className="min-h-screen flex flex-col font-body-md text-on-background bg-background selection:bg-primary-container selection:text-black overflow-x-hidden">
       <NoticeBanner />
       <TopNavBar />
       <div className="flex-grow">

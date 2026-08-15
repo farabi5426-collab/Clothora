@@ -121,7 +121,7 @@ export default function BannersManagement() {
         </button>
       </div>
 
-      <div className="bg-surface-container-lowest border border-outline-variant overflow-hidden">
+      <div className="bg-surface-container-lowest border border-outline-variant overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-outline-variant">
@@ -163,7 +163,7 @@ export default function BannersManagement() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest border border-outline-variant w-full max-w-lg p-8 relative">
+          <div className="bg-surface-container-lowest border border-outline-variant w-full max-w-lg p-4 sm:p-8 max-h-[90vh] overflow-y-auto relative">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black uppercase tracking-widest">Add New Video</h2>
               <button onClick={closeAndReset} className="text-on-surface-variant hover:text-on-background" disabled={isUploading}>

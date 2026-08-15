@@ -33,7 +33,7 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-on-background font-sans flex flex-col md:flex-row">
+    <div className="h-screen w-full bg-background text-on-background font-sans flex flex-col md:flex-row overflow-hidden">
       {/* Sidebar */}
       <div className="w-full md:w-64 bg-background md:bg-surface-container-lowest border-b md:border-b-0 md:border-r border-outline-variant flex flex-col flex-shrink-0">
         <div className="h-20 flex items-center px-6 border-b border-outline-variant">
@@ -76,7 +76,7 @@ export default function AdminLayout() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden bg-background">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
         <main className="flex-1 overflow-y-auto p-6 md:p-10">
           <Outlet />
         </main>

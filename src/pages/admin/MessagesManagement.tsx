@@ -84,7 +84,7 @@ export default function MessagesManagement() {
       
       <div className="flex-1 bg-surface-container-lowest border border-outline-variant flex overflow-hidden">
         {/* Sidebar */}
-        <div className="w-1/3 border-r border-outline-variant flex flex-col">
+        <div className={`w-full md:w-1/3 border-r border-outline-variant flex flex-col ${selectedChat ? "hidden md:flex" : "flex"}`}>
           <div className="p-4 border-b border-outline-variant bg-surface-container-low">
             <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Chats</h2>
           </div>
@@ -108,11 +108,12 @@ export default function MessagesManagement() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col bg-background">
+        <div className={`flex-1 flex flex-col bg-background ${!selectedChat ? "hidden md:flex" : "flex"}`}>
           {selectedChat ? (
             <>
               {/* Chat Header */}
               <div className="p-4 border-b border-outline-variant bg-surface-container-low flex items-center gap-4">
+                <button onClick={() => setSelectedChat(null)} className="md:hidden text-on-surface-variant hover:text-on-background mr-2"><span className="material-symbols-outlined">arrow_back</span></button>
                 <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center border border-outline-variant text-on-background">
                   <User className="w-5 h-5" />
                 </div>
