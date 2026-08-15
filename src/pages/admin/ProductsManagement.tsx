@@ -12,15 +12,16 @@ interface Product {
   stock: number;
   category: string;
   imageUrl: string;
+  imageUrls?: string[];
 }
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: ''
+    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[]
   });
 
   useEffect(() => {
@@ -36,14 +37,14 @@ export default function ProductsManagement() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.imageUrl && !selectedFile) {
-      alert('Please provide an image URL or upload an image.');
+    if (!formData.imageUrl && selectedFiles.length === 0 && formData.imageUrls.length === 0) {
+      alert('Please provide an image URL or upload at least one image.');
       return;
     }
 
     // Capture values before closing the modal
     const currentFormData = { ...formData };
-    const currentSelectedFile = selectedFile;
+    const currentSelectedFiles = [...selectedFiles];
     const currentEditingId = editingId;
 
     // Instantly close the form and reset so the user isn't blocked
@@ -52,25 +53,41 @@ export default function ProductsManagement() {
 
     // Run the actual save/upload process in the background
     (async () => {
+      let finalImageUrls = [...currentFormData.imageUrls];
       let finalImageUrl = currentFormData.imageUrl;
 
       try {
-        // 1. Upload to Cloudinary if file is selected
-        if (currentSelectedFile) {
-          const uploadData = new FormData();
-          uploadData.append('file', currentSelectedFile);
-          uploadData.append('upload_preset', 'kwxslhnw');
-          
-          const res = await fetch('https://api.cloudinary.com/v1_1/dzsiqw51v/image/upload', {
-            method: 'POST',
-            body: uploadData
+        // 1. Upload to Cloudinary if files are selected
+        if (currentSelectedFiles.length > 0) {
+          const uploadPromises = currentSelectedFiles.map(async (file) => {
+            const uploadData = new FormData();
+            uploadData.append('file', file);
+            uploadData.append('upload_preset', 'kwxslhnw');
+            
+            const res = await fetch('https://api.cloudinary.com/v1_1/dzsiqw51v/image/upload', {
+              method: 'POST',
+              body: uploadData
+            });
+            const data = await res.json();
+            
+            if (!res.ok) {
+              throw new Error(data.error?.message || 'Failed to upload image');
+            }
+            return data.secure_url;
           });
-          const data = await res.json();
+
+          const uploadedUrls = await Promise.all(uploadPromises);
+          finalImageUrls = [...finalImageUrls, ...uploadedUrls];
           
-          if (!res.ok) {
-            throw new Error(data.error?.message || 'Failed to upload image');
+          if (!finalImageUrl && uploadedUrls.length > 0) {
+             finalImageUrl = uploadedUrls[0];
           }
-          finalImageUrl = data.secure_url;
+        }
+
+        if (finalImageUrls.length === 0 && finalImageUrl) {
+           finalImageUrls = [finalImageUrl];
+        } else if (finalImageUrls.length > 0 && !finalImageUrl) {
+           finalImageUrl = finalImageUrls[0];
         }
 
         // 2. Save to Firestore
@@ -79,7 +96,8 @@ export default function ProductsManagement() {
           price: Number(currentFormData.price),
           costPrice: Number(currentFormData.costPrice),
           stock: Number(currentFormData.stock),
-          imageUrl: finalImageUrl
+          imageUrl: finalImageUrl,
+          imageUrls: finalImageUrls
         };
 
         if (currentEditingId) {
@@ -109,16 +127,18 @@ export default function ProductsManagement() {
       costPrice: (product.costPrice || 0).toString(),
       stock: product.stock.toString(),
       category: product.category,
-      imageUrl: product.imageUrl
+      imageUrl: product.imageUrl,
+      imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : [])
     });
     setEditingId(product.id);
+    setSelectedFiles([]);
     setIsModalOpen(true);
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '' });
+    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] });
     setEditingId(null);
-    setSelectedFile(null);
+    setSelectedFiles([]);
   };
 
   return (
@@ -221,13 +241,17 @@ export default function ProductsManagement() {
                     <input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} placeholder="https://..." className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-3 text-white focus:border-[#ff4e00] outline-none transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">OR Upload Image</label>
+                    <label className="block text-xs uppercase tracking-widest text-[#ffffff60] mb-2">OR Upload Image(s)</label>
                     <input 
                       type="file" 
                       accept="image/*"
-                      onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                      multiple
+                      onChange={e => setSelectedFiles(e.target.files ? Array.from(e.target.files) : [])}
                       className="w-full bg-[#1a1a1a] border border-[#ffffff15] p-2 text-white focus:border-[#ff4e00] outline-none transition-colors file:mr-4 file:py-1.5 file:px-4 file:border-0 file:text-xs file:font-bold file:bg-[#333] file:text-white hover:file:bg-[#444] cursor-pointer" 
                     />
+                    {selectedFiles.length > 0 && (
+                      <p className="text-xs text-[#ffffff80] mt-2">{selectedFiles.length} file(s) selected</p>
+                    )}
                   </div>
                 </div>
               </div>

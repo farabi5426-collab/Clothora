@@ -116,6 +116,7 @@ export default function TopNavBar() {
           )}
 
           <button 
+            id="cart-icon"
             onClick={toggleCart} 
             aria-label="shopping_bag" 
             className="text-on-surface hover:text-primary transition-colors relative group"
