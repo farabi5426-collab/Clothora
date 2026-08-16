@@ -17,6 +17,7 @@ interface Product {
   description?: string;
   imageUrls?: string[];
   videoUrl?: string;
+  sizes?: string[];
 }
 
 export default function ProductPage() {
@@ -29,6 +30,7 @@ export default function ProductPage() {
     // setActiveImageIndex(0);
   }, [product]);
   const [copied, setCopied] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const { addToCart } = useCartStore();
 
   useEffect(() => {
@@ -156,17 +158,43 @@ export default function ProductPage() {
               </p>
             </div>
 
+            
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="mb-8">
+                <div className="flex justify-between items-end mb-4">
+                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Select Size</span>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-6 py-3 text-sm font-bold uppercase tracking-widest border transition-all ${selectedSize === size ? 'bg-primary text-on-primary border-primary shadow-[4px_4px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-surface-container-low text-on-surface-variant border-outline-variant hover:border-primary hover:text-on-surface'}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mt-auto pt-8 border-t border-outline-variant">
               <div className="flex flex-col md:flex-row gap-4">
                 <button 
                   disabled={product.stock <= 0}
                   onClick={() => {
+                    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+                      toast.error('Please select a size first.');
+                      return;
+                    }
                     addToCart({
                       id: product.id,
                       title: product.title,
                       price: product.price,
                       imageUrl: product.imageUrl || '',
-                      costPrice: product.costPrice
+                      costPrice: product.costPrice,
+                      sizes: product.sizes || [],
+                      selectedSize: selectedSize || undefined
                     }, true);
                   }}
                   className="flex-1 bg-transparent border-2 border-[#ffffff] text-on-background py-5 text-sm font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
@@ -176,12 +204,18 @@ export default function ProductPage() {
                 <button 
                   disabled={product.stock <= 0}
                   onClick={() => {
+                    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+                      toast.error('Please select a size first.');
+                      return;
+                    }
                     addToCart({
                       id: product.id,
                       title: product.title,
                       price: product.price,
                       imageUrl: product.imageUrl || '',
-                      costPrice: product.costPrice
+                      costPrice: product.costPrice,
+                      sizes: product.sizes || [],
+                      selectedSize: selectedSize || undefined
                     }, false);
                     toast.success(`${product.title} added to cart`);
                   }}

@@ -8,6 +8,7 @@ interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  sizes?: string[];
 }
 
 export default function Lookbook({ products, loading }: { products: Product[], loading: boolean }) {
@@ -50,12 +51,19 @@ export default function Lookbook({ products, loading }: { products: Product[], l
             
             <button 
               disabled={product.stock <= 0}
-              onClick={() => addToCart({
-                id: product.id,
-                title: product.title,
-                price: product.price,
-                imageUrl: product.imageUrl || ''
-              })}
+              onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
               className="bg-primary text-on-primary px-[48px] py-[24px] text-[18px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 rounded-theme"
             >
               {product.stock <= 0 ? 'SOLD OUT' : 'ADD TO CART'} <span className="material-symbols-outlined">shopping_bag</span>

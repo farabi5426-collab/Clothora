@@ -8,6 +8,7 @@ interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  sizes?: string[];
 }
 
 export default function SplitScreen({ products, loading }: { products: Product[], loading: boolean }) {
@@ -85,12 +86,19 @@ export default function SplitScreen({ products, loading }: { products: Product[]
                 </span>
                 <button 
                   disabled={product.stock <= 0}
-                  onClick={() => addToCart({
-                    id: product.id,
-                    title: product.title,
-                    price: product.price,
-                    imageUrl: product.imageUrl || ''
-                  })}
+                  onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
                   className="bg-surface-container-high text-on-surface hover:bg-primary hover:text-on-primary w-[40px] h-[40px] flex items-center justify-center transition-colors border-2 border-surface-bright hover:border-primary rounded-theme"
                 >
                   <span className="material-symbols-outlined text-[20px]">add</span>

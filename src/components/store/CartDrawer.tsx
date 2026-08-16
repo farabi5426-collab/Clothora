@@ -78,7 +78,7 @@ export default function CartDrawer() {
               {/* Items List */}
               <div className="space-y-[16px]">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-[16px] bg-surface-container border-2 border-surface-bright p-[16px] relative group rounded-theme">
+                  <div key={item.cartItemId || item.id} className="flex gap-[16px] bg-surface-container border-2 border-surface-bright p-[16px] relative group rounded-theme">
                     <div className="w-[100px] h-[100px] bg-surface-container-highest border-2 border-surface-bright shrink-0">
                       {item.imageUrl ? (
                         <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
@@ -88,8 +88,22 @@ export default function CartDrawer() {
                     </div>
                     <div className="flex-1 flex flex-col">
                       <div className="flex justify-between items-start gap-4">
-                        <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
-                        <button onClick={() => removeFromCart(item.id)} className="text-on-surface-variant hover:text-error transition-colors shrink-0">
+                        <div>
+                          <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
+                          {item.sizes && item.sizes.length > 0 ? (
+                            <select 
+                              value={item.selectedSize || ''} 
+                              onChange={(e) => useCartStore.getState().updateSize(item.cartItemId || item.id, e.target.value)}
+                              className="mt-2 bg-surface border border-outline-variant text-xs font-bold uppercase p-1 outline-none focus:border-primary text-on-surface-variant"
+                            >
+                              <option value="" disabled>Select Size</option>
+                              {item.sizes.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                          ) : item.selectedSize && (
+                            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</p>
+                          )}
+                        </div>
+                        <button onClick={() => removeFromCart(item.cartItemId || item.id)} className="text-on-surface-variant hover:text-error transition-colors shrink-0">
                           <span className="material-symbols-outlined">delete</span>
                         </button>
                       </div>
@@ -97,11 +111,11 @@ export default function CartDrawer() {
                       
                       <div className="mt-auto flex items-center">
                         <div className="flex items-center bg-surface border-2 border-surface-bright">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
+                          <button onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
                             <span className="material-symbols-outlined text-[16px]">remove</span>
                           </button>
                           <span className="text-[14px] font-bold w-[32px] text-center text-on-surface">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
+                          <button onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
                             <span className="material-symbols-outlined text-[16px]">add</span>
                           </button>
                         </div>

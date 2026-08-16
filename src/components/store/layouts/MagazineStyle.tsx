@@ -8,6 +8,7 @@ interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  sizes?: string[];
 }
 
 export default function MagazineStyle({ products, loading }: { products: Product[], loading: boolean }) {
@@ -69,12 +70,19 @@ export default function MagazineStyle({ products, loading }: { products: Product
           
           <button 
             disabled={featured.stock <= 0}
-            onClick={() => addToCart({
-              id: featured.id,
-              title: featured.title,
-              price: featured.price,
-              imageUrl: featured.imageUrl || ''
-            })}
+            onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
             className="w-full bg-primary text-on-primary py-[24px] text-[18px] font-black uppercase tracking-[0.1em] shadow-[6px_6px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_var(--color-on-primary)] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-[16px] rounded-theme"
           >
             {featured.stock <= 0 ? 'SOLD OUT' : 'ADD TO CART'} <span className="material-symbols-outlined">shopping_bag</span>
@@ -95,12 +103,19 @@ export default function MagazineStyle({ products, loading }: { products: Product
             <div className="absolute inset-0 bg-surface-container-lowest/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
               <button 
                 disabled={product.stock <= 0}
-                onClick={() => addToCart({
-                  id: product.id,
-                  title: product.title,
-                  price: product.price,
-                  imageUrl: product.imageUrl || ''
-                })}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
                 className="w-[64px] h-[64px] bg-primary text-on-primary rounded-full flex items-center justify-center shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all disabled:opacity-50"
               >
                 <span className="material-symbols-outlined">add_shopping_cart</span>

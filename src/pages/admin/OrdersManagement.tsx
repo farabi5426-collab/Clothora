@@ -9,6 +9,8 @@ interface OrderItem {
   title: string;
   quantity: number;
   price: number;
+  imageUrl?: string;
+  selectedSize?: string;
 }
 
 interface Order {
@@ -210,12 +212,24 @@ export default function OrdersManagement() {
                    </div>
                    <div className="space-y-4">
                      {selectedOrder.items?.map((item, idx) => (
-                       <div key={idx} className="flex justify-between items-center text-sm font-bold uppercase tracking-wide border-b border-surface-bright pb-2 last:border-0 last:pb-0">
+                       <div key={idx} className="flex justify-between items-center text-sm font-bold uppercase tracking-wide border-b border-surface-bright pb-3 last:border-0 last:pb-0">
                          <div className="flex items-center gap-4">
+                           {item.imageUrl ? (
+                             <img src={item.imageUrl} alt={item.title} className="w-12 h-12 object-cover border border-surface-bright" />
+                           ) : (
+                             <div className="w-12 h-12 bg-surface-container-high flex items-center justify-center border border-surface-bright">
+                               <Package className="w-5 h-5 text-on-surface-variant" />
+                             </div>
+                           )}
                            <span className="bg-surface-container-high px-2 py-1 text-xs">{item.quantity}x</span>
-                           <span className="text-on-surface">{item.title}</span>
+                           <div className="flex flex-col">
+                             <span className="text-on-surface line-clamp-2 max-w-[200px] sm:max-w-[300px]">{item.title}</span>
+                             {item.selectedSize && (
+                               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</span>
+                             )}
+                           </div>
                          </div>
-                         <span className="text-on-surface">৳ {item.price * item.quantity}</span>
+                         <span className="text-on-surface whitespace-nowrap">৳ {item.price * item.quantity}</span>
                        </div>
                      ))}
                    </div>

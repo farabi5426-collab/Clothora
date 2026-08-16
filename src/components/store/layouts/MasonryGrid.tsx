@@ -8,6 +8,7 @@ interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  sizes?: string[];
 }
 
 export default function MasonryGrid({ products, loading }: { products: Product[], loading: boolean }) {
@@ -50,12 +51,19 @@ export default function MasonryGrid({ products, loading }: { products: Product[]
             <div className="absolute inset-0 bg-surface-container-lowest/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
               <button 
                 disabled={product.stock <= 0}
-                onClick={() => addToCart({
-                  id: product.id,
-                  title: product.title,
-                  price: product.price,
-                  imageUrl: product.imageUrl || ''
-                })}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
                 className="bg-primary text-on-primary px-[24px] py-[16px] text-[14px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all disabled:opacity-50 flex items-center gap-2 rounded-theme"
               >
                 ADD TO CART

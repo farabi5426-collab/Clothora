@@ -8,6 +8,7 @@ interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  sizes?: string[];
 }
 
 export default function ClassicGrid({ products, loading }: { products: Product[], loading: boolean }) {
@@ -57,12 +58,19 @@ export default function ClassicGrid({ products, loading }: { products: Product[]
                 </span>
                 <button 
                   disabled={product.stock <= 0}
-                  onClick={() => addToCart({
-                    id: product.id,
-                    title: product.title,
-                    price: product.price,
-                    imageUrl: product.imageUrl || ''
-                  })}
+                  onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
                   className="w-[48px] h-[48px] bg-primary text-on-primary flex items-center justify-center shadow-[2px_2px_0px_var(--color-on-primary)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_var(--color-on-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-theme"
                 >
                   <span className="material-symbols-outlined">add_shopping_cart</span>

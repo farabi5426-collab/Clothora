@@ -14,6 +14,7 @@ interface Product {
   category: string;
   imageUrl: string;
   imageUrls?: string[];
+  sizes?: string[];
   videoUrl?: string;
   showInBanner?: boolean;
 }
@@ -28,7 +29,7 @@ export default function ProductsManagement() {
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[], videoUrl: '', showInBanner: false
+    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[], sizes: [] as string[], videoUrl: '', showInBanner: false
   });
 
   useEffect(() => {
@@ -72,7 +73,7 @@ export default function ProductsManagement() {
         "PREMIUM ACID WASH DROP SHOULDER TSHIRT"
       ];
       
-      const prodsToFix = products.filter(p => targetTitles.includes(p.title) || p.title.includes("BARCELONA") || p.title.includes("PREMIUM ACID WASH") || p.title.includes("ACID WASH\" DROP"));
+      const prodsToFix = products.filter(p => p.title && (targetTitles.includes(p.title) || p.title.includes("BARCELONA") || p.title.includes("PREMIUM ACID WASH") || p.title.includes("ACID WASH\" DROP")));
       
       if (prodsToFix.length > 0) {
         let hasChanges = false;
@@ -176,7 +177,8 @@ export default function ProductsManagement() {
           imageUrl: finalImageUrl || '',
           imageUrls: finalImageUrls || [],
           videoUrl: finalVideoUrl || '',
-          showInBanner: Boolean(currentFormData.showInBanner)
+          showInBanner: Boolean(currentFormData.showInBanner),
+          sizes: currentFormData.sizes || []
         };
         
         // Remove undefined values to prevent Firestore crash
@@ -212,7 +214,8 @@ export default function ProductsManagement() {
       imageUrl: product.imageUrl || '',
       imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : []),
       videoUrl: product.videoUrl || '',
-      showInBanner: product.showInBanner || false
+      showInBanner: product.showInBanner || false,
+      sizes: product.sizes || []
     });
     setEditingId(product.id);
     setSelectedFiles([]);
@@ -244,7 +247,7 @@ export default function ProductsManagement() {
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [], videoUrl: '', showInBanner: false });
+    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [], sizes: [], videoUrl: '', showInBanner: false });
     setEditingId(null);
     setSelectedVideo(null);
     setSelectedFiles([]);
@@ -340,7 +343,7 @@ export default function ProductsManagement() {
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Stock</label>
                   <input required type="number" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none transition-colors" />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Category</label>
                   <div className="flex gap-2">
                     <select required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="flex-1 bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none transition-colors ">
@@ -354,6 +357,32 @@ export default function ProductsManagement() {
                     </button>
                   </div>
                 </div>
+                
+                <div className="col-span-2 md:col-span-1">
+                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Available Sizes</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'].map(size => {
+                       const isSelected = (formData.sizes || []).includes(size);
+                       return (
+                         <button
+                           key={size}
+                           type="button"
+                           onClick={() => {
+                             if (isSelected) {
+                               setFormData({...formData, sizes: (formData.sizes || []).filter(s => s !== size)});
+                             } else {
+                               setFormData({...formData, sizes: [...(formData.sizes || []), size]});
+                             }
+                           }}
+                           className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest border transition-colors ${isSelected ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container-low text-on-surface-variant border-outline-variant hover:border-primary'}`}
+                         >
+                           {size}
+                         </button>
+                       )
+                    })}
+                  </div>
+                </div>
+
                 <div className="col-span-2 border border-outline-variant p-4 bg-surface-container/50">
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-4">Product Images</label>
                   

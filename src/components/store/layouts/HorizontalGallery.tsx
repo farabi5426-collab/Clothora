@@ -8,6 +8,7 @@ interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  sizes?: string[];
 }
 
 export default function HorizontalGallery({ products, loading }: { products: Product[], loading: boolean }) {
@@ -92,12 +93,19 @@ export default function HorizontalGallery({ products, loading }: { products: Pro
                 </span>
                 <button 
                   disabled={product.stock <= 0}
-                  onClick={() => addToCart({
-                    id: product.id,
-                    title: product.title,
-                    price: product.price,
-                    imageUrl: product.imageUrl || ''
-                  })}
+                  onClick={(e) => {
+                  e.preventDefault();
+                  if (product.sizes && product.sizes.length > 0) {
+                     window.location.href = `/product/${product.id}`;
+                  } else {
+                     addToCart({
+                       id: product.id,
+                       title: product.title,
+                       price: product.price,
+                       imageUrl: product.imageUrl || ''
+                     });
+                  }
+                }}
                   className="w-[56px] h-[56px] bg-primary text-on-primary flex items-center justify-center shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-theme"
                 >
                   <span className="material-symbols-outlined">add_shopping_cart</span>

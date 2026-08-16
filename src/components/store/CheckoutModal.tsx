@@ -63,6 +63,8 @@ export default function CheckoutModal({
           title: item.title || 'Untitled',
           quantity: item.quantity || 1,
           price: item.price || 0,
+          imageUrl: item.imageUrl || '',
+          selectedSize: item.selectedSize || '',
         })),
         subtotal: subtotal || 0,
         discount: discount || 0,
