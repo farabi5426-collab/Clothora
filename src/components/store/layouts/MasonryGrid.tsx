@@ -14,8 +14,7 @@ interface Product {
 
 export default function MasonryGrid({ products, loading }: { products: Product[], loading: boolean }) {
   const { addToCart } = useCartStore();
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
-
+  
   if (loading) {
     return (
       <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-[24px] space-y-[24px]">
@@ -55,17 +54,13 @@ export default function MasonryGrid({ products, loading }: { products: Product[]
                 disabled={product.stock <= 0}
                 onClick={(e) => {
                   e.preventDefault();
-                  if (product.sizes && product.sizes.length > 0 && !selectedSizes[product.id]) {
-                     toast.error('Please select a size first');
-                     return;
-                  }
+                  
                   addToCart({
                        id: product.id,
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-                       sizes: product.sizes || [],
-                       selectedSize: selectedSizes[product.id] || undefined
+                       sizes: product.sizes || []
                   }, true);
                 }}
                 className="bg-primary text-on-primary px-[24px] py-[16px] text-[14px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all disabled:opacity-50 flex items-center gap-2 rounded-theme"
@@ -78,19 +73,7 @@ export default function MasonryGrid({ products, loading }: { products: Product[]
             <h3 className="text-[18px] font-black text-on-surface uppercase leading-tight mb-[4px]">
               {product.title}
             </h3>
-            {product.sizes && product.sizes.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2 mb-2">
-                {product.sizes.map(size => (
-                  <button
-                    key={size}
-                    onClick={(e) => { e.preventDefault(); setSelectedSizes(prev => ({...prev, [product.id]: size})); }}
-                    className={`w-6 h-6 flex items-center justify-center text-[10px] font-bold border transition-colors ${selectedSizes[product.id] === size ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            )}
+            
             <div className="flex justify-between items-center mt-2">
               <span className="text-[12px] text-primary font-bold uppercase tracking-[0.1em]">
                 {product.category}

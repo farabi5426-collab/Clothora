@@ -1,71 +1,63 @@
 const fs = require('fs');
-const file = 'src/components/store/CartDrawer.tsx';
-let code = fs.readFileSync(file, 'utf8');
+let code = fs.readFileSync('src/components/store/CartDrawer.tsx', 'utf8');
 
-const oldMap = `key={item.id} className="flex gap-[16px] bg-surface-container border-2 border-surface-bright p-[16px] relative group rounded-theme">
-                    <div className="w-[100px] h-[100px] bg-surface-container-highest border-2 border-surface-bright shrink-0">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full" />
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex justify-between items-start gap-4">
-                        <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
-                        <button onClick={() => removeFromCart(item.id)} className="text-on-surface-variant hover:text-error transition-colors shrink-0">
-                          <span className="material-symbols-outlined">delete</span>
-                        </button>
-                      </div>
-                      <p className="text-primary font-black text-[18px] mt-1">৳{item.price}</p>
-                      
-                      <div className="mt-auto flex items-center">
-                        <div className="flex items-center bg-surface border-2 border-surface-bright">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
-                            <span className="material-symbols-outlined text-[16px]">remove</span>
-                          </button>
-                          <span className="w-[40px] text-center font-bold text-[14px] text-on-surface">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
-                            <span className="material-symbols-outlined text-[16px]">add</span>
-                          </button>
+// 1. Remove size buttons from the item card
+code = code.replace(
+  /\{item\.sizes && item\.sizes\.length > 0 \? \([\s\S]*?\) : item\.selectedSize && \([\s\S]*?\)\}/,
+  `{item.selectedSize && (
+                            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</p>
+                          )}`
+);
+
+// 2. Add the new Size Selection box above Promo Code
+const sizeBoxCode = `              {/* Size Selection Box */}
+              {items.some(item => item.sizes && item.sizes.length > 0) && (
+                <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
+                  <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[12px]">SELECT SIZES</label>
+                  <div className="space-y-4">
+                    {items.filter(item => item.sizes && item.sizes.length > 0).map(item => (
+                      <div key={item.cartItemId || item.id}>
+                        <div className="flex justify-between items-center mb-2">
+                           <p className="text-[14px] font-bold text-on-surface line-clamp-1 pr-4">{item.title}</p>
+                           {!item.selectedSize && <span className="text-[10px] font-bold text-error uppercase tracking-widest shrink-0">Required</span>}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {item.sizes!.map(s => (
+                            <button
+                              key={s}
+                              onClick={() => useCartStore.getState().updateSize(item.cartItemId || item.id, s)}
+                              className={\`w-10 h-10 flex items-center justify-center text-[14px] font-bold border transition-colors \${item.selectedSize === s ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}\`}
+                            >
+                              {s}
+                            </button>
+                          ))}
                         </div>
                       </div>
-                    </div>`;
+                    ))}
+                  </div>
+                </div>
+              )}
 
-const newMap = `key={item.cartItemId || item.id} className="flex gap-[16px] bg-surface-container border-2 border-surface-bright p-[16px] relative group rounded-theme">
-                    <div className="w-[100px] h-[100px] bg-surface-container-highest border-2 border-surface-bright shrink-0">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full" />
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex justify-between items-start gap-4">
-                        <div>
-                          <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
-                          {item.selectedSize && (
-                             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</p>
-                          )}
-                        </div>
-                        <button onClick={() => removeFromCart(item.cartItemId || item.id)} className="text-on-surface-variant hover:text-error transition-colors shrink-0">
-                          <span className="material-symbols-outlined">delete</span>
-                        </button>
-                      </div>
-                      <p className="text-primary font-black text-[18px] mt-1">৳{item.price}</p>
-                      
-                      <div className="mt-auto flex items-center">
-                        <div className="flex items-center bg-surface border-2 border-surface-bright">
-                          <button onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
-                            <span className="material-symbols-outlined text-[16px]">remove</span>
-                          </button>
-                          <span className="w-[40px] text-center font-bold text-[14px] text-on-surface">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)} className="w-[32px] h-[32px] flex items-center justify-center text-on-surface hover:bg-surface-bright transition-colors">
-                            <span className="material-symbols-outlined text-[16px]">add</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>`;
+              {/* Promo Code */}`;
 
-code = code.replace(oldMap, newMap);
-fs.writeFileSync(file, code);
+code = code.replace(`{/* Promo Code */}`, sizeBoxCode);
+
+// 3. Update Proceed to Checkout validation
+code = code.replace(
+  `                  if(!deliveryZone && !deliverySettings.freeDelivery) {
+                    toast.error('Please select a delivery zone');
+                    return;
+                  }`,
+  `                  const itemsNeedingSize = items.filter(item => item.sizes && item.sizes.length > 0 && !item.selectedSize);
+                  if (itemsNeedingSize.length > 0) {
+                    toast.error('Please select sizes for all products');
+                    return;
+                  }
+                  
+                  if(!deliveryZone && !deliverySettings.freeDelivery) {
+                    toast.error('Please select a delivery zone');
+                    return;
+                  }`
+);
+
+fs.writeFileSync('src/components/store/CartDrawer.tsx', code);

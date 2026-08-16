@@ -90,19 +90,7 @@ export default function CartDrawer() {
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
-                          {item.sizes && item.sizes.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {item.sizes.map(s => (
-                                <button
-                                  key={s}
-                                  onClick={() => useCartStore.getState().updateSize(item.cartItemId || item.id, s)}
-                                  className={`w-8 h-8 flex items-center justify-center text-xs font-bold border transition-colors ${item.selectedSize === s ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
-                                >
-                                  {s}
-                                </button>
-                              ))}
-                            </div>
-                          ) : item.selectedSize && (
+                          {item.selectedSize && (
                             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</p>
                           )}
                         </div>
@@ -127,6 +115,34 @@ export default function CartDrawer() {
                   </div>
                 ))}
               </div>
+
+                            {/* Size Selection Box */}
+              {items.some(item => item.sizes && item.sizes.length > 0) && (
+                <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
+                  <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[12px]">SELECT SIZES</label>
+                  <div className="space-y-4">
+                    {items.filter(item => item.sizes && item.sizes.length > 0).map(item => (
+                      <div key={item.cartItemId || item.id}>
+                        <div className="flex justify-between items-center mb-2">
+                           <p className="text-[14px] font-bold text-on-surface line-clamp-1 pr-4">{item.title}</p>
+                           {!item.selectedSize && <span className="text-[10px] font-bold text-error uppercase tracking-widest shrink-0">Required</span>}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {item.sizes!.map(s => (
+                            <button
+                              key={s}
+                              onClick={() => useCartStore.getState().updateSize(item.cartItemId || item.id, s)}
+                              className={`w-10 h-10 flex items-center justify-center text-[14px] font-bold border transition-colors ${item.selectedSize === s ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Promo Code */}
               <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
@@ -195,6 +211,12 @@ export default function CartDrawer() {
               </div>
               <button 
                 onClick={() => {
+                  const itemsNeedingSize = items.filter(item => item.sizes && item.sizes.length > 0 && !item.selectedSize);
+                  if (itemsNeedingSize.length > 0) {
+                    toast.error('Please select sizes for all products');
+                    return;
+                  }
+                  
                   if(!deliveryZone && !deliverySettings.freeDelivery) {
                     toast.error('Please select a delivery zone');
                     return;

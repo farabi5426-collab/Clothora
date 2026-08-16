@@ -58,9 +58,8 @@ const REVIEWS = [
 ];
 
 
-const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product) => void, handleAddToCart: (e: React.MouseEvent, p: Product, size?: string) => void }> = ({ product, openProductDetails, handleAddToCart }) => {
+const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product) => void, handleAddToCart: (e: React.MouseEvent, p: Product) => void }> = ({ product, openProductDetails, handleAddToCart }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   const images = product.imageUrls && product.imageUrls.length > 0 
     ? product.imageUrls 
@@ -123,19 +122,6 @@ const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product)
         <h3 className="text-lg font-black text-on-background uppercase leading-tight mb-4 line-clamp-2">
           {product.title}
         </h3>
-        {product.sizes && product.sizes.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {product.sizes.map(size => (
-              <button
-                key={size}
-                onClick={(e) => { e.stopPropagation(); setSelectedSize(size); }}
-                className={`w-8 h-8 flex items-center justify-center text-xs font-bold border transition-colors ${selectedSize === size ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container-low text-on-surface-variant border-outline-variant hover:border-primary'}`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        )}
         <div className="mt-auto">
           <div className="flex items-center gap-1 mb-2">
             <Star className="w-3.5 h-3.5 fill-primary text-primary" />
@@ -158,7 +144,7 @@ const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product)
               </button>
               <button 
                 disabled={product.stock <= 0}
-                onClick={(e) => handleAddToCart(e, product, selectedSize || undefined)}
+                onClick={(e) => handleAddToCart(e, product)}
                 className="flex-1 bg-primary text-on-primary flex items-center justify-center py-3 gap-2 shadow-[2px_2px_0px_var(--color-on-background)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_var(--color-on-background)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-black uppercase tracking-widest"
               >
                 <ShoppingCart className="w-4 h-4" /> Add
@@ -184,7 +170,6 @@ export default function Home() {
   const heroVideos = [...heroDbVideos, ...productBannerVideos];
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [modalSelectedSize, setModalSelectedSize] = useState<string | null>(null);
   const [flyingImages, setFlyingImages] = useState<{id: number, src: string, startX: number, startY: number}[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -198,19 +183,14 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product, selectedSize?: string) => {
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      toast.error('Please select a size first');
-      return;
-    }
     addToCart({
       id: product.id,
       title: product.title,
       price: product.price,
       imageUrl: product.imageUrl || '',
-      sizes: product.sizes || [],
-      selectedSize: selectedSize
+      sizes: product.sizes || []
     });
 
     // Get click coordinates
@@ -233,7 +213,6 @@ export default function Home() {
   const openProductDetails = (product: Product) => {
     setSelectedProduct(product);
     setActiveImageIndex(0);
-    setModalSelectedSize(null);
   };
 
   useEffect(() => {
@@ -636,23 +615,6 @@ export default function Home() {
                 <div className="text-3xl font-black text-on-background mb-8">
                   ৳{selectedProduct.price}
                 </div>
-
-                {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
-                  <div className="mb-8">
-                    <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 block">Select Size</span>
-                    <div className="flex flex-wrap gap-3">
-                      {selectedProduct.sizes.map(size => (
-                        <button
-                          key={size}
-                          onClick={(e) => { e.stopPropagation(); setModalSelectedSize(size); }}
-                          className={`px-6 py-3 text-sm font-bold uppercase tracking-widest border transition-all ${modalSelectedSize === size ? 'bg-primary text-on-primary border-primary shadow-[4px_4px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-surface-container-low text-on-surface-variant border-outline-variant hover:border-primary hover:text-on-surface'}`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
                 
                 <div className="prose prose-invert max-w-none mb-10">
                   <p className="text-on-surface-variant leading-relaxed whitespace-pre-wrap">
@@ -666,18 +628,13 @@ export default function Home() {
                       disabled={selectedProduct.stock <= 0}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (selectedProduct.sizes && selectedProduct.sizes.length > 0 && !modalSelectedSize) {
-                          toast.error('Please select a size first');
-                          return;
-                        }
                         addToCart({
                           id: selectedProduct.id,
                           title: selectedProduct.title,
                           price: selectedProduct.price,
                           imageUrl: selectedProduct.imageUrl || '',
                           costPrice: selectedProduct.costPrice,
-                          sizes: selectedProduct.sizes || [],
-                          selectedSize: modalSelectedSize || undefined
+                          sizes: selectedProduct.sizes || []
                         }, true);
                         setSelectedProduct(null);
                       }}
@@ -689,18 +646,13 @@ export default function Home() {
                       disabled={selectedProduct.stock <= 0}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (selectedProduct.sizes && selectedProduct.sizes.length > 0 && !modalSelectedSize) {
-                          toast.error('Please select a size first');
-                          return;
-                        }
                         addToCart({
                           id: selectedProduct.id,
                           title: selectedProduct.title,
                           price: selectedProduct.price,
                           imageUrl: selectedProduct.imageUrl || '',
                           costPrice: selectedProduct.costPrice,
-                          sizes: selectedProduct.sizes || [],
-                          selectedSize: modalSelectedSize || undefined
+                          sizes: selectedProduct.sizes || []
                         }, false);
                         toast.success(`${selectedProduct.title} added to cart`);
                         setSelectedProduct(null);

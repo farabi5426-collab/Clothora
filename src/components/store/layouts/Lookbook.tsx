@@ -14,8 +14,7 @@ interface Product {
 
 export default function Lookbook({ products, loading }: { products: Product[], loading: boolean }) {
   const { addToCart } = useCartStore();
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
-
+  
   if (loading) {
     return (
       <div className="space-y-[48px]">
@@ -49,36 +48,20 @@ export default function Lookbook({ products, loading }: { products: Product[], l
               <span className="text-[32px] font-black text-on-surface mt-[8px] block drop-shadow-md">
                 ৳{product.price}
               </span>
-              {product.sizes && product.sizes.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {product.sizes.map(size => (
-                    <button
-                      key={size}
-                      onClick={(e) => { e.preventDefault(); setSelectedSizes(prev => ({...prev, [product.id]: size})); }}
-                      className={`w-10 h-10 flex items-center justify-center text-sm font-bold border transition-colors ${selectedSizes[product.id] === size ? 'bg-primary text-on-primary border-primary' : 'bg-surface/50 text-on-surface-variant border-surface-bright hover:border-primary backdrop-blur-md'}`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              )}
+              
             </div>
             
             <button 
               disabled={product.stock <= 0}
               onClick={(e) => {
                   e.preventDefault();
-                  if (product.sizes && product.sizes.length > 0 && !selectedSizes[product.id]) {
-                     toast.error('Please select a size first');
-                     return;
-                  }
+                  
                   addToCart({
                        id: product.id,
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-                       sizes: product.sizes || [],
-                       selectedSize: selectedSizes[product.id] || undefined
+                       sizes: product.sizes || []
                   }, true);
                 }}
               className="bg-primary text-on-primary px-[48px] py-[24px] text-[18px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 rounded-theme"
