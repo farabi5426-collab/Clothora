@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+const file = 'src/pages/admin/OrdersManagement.tsx';
+
+const code = `import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, onSnapshot, query, orderBy, updateDoc, doc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
@@ -125,7 +128,7 @@ export default function OrdersManagement() {
                 </td>
                 <td className="p-4 text-primary font-bold">৳ {order.totalAmount}</td>
                 <td className="p-4">
-                  <span className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-theme ${order.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-500' : order.status === 'Shipped' ? 'bg-blue-500/20 text-blue-500' : order.status === 'Delivered' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                  <span className={\`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-theme \${order.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-500' : order.status === 'Shipped' ? 'bg-blue-500/20 text-blue-500' : order.status === 'Delivered' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}\`}>
                     {order.status}
                   </span>
                 </td>
@@ -240,7 +243,7 @@ export default function OrdersManagement() {
                      ) : null}
                      <div className="flex justify-between text-on-surface-variant border-b border-surface-bright pb-2">
                        <span>Delivery</span>
-                       <span>{selectedOrder.deliveryCharge === 0 ? 'FREE' : `৳ ${selectedOrder.deliveryCharge || 0}`}</span>
+                       <span>{selectedOrder.deliveryCharge === 0 ? 'FREE' : \`৳ \${selectedOrder.deliveryCharge || 0}\`}</span>
                      </div>
                      <div className="flex justify-between text-lg text-primary pt-2">
                        <span>Total</span>
@@ -281,3 +284,6 @@ export default function OrdersManagement() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync(file, code);
