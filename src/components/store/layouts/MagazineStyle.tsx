@@ -70,21 +70,36 @@ export default function MagazineStyle({ products, loading }: { products: Product
             </span>
           </div>
           
+          {featured.sizes && featured.sizes.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {featured.sizes.map(size => (
+                <button
+                  key={size}
+                  onClick={(e) => { e.preventDefault(); setSelectedSizes(prev => ({...prev, [featured.id]: size})); }}
+                  className={`w-10 h-10 flex items-center justify-center text-sm font-bold border transition-colors ${selectedSizes[featured.id] === size ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          )}
           <button 
             disabled={featured.stock <= 0}
             onClick={(e) => {
                   e.preventDefault();
-                  if (product.sizes && product.sizes.length > 0) {
-                     window.location.href = `/product/${product.id}`;
-                  } else {
-                     addToCart({
-                       id: product.id,
-                       title: product.title,
-                       price: product.price,
-                       imageUrl: product.imageUrl || ''
-                     });
+                  if (featured.sizes && featured.sizes.length > 0 && !selectedSizes[featured.id]) {
+                     toast.error('Please select a size first');
+                     return;
                   }
-                }}
+                  addToCart({
+                       id: featured.id,
+                       title: featured.title,
+                       price: featured.price,
+                       imageUrl: featured.imageUrl || '',
+                       sizes: featured.sizes || [],
+                       selectedSize: selectedSizes[featured.id] || undefined
+                  }, true);
+            }}
             className="w-full bg-primary text-on-primary py-[24px] text-[18px] font-black uppercase tracking-[0.1em] shadow-[6px_6px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_var(--color-on-primary)] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-[16px] rounded-theme"
           >
             {featured.stock <= 0 ? 'SOLD OUT' : 'ADD TO CART'} <span className="material-symbols-outlined">shopping_bag</span>
