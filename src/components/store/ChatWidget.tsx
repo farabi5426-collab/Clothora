@@ -12,6 +12,30 @@ interface ChatMessage {
   createdAt: any;
 }
 
+
+  const renderMessageWithLinks = (text: string) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a 
+            key={i} 
+            href={part} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="underline hover:opacity-80 break-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
 export default function ChatWidget() {
   const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -155,7 +179,7 @@ export default function ChatWidget() {
                           ? 'bg-primary text-on-primary' 
                           : 'bg-surface-container-low text-on-surface'
                       }`}>
-                        {msg.text}
+                        {renderMessageWithLinks(msg.text)}
                       </div>
                       <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${msg.sender === 'customer' ? 'justify-end w-full' : 'w-full'}`}>
                         {msg.createdAt?.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) || 'Now'}
