@@ -98,7 +98,7 @@ export default function MessagesManagement() {
                 <div className="flex justify-between items-start mb-1">
                   <h3 className="font-bold text-sm uppercase text-on-background truncate">{chat.customerName}</h3>
                   {chat.unreadAdmin > 0 && (
-                    <span className="bg-primary text-on-background text-[10px] font-bold px-2 py-0.5 rounded-full">{chat.unreadAdmin}</span>
+                    <span className="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full">{chat.unreadAdmin}</span>
                   )}
                 </div>
                 <p className="text-xs text-on-surface-variant truncate">{chat.lastMessage}</p>
@@ -129,7 +129,7 @@ export default function MessagesManagement() {
                   <div key={msg.id} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] p-3 text-sm font-medium ${
                       msg.sender === 'admin' 
-                        ? 'bg-primary text-on-background' 
+                        ? 'bg-primary text-on-primary' 
                         : 'bg-surface-container-low border border-outline-variant text-on-background'
                     }`}>
                       {msg.text}
@@ -149,7 +149,7 @@ export default function MessagesManagement() {
                     placeholder="Type your reply..." 
                     className="flex-1 bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none text-sm"
                   />
-                  <button type="submit" disabled={!inputText.trim()} className="bg-primary text-on-background px-6 flex items-center justify-center font-bold uppercase tracking-widest hover:bg-primary-container transition-colors disabled:opacity-50">
+                  <button type="submit" disabled={!inputText.trim()} className="bg-primary text-on-primary px-6 flex items-center justify-center font-bold uppercase tracking-widest hover:bg-primary-container transition-colors disabled:opacity-50">
                     <Send className="w-4 h-4" />
                   </button>
                 </form>

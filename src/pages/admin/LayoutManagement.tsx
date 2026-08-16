@@ -95,7 +95,7 @@ export default function LayoutManagement() {
                   className={`w-full py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
                     isActive 
                       ? 'bg-surface-container-low text-on-surface-variant cursor-default'
-                      : 'bg-primary text-on-background hover:bg-primary-container'
+                      : 'bg-primary text-on-primary hover:bg-primary-container'
                   }`}
                 >
                   {isActive ? 'Active Layout' : 'Apply Layout'}

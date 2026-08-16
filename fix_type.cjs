@@ -1,13 +1,35 @@
 const fs = require('fs');
-let content = fs.readFileSync('src/pages/store/Home.tsx', 'utf-8');
-content = content.replace(
-  'function ProductCard({ product, openProductDetails, handleAddToCart }: { product: Product, openProductDetails: (p: Product) => void, handleAddToCart: (e: React.MouseEvent, p: Product) => void }) {',
-  'const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product) => void, handleAddToCart: (e: React.MouseEvent, p: Product) => void }> = ({ product, openProductDetails, handleAddToCart }) => {'
-);
-// replace closing bracket for ProductCard
-// we need to find the end of ProductCard which is right before export default function Home() {
-content = content.replace(
-  /    <\/div>\n  \);\n}\n\nexport default function Home\(\) {/,
-  '    </div>\n  );\n};\n\nexport default function Home() {'
-);
-fs.writeFileSync('src/pages/store/Home.tsx', content);
+const path = require('path');
+
+function walk(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  list.forEach(file => {
+    file = path.join(dir, file);
+    const stat = fs.statSync(file);
+    if (stat && stat.isDirectory()) { 
+      results = results.concat(walk(file));
+    } else if (file.endsWith('.tsx') || file.endsWith('.ts')) { 
+      results.push(file);
+    }
+  });
+  return results;
+}
+
+const files = walk('./src');
+
+files.forEach(file => {
+  let content = fs.readFileSync(file, 'utf8');
+  
+  // Replace instances
+  let newContent = content.replace(/bg-primary\s+text-on-background/g, 'bg-primary text-on-primary');
+  newContent = newContent.replace(/text-on-background\s+bg-primary/g, 'text-on-primary bg-primary');
+  newContent = newContent.replace(/bg-primary(?:\s+hover:[^\s]+)*\s+text-on-background/g, (match) => {
+    return match.replace('text-on-background', 'text-on-primary');
+  });
+  
+  if (content !== newContent) {
+    fs.writeFileSync(file, newContent, 'utf8');
+    console.log('Fixed', file);
+  }
+});

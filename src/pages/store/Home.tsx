@@ -145,7 +145,7 @@ const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product)
               <button 
                 disabled={product.stock <= 0}
                 onClick={(e) => handleAddToCart(e, product)}
-                className="flex-1 bg-primary text-on-background flex items-center justify-center py-3 gap-2 shadow-[2px_2px_0px_var(--color-on-background)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_var(--color-on-background)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-black uppercase tracking-widest"
+                className="flex-1 bg-primary text-on-primary flex items-center justify-center py-3 gap-2 shadow-[2px_2px_0px_var(--color-on-background)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_var(--color-on-background)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-black uppercase tracking-widest"
               >
                 <ShoppingCart className="w-4 h-4" /> Add
               </button>
@@ -337,7 +337,7 @@ export default function Home() {
             </AnimatePresence>
           </div>
           <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-            <a href="#shop" className="w-full sm:w-auto justify-center bg-primary text-on-background px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--color-on-background)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-background)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
+            <a href="#shop" className="w-full sm:w-auto justify-center bg-primary text-on-primary px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--color-on-background)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-background)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
               SHOP NEW DROPS <ArrowRight className="w-5 h-5" />
             </a>
             <a href="#shop" className="w-full sm:w-auto justify-center bg-transparent border-2 border-primary text-primary px-8 py-4 text-sm md:text-base font-black uppercase tracking-widest shadow-[4px_4px_0px_#ff4e00] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ff4e00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2 rounded-none">
@@ -394,7 +394,7 @@ export default function Home() {
               onClick={() => setActiveCategory(cat.name)}
               className={`px-6 py-2 rounded-full border border-outline-variant text-xs md:text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
                 activeCategory === cat.name 
-                  ? 'bg-primary text-on-background border-primary shadow-[0_0_15px_var(--color-primary)]' 
+                  ? 'bg-primary text-on-primary border-primary shadow-[0_0_15px_var(--color-primary)]' 
                   : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-background hover:border-primary hover:shadow-[0_0_10px_var(--color-primary)]'
               }`}
             >
@@ -624,7 +624,7 @@ export default function Home() {
                       handleAddToCart(e, selectedProduct);
                       setSelectedProduct(null);
                     }}
-                    className="w-full bg-primary text-on-background py-5 text-sm font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_var(--color-on-background)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-background)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                    className="w-full bg-primary text-on-primary py-5 text-sm font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_var(--color-on-background)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-background)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     {selectedProduct.stock > 0 ? 'Add to Cart' : 'Sold Out'}

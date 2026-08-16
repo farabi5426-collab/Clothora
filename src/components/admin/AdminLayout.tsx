@@ -50,7 +50,7 @@ export default function AdminLayout() {
                 to={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-none uppercase text-xs font-bold tracking-widest transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'bg-primary text-on-background'
+                    ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-background hover:bg-surface-container'
                 }`}
               >

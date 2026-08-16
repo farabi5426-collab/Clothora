@@ -259,7 +259,7 @@ export default function ProductsManagement() {
         </div>
         <button 
           onClick={() => { resetForm(); setIsModalOpen(true); }}
-          className="bg-primary hover:bg-primary-container text-on-background px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
+          className="bg-primary hover:bg-primary-container text-on-primary px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add Product
         </button>
@@ -480,7 +480,7 @@ export default function ProductsManagement() {
                   </div>
                 </div>
               </div>
-              <button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-background p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2">
+              <button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-primary p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2">
                 {editingId ? 'Update Product' : 'Save Product'}
               </button>
             </form>
@@ -505,7 +505,7 @@ export default function ProductsManagement() {
                 placeholder="New Category Name" 
                 className="flex-1 bg-surface-container-low border border-outline-variant p-3 text-sm focus:border-primary outline-none uppercase font-bold tracking-wider" 
               />
-              <button type="button" onClick={handleAddCategory} className="bg-primary text-on-background px-4 font-bold uppercase tracking-widest text-xs hover:bg-primary/90">Add</button>
+              <button type="button" onClick={handleAddCategory} className="bg-primary text-on-primary px-4 font-bold uppercase tracking-widest text-xs hover:bg-primary/90">Add</button>
             </div>
 
             <div className="space-y-2 max-h-[40vh] overflow-y-auto">

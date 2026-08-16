@@ -115,7 +115,7 @@ export default function BannersManagement() {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)} 
-          className="bg-primary hover:bg-primary-container text-on-background px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
+          className="bg-primary hover:bg-primary-container text-on-primary px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add Video
         </button>
@@ -210,7 +210,7 @@ export default function BannersManagement() {
               <button 
                 type="submit" 
                 disabled={(!videoUrl && !selectedVideo) || isUploading}
-                className="w-full bg-primary hover:bg-primary-container text-on-background p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-primary hover:bg-primary-container text-on-primary p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUploading ? (
                   <>

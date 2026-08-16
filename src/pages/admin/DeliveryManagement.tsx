@@ -82,7 +82,7 @@ export default function DeliveryManagement() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-container text-on-background p-4 text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+          className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-container text-on-primary p-4 text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {saving ? 'Saving...' : 'Save Settings'}

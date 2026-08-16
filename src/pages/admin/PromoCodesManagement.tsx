@@ -64,7 +64,7 @@ export default function PromoCodesManagement() {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary-container text-on-background px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
+          className="bg-primary hover:bg-primary-container text-on-primary px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Create Code
         </button>
@@ -140,7 +140,7 @@ export default function PromoCodesManagement() {
                   <input required type="date" value={formData.expiryDate} onChange={e => setFormData({...formData, expiryDate: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
                 </div>
               </div>
-              <button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-background p-4 text-xs font-bold uppercase tracking-widest mt-6">
+              <button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-primary p-4 text-xs font-bold uppercase tracking-widest mt-6">
                 Create Promo Code
               </button>
             </form>
