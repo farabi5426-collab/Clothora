@@ -6,7 +6,8 @@ import { Send, User } from 'lucide-react';
 interface ChatSession {
   id: string; // which is the userId/chatId
   customerName: string;
-  customerEmail: string;
+  customerPhone?: string;
+  customerEmail?: string;
   lastMessage: string;
   updatedAt: any;
   unreadAdmin: number;
@@ -143,7 +144,7 @@ export default function MessagesManagement() {
                 </div>
                 <div>
                   <h2 className="font-bold uppercase text-on-background">{selectedChat.customerName}</h2>
-                  <p className="text-xs text-on-surface-variant tracking-widest">{selectedChat.customerEmail}</p>
+                  <p className="text-xs text-on-surface-variant tracking-widest">{selectedChat.customerPhone || selectedChat.customerEmail}</p>
                 </div>
               </div>
 

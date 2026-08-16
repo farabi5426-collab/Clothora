@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
@@ -45,7 +46,7 @@ export default function ChatWidget() {
   // Registration state for anonymous users before they can chat
   const [isRegistered, setIsRegistered] = useState(false);
   const [regName, setRegName] = useState(user?.displayName || '');
-  const [regEmail, setRegEmail] = useState(user?.email || '');
+  const [regPhone, setRegPhone] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -87,12 +88,17 @@ export default function ChatWidget() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regName || !regEmail) return;
+    if (!regName || !regPhone) return;
+    const phoneStr = regPhone.replace(/[\s-]/g, '');
+    if (!/^(?:\+88|88)?01[3-9]\d{8}$/.test(phoneStr) && !/^\+?[0-9]{10,15}$/.test(phoneStr)) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
     
     await setDoc(doc(db, 'chats', chatId), {
       userId: chatId,
       customerName: regName,
-      customerEmail: regEmail,
+      customerPhone: regPhone,
       lastMessage: 'Chat started',
       updatedAt: serverTimestamp(),
       unreadAdmin: 1,
@@ -113,7 +119,7 @@ export default function ChatWidget() {
     await setDoc(doc(db, 'chats', chatId), {
       userId: chatId,
       customerName: user?.displayName || regName || 'Guest',
-      customerEmail: user?.email || regEmail || 'guest@example.com',
+      customerPhone: regPhone || 'N/A',
       lastMessage: textToSend,
       updatedAt: serverTimestamp(),
       unreadAdmin: 1 // We increment unreadAdmin count or just set it to > 0. In real world we'd use FieldValue.increment(1)
@@ -160,7 +166,7 @@ export default function ChatWidget() {
                 <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Please introduce yourself to start chatting.</p>
                 <form onSubmit={handleRegister} className="w-full space-y-3 mt-4">
                   <input required placeholder="YOUR NAME" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant p-4 text-xs font-bold uppercase tracking-[0.1em] text-on-background focus:border-primary outline-none rounded-none" />
-                  <input required type="email" placeholder="YOUR EMAIL" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant p-4 text-xs font-bold uppercase tracking-[0.1em] text-on-background focus:border-primary outline-none rounded-none" />
+                  <input required type="tel" placeholder="YOUR PHONE" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant p-4 text-xs font-bold uppercase tracking-[0.1em] text-on-background focus:border-primary outline-none rounded-none" />
                   <button type="submit" className="w-full bg-primary text-on-primary p-4 text-xs font-black uppercase tracking-[0.1em] hover:bg-primary-container transition-colors rounded-none">Start Chat</button>
                 </form>
               </div>
