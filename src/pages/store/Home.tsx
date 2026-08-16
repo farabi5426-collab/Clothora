@@ -190,7 +190,7 @@ export default function Home() {
       title: product.title,
       price: product.price,
       imageUrl: product.imageUrl || '',
-      sizes: product.sizes || []
+      sizes: product.sizes || [], imageUrls: product.imageUrls || []
     });
 
     // Get click coordinates
@@ -634,7 +634,7 @@ export default function Home() {
                           price: selectedProduct.price,
                           imageUrl: selectedProduct.imageUrl || '',
                           costPrice: selectedProduct.costPrice,
-                          sizes: selectedProduct.sizes || []
+                          sizes: selectedProduct.sizes || [], imageUrls: selectedProduct.imageUrls || []
                         }, true);
                         setSelectedProduct(null);
                       }}
@@ -652,7 +652,7 @@ export default function Home() {
                           price: selectedProduct.price,
                           imageUrl: selectedProduct.imageUrl || '',
                           costPrice: selectedProduct.costPrice,
-                          sizes: selectedProduct.sizes || []
+                          sizes: selectedProduct.sizes || [], imageUrls: selectedProduct.imageUrls || []
                         }, false);
                         toast.success(`${selectedProduct.title} added to cart`);
                         setSelectedProduct(null);

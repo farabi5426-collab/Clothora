@@ -60,7 +60,7 @@ export default function MasonryGrid({ products, loading }: { products: Product[]
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-                       sizes: product.sizes || []
+                       sizes: product.sizes || [], imageUrls: product.imageUrls || []
                   }, true);
                 }}
                 className="bg-primary text-on-primary px-[24px] py-[16px] text-[14px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all disabled:opacity-50 flex items-center gap-2 rounded-theme"

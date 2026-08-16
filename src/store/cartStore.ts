@@ -9,6 +9,8 @@ export interface CartItem {
   quantity: number;
   selectedSize?: string;
   sizes?: string[];
+  imageUrls?: string[];
+  selectedColor?: string;
   cartItemId?: string;
 }
 
@@ -20,6 +22,7 @@ interface CartStore {
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   updateSize: (id: string, newSize: string) => void;
+  updateColor: (id: string, newColor: string) => void;
   clearCart: () => void;
   toggleCart: () => void;
 }
@@ -30,12 +33,12 @@ export const useCartStore = create<CartStore>((set) => ({
   
   setCartOpen: (isOpen) => set({ isCartOpen: isOpen }),
   addToCart: (product, openCart = false) => set((state) => {
-    const cartItemId = product.id + (product.selectedSize ? `-${product.selectedSize}` : '');
-    const existingItem = state.items.find(item => item.cartItemId === cartItemId || (!item.cartItemId && item.id === product.id && item.selectedSize === product.selectedSize));
+    const cartItemId = product.id + (product.selectedSize ? `-${product.selectedSize}` : '') + (product.selectedColor ? `-color-${product.selectedColor}` : '');
+    const existingItem = state.items.find(item => item.cartItemId === cartItemId || (!item.cartItemId && item.id === product.id && item.selectedSize === product.selectedSize && item.selectedColor === product.selectedColor));
     if (existingItem) {
       return {
         items: state.items.map(item =>
-          (item.cartItemId === cartItemId || (!item.cartItemId && item.id === product.id && item.selectedSize === product.selectedSize))
+          (item.cartItemId === cartItemId || (!item.cartItemId && item.id === product.id && item.selectedSize === product.selectedSize && item.selectedColor === product.selectedColor))
             ? { ...item, quantity: item.quantity + 1 } 
             : item
         ),
@@ -61,7 +64,19 @@ export const useCartStore = create<CartStore>((set) => ({
     return {
       items: state.items.map(item => {
         if ((item.cartItemId || item.id) === id) {
-          return { ...item, selectedSize: newSize, cartItemId: item.id + '-' + newSize };
+          const newId = item.id + '-' + newSize + (item.selectedColor ? `-color-${item.selectedColor}` : '');
+          return { ...item, selectedSize: newSize, cartItemId: newId };
+        }
+        return item;
+      })
+    };
+  }),
+  updateColor: (id, newColor) => set((state) => {
+    return {
+      items: state.items.map(item => {
+        if ((item.cartItemId || item.id) === id) {
+          const newId = item.id + (item.selectedSize ? `-${item.selectedSize}` : '') + `-color-${newColor}`;
+          return { ...item, selectedColor: newColor, cartItemId: newId };
         }
         return item;
       })

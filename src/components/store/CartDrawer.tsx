@@ -81,7 +81,7 @@ export default function CartDrawer() {
                   <div key={item.cartItemId || item.id} className="flex gap-[16px] bg-surface-container border-2 border-surface-bright p-[16px] relative group rounded-theme">
                     <div className="w-[100px] h-[100px] bg-surface-container-highest border-2 border-surface-bright shrink-0">
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                        <img src={item.selectedColor || item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full" />
                       )}
@@ -92,6 +92,11 @@ export default function CartDrawer() {
                           <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
                           {item.selectedSize && (
                             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</p>
+                          )}
+                          {item.selectedColor && (
+                            <div className="mt-2 w-8 h-10 border border-outline-variant">
+                              <img src={item.selectedColor} className="w-full h-full object-cover" />
+                            </div>
                           )}
                         </div>
                         <button onClick={() => removeFromCart(item.cartItemId || item.id)} className="text-on-surface-variant hover:text-error transition-colors shrink-0">
@@ -116,7 +121,35 @@ export default function CartDrawer() {
                 ))}
               </div>
 
-                            {/* Size Selection Box */}
+                                          {/* Color/Design Selection Box */}
+              {items.some(item => item.imageUrls && item.imageUrls.length > 1) && (
+                <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
+                  <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[12px]">SELECT COLOR/DESIGN</label>
+                  <div className="space-y-4">
+                    {items.filter(item => item.imageUrls && item.imageUrls.length > 1).map(item => (
+                      <div key={item.cartItemId || item.id}>
+                        <div className="flex justify-between items-center mb-2">
+                           <p className="text-[14px] font-bold text-on-surface line-clamp-1 pr-4">{item.title}</p>
+                           {!item.selectedColor && <span className="text-[10px] font-bold text-error uppercase tracking-widest shrink-0">Required</span>}
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                          {item.imageUrls!.map((url, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => useCartStore.getState().updateColor(item.cartItemId || item.id, url)}
+                              className={`w-16 h-20 flex-shrink-0 border-2 transition-all ${item.selectedColor === url ? 'border-primary opacity-100' : 'border-surface-bright opacity-50 hover:opacity-100 hover:border-primary'}`}
+                            >
+                              <img src={url} alt={`${item.title} ${idx}`} className="w-full h-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Size Selection Box */}
               {items.some(item => item.sizes && item.sizes.length > 0) && (
                 <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
                   <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[12px]">SELECT SIZES</label>
@@ -212,6 +245,11 @@ export default function CartDrawer() {
               <button 
                 onClick={() => {
                   const itemsNeedingSize = items.filter(item => item.sizes && item.sizes.length > 0 && !item.selectedSize);
+                  const itemsNeedingColor = items.filter(item => item.imageUrls && item.imageUrls.length > 1 && !item.selectedColor);
+                  if (itemsNeedingColor.length > 0) {
+                    toast.error('Please select color/design for all products');
+                    return;
+                  }
                   if (itemsNeedingSize.length > 0) {
                     toast.error('Please select sizes for all products');
                     return;

@@ -11,6 +11,7 @@ interface OrderItem {
   price: number;
   imageUrl?: string;
   selectedSize?: string;
+  selectedColor?: string;
 }
 
 interface Order {
@@ -215,7 +216,7 @@ export default function OrdersManagement() {
                        <div key={idx} className="flex justify-between items-center text-sm font-bold uppercase tracking-wide border-b border-surface-bright pb-3 last:border-0 last:pb-0">
                          <div className="flex items-center gap-4">
                            {item.imageUrl ? (
-                             <img src={item.imageUrl} alt={item.title} className="w-12 h-12 object-cover border border-surface-bright" />
+                             <img src={item.selectedColor || item.imageUrl} alt={item.title} className="w-12 h-12 object-cover border border-surface-bright" />
                            ) : (
                              <div className="w-12 h-12 bg-surface-container-high flex items-center justify-center border border-surface-bright">
                                <Package className="w-5 h-5 text-on-surface-variant" />
@@ -226,6 +227,12 @@ export default function OrdersManagement() {
                              <span className="text-on-surface line-clamp-2 max-w-[200px] sm:max-w-[300px]">{item.title}</span>
                              {item.selectedSize && (
                                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</span>
+                             )}
+                             {item.selectedColor && (
+                               <div className="mt-1 flex items-center gap-1">
+                                 <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Color:</span>
+                                 <img src={item.selectedColor} className="w-6 h-8 object-cover border border-outline-variant" />
+                               </div>
                              )}
                            </div>
                          </div>

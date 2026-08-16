@@ -1,42 +1,23 @@
 const fs = require('fs');
-const file = 'src/pages/admin/OrdersManagement.tsx';
-let code = fs.readFileSync(file, 'utf8');
+let code = fs.readFileSync('src/pages/admin/OrdersManagement.tsx', 'utf8');
 
-// Update Interface
-code = code.replace("screenshotUrl: string;", "");
+code = code.replace(
+  /\{item\.selectedSize && \([\s\S]*?<\/span>\s*\)\}/,
+  `{item.selectedSize && (
+                               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</span>
+                             )}
+                             {item.selectedColor && (
+                               <div className="mt-1 flex items-center gap-1">
+                                 <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Color:</span>
+                                 <img src={item.selectedColor} className="w-6 h-8 object-cover border border-outline-variant" />
+                               </div>
+                             )}`
+);
 
-// Update Table Display logic
-const oldDisplay = `<td className="p-4">
-                  <div className="text-xs font-bold uppercase text-on-surface mb-1">
-                    {order.paymentMethod === 'bkash' ? 'bKash' : 'Cash On Delivery'}
-                  </div>
-                  {order.paymentMethod === 'bkash' && order.bkashDetails && (
-                    <div className="flex flex-col gap-1 text-[10px]">
-                      {order.bkashDetails.transactionId && (
-                        <div className="text-primary font-bold">TrxID: {order.bkashDetails.transactionId}</div>
-                      )}
-                      {order.bkashDetails.screenshotUrl && (
-                        <a href={order.bkashDetails.screenshotUrl} target="_blank" rel="noreferrer" className="text-on-surface-variant underline hover:text-primary transition-colors">
-                          View Screenshot
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </td>`;
+// We should also use the selectedColor as the main image if available
+code = code.replace(
+  /<img src=\{item\.imageUrl\} alt=\{item\.title\}/,
+  `<img src={item.selectedColor || item.imageUrl} alt={item.title}`
+);
 
-const newDisplay = `<td className="p-4">
-                  <div className="text-xs font-bold uppercase text-on-surface mb-1">
-                    {order.paymentMethod === 'bkash' ? 'bKash' : 'Cash On Delivery'}
-                  </div>
-                  {order.paymentMethod === 'bkash' && order.bkashDetails && (
-                    <div className="flex flex-col gap-1 text-[10px]">
-                      {order.bkashDetails.transactionId && (
-                        <div className="text-primary font-bold">TrxID/Num: {order.bkashDetails.transactionId}</div>
-                      )}
-                    </div>
-                  )}
-                </td>`;
-
-code = code.replace(oldDisplay, newDisplay);
-fs.writeFileSync(file, code);
-
+fs.writeFileSync('src/pages/admin/OrdersManagement.tsx', code);

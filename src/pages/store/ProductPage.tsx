@@ -172,7 +172,7 @@ export default function ProductPage() {
                       price: product.price,
                       imageUrl: product.imageUrl || '',
                       costPrice: product.costPrice,
-                      sizes: product.sizes || []
+                      sizes: product.sizes || [], imageUrls: product.imageUrls || []
                     }, true);
                   }}
                   className="flex-1 bg-transparent border-2 border-[#ffffff] text-on-background py-5 text-sm font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
@@ -189,7 +189,7 @@ export default function ProductPage() {
                       price: product.price,
                       imageUrl: product.imageUrl || '',
                       costPrice: product.costPrice,
-                      sizes: product.sizes || []
+                      sizes: product.sizes || [], imageUrls: product.imageUrls || []
                     }, false);
                     toast.success(`${product.title} added to cart`);
                   }}
