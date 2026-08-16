@@ -12,7 +12,8 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   isCartOpen: boolean;
-  addToCart: (product: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (product: Omit<CartItem, 'quantity'>, openCart?: boolean) => void;
+  setCartOpen: (isOpen: boolean) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -23,19 +24,20 @@ export const useCartStore = create<CartStore>((set) => ({
   items: [],
   isCartOpen: false,
   
-  addToCart: (product) => set((state) => {
+  setCartOpen: (isOpen) => set({ isCartOpen: isOpen }),
+  addToCart: (product, openCart = false) => set((state) => {
     const existingItem = state.items.find(item => item.id === product.id);
     if (existingItem) {
       return {
         items: state.items.map(item =>
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         ),
-        isCartOpen: true
+        isCartOpen: openCart
       };
     }
     return { 
       items: [...state.items, { ...product, quantity: 1 }],
-      isCartOpen: true 
+      isCartOpen: openCart 
     };
   }),
   
