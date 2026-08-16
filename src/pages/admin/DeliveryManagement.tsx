@@ -6,6 +6,7 @@ import { Save } from 'lucide-react';
 export default function DeliveryManagement() {
   const [insideDhaka, setInsideDhaka] = useState<number>(60);
   const [outsideDhaka, setOutsideDhaka] = useState<number>(120);
+  const [freeDelivery, setFreeDelivery] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -15,8 +16,9 @@ export default function DeliveryManagement() {
         const docRef = doc(db, 'settings', 'delivery');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setInsideDhaka(docSnap.data().insideDhaka || 60);
-          setOutsideDhaka(docSnap.data().outsideDhaka || 120);
+          setInsideDhaka(docSnap.data().insideDhaka ?? 60);
+          setOutsideDhaka(docSnap.data().outsideDhaka ?? 120);
+          setFreeDelivery(docSnap.data().freeDelivery ?? false);
         }
       } catch (error: any) {
         console.warn('Failed to load delivery settings (client might be offline):', error);
@@ -32,7 +34,8 @@ export default function DeliveryManagement() {
     try {
       await setDoc(doc(db, 'settings', 'delivery'), {
         insideDhaka,
-        outsideDhaka
+        outsideDhaka,
+        freeDelivery
       }, { merge: true });
       alert('Delivery settings saved successfully!');
     } catch (error) {
@@ -56,6 +59,18 @@ export default function DeliveryManagement() {
 
       <div className="bg-surface-container-lowest border border-outline-variant p-8 space-y-6">
         <div>
+          <label className="flex items-center gap-3 cursor-pointer p-4 bg-surface-container-low border border-outline-variant hover:border-primary transition-colors">
+            <input
+              type="checkbox"
+              checked={freeDelivery}
+              onChange={(e) => setFreeDelivery(e.target.checked)}
+              className="w-5 h-5 accent-primary"
+            />
+            <span className="font-black uppercase tracking-widest text-sm text-on-surface">Enable Free Delivery for All Products</span>
+          </label>
+        </div>
+
+        <div className={freeDelivery ? 'opacity-50 pointer-events-none' : ''}>
           <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
             Inside Dhaka Charge (৳)
           </label>
@@ -67,7 +82,7 @@ export default function DeliveryManagement() {
           />
         </div>
 
-        <div>
+        <div className={freeDelivery ? 'opacity-50 pointer-events-none' : ''}>
           <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
             Outside Dhaka Charge (৳)
           </label>

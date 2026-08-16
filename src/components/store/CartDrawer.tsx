@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/cartStore';
 import toast from 'react-hot-toast';
 import CheckoutModal from './CheckoutModal';
+import { db } from '../../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart } = useCartStore();
@@ -11,9 +13,24 @@ export default function CartDrawer() {
   const [promoApplied, setPromoApplied] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [deliveryZone, setDeliveryZone] = useState<'inside' | 'outside' | null>(null);
+  const [deliverySettings, setDeliverySettings] = useState({ insideDhaka: 60, outsideDhaka: 120, freeDelivery: false });
+
+  useEffect(() => {
+    if (isCartOpen) {
+      getDoc(doc(db, 'settings', 'delivery')).then(docSnap => {
+        if (docSnap.exists()) {
+          setDeliverySettings({ 
+            insideDhaka: docSnap.data().insideDhaka ?? 60, 
+            outsideDhaka: docSnap.data().outsideDhaka ?? 120,
+            freeDelivery: docSnap.data().freeDelivery ?? false
+          });
+        }
+      });
+    }
+  }, [isCartOpen]);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
-  const deliveryCharge = deliveryZone === 'inside' ? 60 : deliveryZone === 'outside' ? 120 : 0;
+  const deliveryCharge = deliverySettings.freeDelivery ? 0 : (deliveryZone === 'inside' ? deliverySettings.insideDhaka : deliveryZone === 'outside' ? deliverySettings.outsideDhaka : 0);
   const finalTotal = total + deliveryCharge - discountAmount;
 
   const applyPromo = () => {
@@ -118,17 +135,23 @@ export default function CartDrawer() {
               </div>
 
               {/* Delivery Zone Selection */}
-              <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
-                <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[8px]">DELIVERY ZONE</label>
-                <div className="grid grid-cols-2 gap-[8px]">
-                  <button type="button" onClick={() => setDeliveryZone('inside')} className={`h-[48px] text-[12px] font-bold uppercase tracking-[0.1em] border-2 transition-all ${deliveryZone === 'inside' ? 'bg-primary text-on-primary border-primary shadow-[2px_2px_0px_var(--color-on-primary)]' : 'bg-surface border-surface-bright text-on-surface hover:border-on-surface-variant'}`}>
-                    INSIDE DHAKA
-                  </button>
-                  <button type="button" onClick={() => setDeliveryZone('outside')} className={`h-[48px] text-[12px] font-bold uppercase tracking-[0.1em] border-2 transition-all ${deliveryZone === 'outside' ? 'bg-primary text-on-primary border-primary shadow-[2px_2px_0px_var(--color-on-primary)]' : 'bg-surface border-surface-bright text-on-surface hover:border-on-surface-variant'}`}>
-                    OUTSIDE DHAKA
-                  </button>
+              {!deliverySettings.freeDelivery ? (
+                <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
+                  <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[8px]">DELIVERY ZONE</label>
+                  <div className="grid grid-cols-2 gap-[8px]">
+                    <button type="button" onClick={() => setDeliveryZone('inside')} className={`h-[48px] text-[12px] font-bold uppercase tracking-[0.1em] border-2 transition-all ${deliveryZone === 'inside' ? 'bg-primary text-on-primary border-primary shadow-[2px_2px_0px_var(--color-on-primary)]' : 'bg-surface border-surface-bright text-on-surface hover:border-on-surface-variant'}`}>
+                      INSIDE DHAKA
+                    </button>
+                    <button type="button" onClick={() => setDeliveryZone('outside')} className={`h-[48px] text-[12px] font-bold uppercase tracking-[0.1em] border-2 transition-all ${deliveryZone === 'outside' ? 'bg-primary text-on-primary border-primary shadow-[2px_2px_0px_var(--color-on-primary)]' : 'bg-surface border-surface-bright text-on-surface hover:border-on-surface-variant'}`}>
+                      OUTSIDE DHAKA
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-[#4ade80]/10 border-2 border-[#4ade80] p-[16px] rounded-theme text-center">
+                  <p className="text-[14px] font-black uppercase text-[#4ade80] tracking-widest">FREE DELIVERY APPLIED!</p>
+                </div>
+              )}
             </div>
 
             {/* Total & Submit */}
@@ -146,7 +169,7 @@ export default function CartDrawer() {
                 )}
                 <div className="flex justify-between text-[14px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">
                   <span>DELIVERY</span>
-                  <span>{deliveryZone ? `৳${deliveryCharge}` : 'CALCULATED NEXT'}</span>
+                  <span>{deliverySettings.freeDelivery ? 'FREE' : (deliveryZone ? `৳${deliveryCharge}` : 'CALCULATED NEXT')}</span>
                 </div>
                 <div className="flex justify-between text-[24px] font-black text-on-surface uppercase pt-[16px] border-t-2 border-surface-bright">
                   <span>TOTAL</span>
@@ -155,7 +178,7 @@ export default function CartDrawer() {
               </div>
               <button 
                 onClick={() => {
-                  if(!deliveryZone) {
+                  if(!deliveryZone && !deliverySettings.freeDelivery) {
                     toast.error('Please select a delivery zone');
                     return;
                   }

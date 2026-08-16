@@ -19,6 +19,11 @@ interface Order {
   };
   items: OrderItem[];
   totalAmount: number;
+  paymentMethod?: string;
+  bkashDetails?: {
+    transactionId: string;
+    screenshotUrl: string;
+  };
   status: string;
   createdAt: any;
 }
@@ -79,6 +84,23 @@ export default function OrdersManagement() {
                   <div className="text-sm font-bold uppercase mb-1">{order.customerDetails?.name || 'Unknown'}</div>
                   <div className="text-xs text-on-surface-variant">{order.customerDetails?.phone}</div>
                   <div className="text-xs text-on-surface-variant max-w-[200px] truncate" title={order.customerDetails?.address}>{order.customerDetails?.address}</div>
+                </td>
+                <td className="p-4">
+                  <div className="text-xs font-bold uppercase text-on-surface mb-1">
+                    {order.paymentMethod === 'bkash' ? 'bKash' : 'Cash On Delivery'}
+                  </div>
+                  {order.paymentMethod === 'bkash' && order.bkashDetails && (
+                    <div className="flex flex-col gap-1 text-[10px]">
+                      {order.bkashDetails.transactionId && (
+                        <div className="text-primary font-bold">TrxID: {order.bkashDetails.transactionId}</div>
+                      )}
+                      {order.bkashDetails.screenshotUrl && (
+                        <a href={order.bkashDetails.screenshotUrl} target="_blank" rel="noreferrer" className="text-on-surface-variant underline hover:text-primary transition-colors">
+                          View Screenshot
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </td>
                 <td className="p-4">
                   <div className="text-xs text-on-surface-variant max-w-[200px]">
