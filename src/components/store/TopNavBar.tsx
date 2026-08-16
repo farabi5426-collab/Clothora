@@ -36,8 +36,8 @@ export default function TopNavBar() {
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <Link to="/" className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface flex items-center gap-2">
-            CLOTHORA
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/homepagelogo-removebg-preview.png" alt="Clothora" className="h-6 md:h-8 w-auto object-contain" />
           </Link>
         </div>
 

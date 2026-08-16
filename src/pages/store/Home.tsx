@@ -387,20 +387,24 @@ export default function Home() {
 
       {/* Category Navigation (Pills) */}
       <section className="w-full max-w-[1920px] mx-auto px-4 md:px-16 pt-16" id="shop">
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {[ {id: 'all', name: 'All'}, ...categories ].map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.name)}
-              className={`px-6 py-2 rounded-full border border-outline-variant text-xs md:text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
-                activeCategory === cat.name 
-                  ? 'bg-primary text-on-primary border-primary shadow-[0_0_15px_var(--color-primary)]' 
-                  : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-background hover:border-primary hover:shadow-[0_0_10px_var(--color-primary)]'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
+        <div className="relative w-full">
+          <div className="flex items-center gap-3 overflow-x-auto pb-4 px-4 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex-1 md:block hidden"></div>
+            {[ {id: 'all', name: 'All'}, ...categories ].map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.name)}
+                className={`flex-shrink-0 whitespace-nowrap px-6 py-2 rounded-full border border-outline-variant text-xs md:text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
+                  activeCategory === cat.name 
+                    ? 'bg-primary text-on-primary border-primary shadow-[0_0_15px_var(--color-primary)]' 
+                    : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-background hover:border-primary hover:shadow-[0_0_10px_var(--color-primary)]'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+            <div className="flex-1 md:block hidden"></div>
+          </div>
         </div>
       </section>
 
