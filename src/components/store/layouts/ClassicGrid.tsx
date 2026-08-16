@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useCartStore } from '../../../store/cartStore';
 
 interface Product {
@@ -13,6 +14,7 @@ interface Product {
 
 export default function ClassicGrid({ products, loading }: { products: Product[], loading: boolean }) {
   const { addToCart } = useCartStore();
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[24px]">
@@ -52,6 +54,19 @@ export default function ClassicGrid({ products, loading }: { products: Product[]
               <h3 className="text-[20px] font-black text-on-surface uppercase leading-tight mb-[16px]">
                 {product.title}
               </h3>
+              {product.sizes && product.sizes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {product.sizes.map(size => (
+                    <button
+                      key={size}
+                      onClick={(e) => { e.preventDefault(); setSelectedSizes(prev => ({...prev, [product.id]: size})); }}
+                      className={`w-8 h-8 flex items-center justify-center text-xs font-bold border transition-colors ${selectedSizes[product.id] === size ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="mt-auto flex items-center justify-between">
                 <span className="text-[24px] font-black text-on-surface">
                   ৳{product.price}
@@ -60,16 +75,18 @@ export default function ClassicGrid({ products, loading }: { products: Product[]
                   disabled={product.stock <= 0}
                   onClick={(e) => {
                   e.preventDefault();
-                  if (product.sizes && product.sizes.length > 0) {
-                     window.location.href = `/product/${product.id}`;
-                  } else {
-                     addToCart({
+                  if (product.sizes && product.sizes.length > 0 && !selectedSizes[product.id]) {
+                     toast.error('Please select a size first');
+                     return;
+                  }
+                  addToCart({
                        id: product.id,
                        title: product.title,
                        price: product.price,
-                       imageUrl: product.imageUrl || ''
-                     });
-                  }
+                       imageUrl: product.imageUrl || '',
+                       sizes: product.sizes || [],
+                       selectedSize: selectedSizes[product.id] || undefined
+                  }, true);
                 }}
                   className="w-[48px] h-[48px] bg-primary text-on-primary flex items-center justify-center shadow-[2px_2px_0px_var(--color-on-primary)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_var(--color-on-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-theme"
                 >

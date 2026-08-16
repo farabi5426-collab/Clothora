@@ -91,14 +91,17 @@ export default function CartDrawer() {
                         <div>
                           <h4 className="font-bold uppercase text-[16px] leading-tight text-on-surface line-clamp-2">{item.title}</h4>
                           {item.sizes && item.sizes.length > 0 ? (
-                            <select 
-                              value={item.selectedSize || ''} 
-                              onChange={(e) => useCartStore.getState().updateSize(item.cartItemId || item.id, e.target.value)}
-                              className="mt-2 bg-surface border border-outline-variant text-xs font-bold uppercase p-1 outline-none focus:border-primary text-on-surface-variant"
-                            >
-                              <option value="" disabled>Select Size</option>
-                              {item.sizes.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {item.sizes.map(s => (
+                                <button
+                                  key={s}
+                                  onClick={() => useCartStore.getState().updateSize(item.cartItemId || item.id, s)}
+                                  className={`w-8 h-8 flex items-center justify-center text-xs font-bold border transition-colors ${item.selectedSize === s ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
+                                >
+                                  {s}
+                                </button>
+                              ))}
+                            </div>
                           ) : item.selectedSize && (
                             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Size: {item.selectedSize}</p>
                           )}

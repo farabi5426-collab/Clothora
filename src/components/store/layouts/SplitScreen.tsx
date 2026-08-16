@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useCartStore } from '../../../store/cartStore';
 
 interface Product {
@@ -13,6 +14,7 @@ interface Product {
 
 export default function SplitScreen({ products, loading }: { products: Product[], loading: boolean }) {
   const { addToCart } = useCartStore();
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
 
   if (loading) {
     return (
@@ -88,16 +90,18 @@ export default function SplitScreen({ products, loading }: { products: Product[]
                   disabled={product.stock <= 0}
                   onClick={(e) => {
                   e.preventDefault();
-                  if (product.sizes && product.sizes.length > 0) {
-                     window.location.href = `/product/${product.id}`;
-                  } else {
-                     addToCart({
+                  if (product.sizes && product.sizes.length > 0 && !selectedSizes[product.id]) {
+                     toast.error('Please select a size first');
+                     return;
+                  }
+                  addToCart({
                        id: product.id,
                        title: product.title,
                        price: product.price,
-                       imageUrl: product.imageUrl || ''
-                     });
-                  }
+                       imageUrl: product.imageUrl || '',
+                       sizes: product.sizes || [],
+                       selectedSize: selectedSizes[product.id] || undefined
+                  }, true);
                 }}
                   className="bg-surface-container-high text-on-surface hover:bg-primary hover:text-on-primary w-[40px] h-[40px] flex items-center justify-center transition-colors border-2 border-surface-bright hover:border-primary rounded-theme"
                 >

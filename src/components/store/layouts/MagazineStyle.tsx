@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useCartStore } from '../../../store/cartStore';
 
 interface Product {
@@ -13,6 +14,7 @@ interface Product {
 
 export default function MagazineStyle({ products, loading }: { products: Product[], loading: boolean }) {
   const { addToCart } = useCartStore();
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
 
   if (loading) {
     return (
@@ -105,16 +107,18 @@ export default function MagazineStyle({ products, loading }: { products: Product
                 disabled={product.stock <= 0}
                 onClick={(e) => {
                   e.preventDefault();
-                  if (product.sizes && product.sizes.length > 0) {
-                     window.location.href = `/product/${product.id}`;
-                  } else {
-                     addToCart({
+                  if (product.sizes && product.sizes.length > 0 && !selectedSizes[product.id]) {
+                     toast.error('Please select a size first');
+                     return;
+                  }
+                  addToCart({
                        id: product.id,
                        title: product.title,
                        price: product.price,
-                       imageUrl: product.imageUrl || ''
-                     });
-                  }
+                       imageUrl: product.imageUrl || '',
+                       sizes: product.sizes || [],
+                       selectedSize: selectedSizes[product.id] || undefined
+                  }, true);
                 }}
                 className="w-[64px] h-[64px] bg-primary text-on-primary rounded-full flex items-center justify-center shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all disabled:opacity-50"
               >
@@ -127,6 +131,19 @@ export default function MagazineStyle({ products, loading }: { products: Product
             <h3 className="text-[16px] font-black text-on-surface uppercase leading-tight line-clamp-1 mb-[4px]">
               {product.title}
             </h3>
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {product.sizes.map(size => (
+                  <button
+                    key={size}
+                    onClick={(e) => { e.preventDefault(); setSelectedSizes(prev => ({...prev, [product.id]: size})); }}
+                    className={`w-6 h-6 flex items-center justify-center text-[10px] font-bold border transition-colors ${selectedSizes[product.id] === size ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-on-surface-variant border-surface-bright hover:border-primary'}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-primary font-bold uppercase tracking-[0.1em]">
                 {product.category}
