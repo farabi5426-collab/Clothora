@@ -3,7 +3,7 @@ import { useCartStore } from '../../store/cartStore';
 import toast from 'react-hot-toast';
 import CheckoutModal from './CheckoutModal';
 import { db } from '../../lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart } = useCartStore();
@@ -33,18 +33,47 @@ export default function CartDrawer() {
   const deliveryCharge = deliverySettings.freeDelivery ? 0 : (deliveryZone === 'inside' ? deliverySettings.insideDhaka : deliveryZone === 'outside' ? deliverySettings.outsideDhaka : 0);
   const finalTotal = total + deliveryCharge - discountAmount;
 
-  const applyPromo = () => {
+  const applyPromo = async () => {
     if (!promoCode.trim()) return;
+
     try {
-      if (promoCode.toUpperCase() === 'CLOTHORA10') {
-        const discount = subtotal * 0.1;
-        setDiscountAmount(discount);
-        setPromoApplied(true);
-        toast.success('Promo code applied successfully!');
-      } else {
+      const q = query(collection(db, 'promoCodes'), where('code', '==', promoCode.toUpperCase()));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        if (promoCode.toUpperCase() === 'CLOTHORA10') {
+          const discount = subtotal * 0.1;
+          setDiscountAmount(discount);
+          setPromoApplied(true);
+          toast.success('Promo code applied successfully!');
+          return;
+        }
         toast.error('Invalid promo code');
+        return;
       }
+
+      const promoDoc = querySnapshot.docs[0];
+      const promoData = promoDoc.data();
+
+      if (promoData.isActive === false) {
+        toast.error('Promo code is disabled');
+        return;
+      }
+      if (subtotal < promoData.minOrderAmount) {
+        toast.error(`Minimum order amount is ৳${promoData.minOrderAmount}`);
+        return;
+      }
+      if (promoData.expiryDate && new Date(promoData.expiryDate) < new Date()) {
+        toast.error('Promo code has expired');
+        return;
+      }
+
+      const discount = (subtotal * promoData.discountPercent) / 100;
+      setDiscountAmount(discount);
+      setPromoApplied(true);
+      toast.success('Promo code applied successfully!');
     } catch (error) {
+      console.error(error);
       toast.error('Error applying promo code.');
     }
   };

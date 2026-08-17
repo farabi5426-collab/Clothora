@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
-import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, updateDoc } from 'firebase/firestore';
 import { Plus, Trash2, X } from 'lucide-react';
 
 interface PromoCode {
@@ -11,6 +11,7 @@ interface PromoCode {
   maxUsers: number;
   expiryDate: string;
   createdAt: any;
+  isActive?: boolean;
 }
 
 export default function PromoCodesManagement() {
@@ -39,13 +40,24 @@ export default function PromoCodesManagement() {
         minOrderAmount: Number(formData.minOrderAmount),
         maxUsers: Number(formData.maxUsers),
         expiryDate: formData.expiryDate,
-        createdAt: new Date()
+        createdAt: new Date(),
+        isActive: true
       });
       setIsModalOpen(false);
       setFormData({ code: '', discountPercent: '', minOrderAmount: '', maxUsers: '', expiryDate: '' });
     } catch (error) {
       console.error('Error adding promo code:', error);
       alert('Failed to save promo code.');
+    }
+  };
+
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      // updateDoc needs to be imported, but we can do it via firebase/firestore at the top
+      await updateDoc(doc(db, 'promoCodes', id), { isActive: !currentStatus });
+    } catch (error) {
+      console.error('Error toggling status:', error);
+      alert('Failed to update status.');
     }
   };
 
@@ -79,6 +91,7 @@ export default function PromoCodesManagement() {
               <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Min Order</th>
               <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Max Users</th>
               <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Expiry Date</th>
+              <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-center">Status</th>
               <th className="p-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-right">Actions</th>
             </tr>
           </thead>
@@ -90,8 +103,16 @@ export default function PromoCodesManagement() {
                 <td className="p-4">৳ {promo.minOrderAmount}</td>
                 <td className="p-4">{promo.maxUsers}</td>
                 <td className="p-4 text-xs uppercase tracking-widest text-on-surface-variant">{promo.expiryDate}</td>
-                <td className="p-4 flex justify-end">
-                  <button onClick={() => handleDelete(promo.id)} className="text-on-surface-variant hover:text-red-500 transition-colors">
+                <td className="p-4 text-center">
+                  <button 
+                    onClick={() => handleToggleStatus(promo.id, promo.isActive !== false)} 
+                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${promo.isActive !== false ? 'bg-[#4ade80]/20 text-[#4ade80] hover:bg-[#4ade80]/30' : 'bg-error/20 text-error hover:bg-error/30'}`}
+                  >
+                    {promo.isActive !== false ? 'Active' : 'Disabled'}
+                  </button>
+                </td>
+                <td className="p-4 flex justify-end gap-2">
+                  <button onClick={() => handleDelete(promo.id)} className="text-on-surface-variant hover:text-red-500 transition-colors p-2 bg-surface-container-low hover:bg-surface-container rounded-theme">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </td>
@@ -99,7 +120,7 @@ export default function PromoCodesManagement() {
             ))}
             {promoCodes.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-on-surface-variant uppercase tracking-widest text-xs">No active promo codes.</td>
+                <td colSpan={7} className="p-8 text-center text-on-surface-variant uppercase tracking-widest text-xs">No promo codes found.</td>
               </tr>
             )}
           </tbody>
