@@ -70,7 +70,7 @@ const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product)
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [images.length]);
