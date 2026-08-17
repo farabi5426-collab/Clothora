@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useCartStore } from '../../store/cartStore';
+import { Package } from 'lucide-react';
 
 export default function CustomerDashboard() {
   const { user, loading: authLoading, logout } = useAuthStore();
@@ -160,9 +161,27 @@ export default function CustomerDashboard() {
                     <p className="text-on-surface-variant text-[12px] mb-[16px] font-bold uppercase tracking-widest">
                       {order.createdAt?.toDate().toLocaleDateString()}
                     </p>
-                    <div className="space-y-[8px]">
+                    <div className="space-y-[12px] mt-[16px]">
                       {order.items?.map((item: any, i: number) => (
-                        <div key={i} className="text-[14px] font-bold uppercase tracking-[0.1em] text-on-surface">{item.quantity}x {item.title}</div>
+                        <div key={i} className="flex gap-4 items-center bg-surface-container-lowest p-3 border-2 border-surface-bright">
+                          {item.imageUrl ? (
+                            <img src={item.selectedColor || item.imageUrl} alt={item.title} className="w-16 h-16 object-cover border-2 border-surface-bright" />
+                          ) : (
+                            <div className="w-16 h-16 bg-surface-bright flex items-center justify-center border-2 border-surface-bright">
+                              <Package className="w-6 h-6 text-on-surface-variant" />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <p className="font-bold text-on-surface text-[12px] uppercase tracking-widest line-clamp-2">{item.title}</p>
+                            <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Qty: {item.quantity} • ৳{item.price}</p>
+                            {(item.selectedSize || item.selectedColor) && (
+                              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">
+                                {item.selectedSize && `Size: ${item.selectedSize} `}
+                                {item.selectedColor && `Color: Yes`}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
