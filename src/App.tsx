@@ -24,6 +24,7 @@ import BannersManagement from './pages/admin/BannersManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
 import ProductPage from './pages/store/ProductPage';
+import TrackOrder from './pages/store/TrackOrder';
 import { Toaster } from 'react-hot-toast';
 import CustomerDashboard from './pages/store/CustomerDashboard';
 import StoreLayout from './layouts/store/StoreLayout';
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/account" element={<CustomerDashboard />} />
         </Route>
 

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 
 export default function TopNavBar() {
+  const location = useLocation();
   const { user, logout } = useAuthStore();
   const { items, toggleCart } = useCartStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -42,16 +43,16 @@ export default function TopNavBar() {
         </div>
 
         <nav className="hidden md:flex gap-6 items-center h-full">
-          <Link to="/" className="text-sm font-bold uppercase tracking-[0.1em] text-primary border-b-2 border-primary h-full flex items-center pt-1">
-            Shop
+          <Link to="/" className={`text-sm font-bold uppercase tracking-[0.1em] h-full flex items-center pt-1 ${location.pathname === '/' && location.hash !== '#gadgets' && location.hash !== '#about' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors duration-200'}`}>
+            Clothes
           </Link>
-          <a href="/#new-arrivals" className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
-            New Arrivals
+          <a href="/#gadgets" className={`text-sm font-bold uppercase tracking-[0.1em] h-full flex items-center pt-1 ${location.pathname === '/' && location.hash === '#gadgets' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors duration-200'}`}>
+            Gadgets
           </a>
-          <a href="/#naruto" className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
-            Naruto Collection
-          </a>
-          <a href="/#about" className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-200 h-full flex items-center">
+          <Link to="/track-order" className={`text-sm font-bold uppercase tracking-[0.1em] h-full flex items-center pt-1 ${location.pathname === '/track-order' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors duration-200'}`}>
+            Track Order
+          </Link>
+          <a href="/#about" className={`text-sm font-bold uppercase tracking-[0.1em] h-full flex items-center pt-1 ${location.pathname === '/' && location.hash === '#about' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors duration-200'}`}>
             About
           </a>
         </nav>
@@ -146,16 +147,16 @@ export default function TopNavBar() {
             className="md:hidden border-t-2 border-surface-bright bg-surface overflow-hidden"
           >
             <nav className="flex flex-col p-4 gap-4">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-primary p-2 border-l-2 border-primary">
-                Shop
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className={`text-sm font-bold uppercase tracking-[0.1em] p-2 ${location.pathname === '/' && location.hash !== '#gadgets' && location.hash !== '#about' ? 'text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors'}`}>
+                Clothes
               </Link>
-              <a href="/#new-arrivals" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
-                New Arrivals
+              <a href="/#gadgets" onClick={() => setIsMobileMenuOpen(false)} className={`text-sm font-bold uppercase tracking-[0.1em] p-2 ${location.pathname === '/' && location.hash === '#gadgets' ? 'text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors'}`}>
+                Gadgets
               </a>
-              <a href="/#naruto" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
-                Naruto Collection
-              </a>
-              <a href="/#about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary p-2 transition-colors">
+              <Link to="/track-order" onClick={() => setIsMobileMenuOpen(false)} className={`text-sm font-bold uppercase tracking-[0.1em] p-2 ${location.pathname === '/track-order' ? 'text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors'}`}>
+                Track Order
+              </Link>
+              <a href="/#about" onClick={() => setIsMobileMenuOpen(false)} className={`text-sm font-bold uppercase tracking-[0.1em] p-2 ${location.pathname === '/' && location.hash === '#about' ? 'text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary transition-colors'}`}>
                 About
               </a>
               {!user && (
