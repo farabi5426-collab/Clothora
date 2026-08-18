@@ -86,7 +86,7 @@ export default function ChatWidget() {
     const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('createdAt', 'asc'));
     const unsubscribeMessages = onSnapshot(q, (snapshot) => {
       const msgs: ChatMessage[] = [];
-      snapshot.forEach((doc) => msgs.push({ id: doc.id, ...doc.data() } as ChatMessage));
+      snapshot.forEach((doc) => msgs.push({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as ChatMessage));
       setMessages(msgs);
       setTimeout(scrollToBottom, 100);
     });
@@ -107,7 +107,7 @@ export default function ChatWidget() {
     }
     
     const finalName = user ? regName : `${regName} (G)`;
-    await setDoc(doc(db, 'chats', chatId), {
+    setDoc(doc(db, 'chats', chatId), {
       userId: chatId,
       customerName: finalName,
       customerPhone: regPhone,
@@ -115,7 +115,7 @@ export default function ChatWidget() {
       updatedAt: serverTimestamp(),
       unreadAdmin: 1,
       unreadCustomer: 0
-    }, { merge: true });
+    }, { merge: true }).catch(console.error);
     
     setIsRegistered(true);
   };
@@ -129,20 +129,20 @@ export default function ChatWidget() {
 
     // Ensure chat doc exists/updated
     // We only update message metadata here so we don't overwrite existing customerName/Phone
-    await setDoc(doc(db, 'chats', chatId), {
+    setDoc(doc(db, 'chats', chatId), {
       lastMessage: textToSend,
       updatedAt: serverTimestamp(),
       unreadAdmin: 1 
-    }, { merge: true });
+    }, { merge: true }).catch(console.error);
 
     // Add message
-    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+    addDoc(collection(db, 'chats', chatId, 'messages'), {
       text: textToSend,
       sender: 'customer',
       createdAt: serverTimestamp()
-    });
+    }).catch(console.error);
     
-    scrollToBottom();
+    setTimeout(scrollToBottom, 50);
   };
 
   return (

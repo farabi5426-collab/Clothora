@@ -66,7 +66,7 @@ export default function MessagesManagement() {
     const q = query(collection(db, 'chats'), orderBy('updatedAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const chatList: ChatSession[] = [];
-      snapshot.forEach((doc) => chatList.push({ id: doc.id, ...doc.data() } as ChatSession));
+      snapshot.forEach((doc) => chatList.push({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as ChatSession));
       setChats(chatList);
     });
     return () => unsubscribe();
@@ -83,7 +83,7 @@ export default function MessagesManagement() {
     const q = query(collection(db, 'chats', selectedChat.id, 'messages'), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const msgs: ChatMessage[] = [];
-      snapshot.forEach((doc) => msgs.push({ id: doc.id, ...doc.data() } as ChatMessage));
+      snapshot.forEach((doc) => msgs.push({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as ChatMessage));
       setMessages(msgs);
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     });
@@ -98,17 +98,17 @@ export default function MessagesManagement() {
     const textToSend = inputText.trim();
     setInputText('');
 
-    await setDoc(doc(db, 'chats', selectedChat.id), {
+    setDoc(doc(db, 'chats', selectedChat.id), {
       lastMessage: textToSend,
       updatedAt: serverTimestamp(),
       unreadCustomer: 1
-    }, { merge: true });
+    }, { merge: true }).catch(console.error);
 
-    await addDoc(collection(db, 'chats', selectedChat.id, 'messages'), {
+    addDoc(collection(db, 'chats', selectedChat.id, 'messages'), {
       text: textToSend,
       sender: 'admin',
       createdAt: serverTimestamp()
-    });
+    }).catch(console.error);
   };
 
   return (
