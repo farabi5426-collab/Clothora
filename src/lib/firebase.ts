@@ -27,4 +27,4 @@ export const db = initializeFirestore(app, { experimentalForceLongPolling: true 
 export const googleProvider = new GoogleAuthProvider();
 
 // Suppress Firestore offline warnings which can spam the console in constrained environments
-setLogLevel('silent');
+setLogLevel('error');

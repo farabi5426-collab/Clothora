@@ -115,7 +115,10 @@ export default function ChatWidget() {
       updatedAt: serverTimestamp(),
       unreadAdmin: 1,
       unreadCustomer: 0
-    }, { merge: true }).catch(console.error);
+    }, { merge: true }).catch((err) => {
+      console.error(err);
+      toast.error('Failed to register. Please check your connection.');
+    });
     
     setIsRegistered(true);
   };
@@ -133,14 +136,20 @@ export default function ChatWidget() {
       lastMessage: textToSend,
       updatedAt: serverTimestamp(),
       unreadAdmin: 1 
-    }, { merge: true }).catch(console.error);
+    }, { merge: true }).catch((err) => {
+      console.error(err);
+      toast.error('Failed to update chat metadata.');
+    });
 
     // Add message
     addDoc(collection(db, 'chats', chatId, 'messages'), {
       text: textToSend,
       sender: 'customer',
       createdAt: serverTimestamp()
-    }).catch(console.error);
+    }).catch((err) => {
+      console.error(err);
+      toast.error('Failed to send message.');
+    });
     
     setTimeout(scrollToBottom, 50);
   };

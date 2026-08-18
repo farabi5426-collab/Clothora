@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -102,13 +103,19 @@ export default function MessagesManagement() {
       lastMessage: textToSend,
       updatedAt: serverTimestamp(),
       unreadCustomer: 1
-    }, { merge: true }).catch(console.error);
+    }, { merge: true }).catch((err) => {
+      console.error(err);
+      toast.error('Failed to update chat metadata');
+    });
 
     addDoc(collection(db, 'chats', selectedChat.id, 'messages'), {
       text: textToSend,
       sender: 'admin',
       createdAt: serverTimestamp()
-    }).catch(console.error);
+    }).catch((err) => {
+      console.error(err);
+      toast.error('Failed to send message');
+    });
   };
 
   return (
