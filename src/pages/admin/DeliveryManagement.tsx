@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { Save } from 'lucide-react';
 
 export default function DeliveryManagement() {
   const [insideDhaka, setInsideDhaka] = useState<number>(60);
   const [outsideDhaka, setOutsideDhaka] = useState<number>(120);
   const [freeDelivery, setFreeDelivery] = useState<boolean>(false);
+  const [initialFreeDelivery, setInitialFreeDelivery] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -19,6 +20,7 @@ export default function DeliveryManagement() {
           setInsideDhaka(docSnap.data().insideDhaka ?? 60);
           setOutsideDhaka(docSnap.data().outsideDhaka ?? 120);
           setFreeDelivery(docSnap.data().freeDelivery ?? false);
+          setInitialFreeDelivery(docSnap.data().freeDelivery ?? false);
         }
       } catch (error: any) {
         console.warn('Failed to load delivery settings (client might be offline):', error);
@@ -32,11 +34,43 @@ export default function DeliveryManagement() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      if (freeDelivery !== initialFreeDelivery) {
+        // Toggle prices for all products
+        const productsSnapshot = await getDocs(collection(db, 'products'));
+        const batch = writeBatch(db);
+        let count = 0;
+        
+        productsSnapshot.forEach((productDoc) => {
+          const productData = productDoc.data();
+          const currentPrice = typeof productData.price === 'number' ? productData.price : parseFloat(productData.price) || 0;
+          
+          let newPrice = currentPrice;
+          if (freeDelivery && !initialFreeDelivery) {
+            newPrice = currentPrice + 120;
+          } else if (!freeDelivery && initialFreeDelivery) {
+            newPrice = Math.max(0, currentPrice - 120);
+          }
+          
+          batch.update(productDoc.ref, { price: newPrice });
+          count++;
+          
+          // Firestore limits batch to 500, assuming < 500 products here.
+          // In a larger app, we'd chunk this.
+        });
+        
+        if (count > 0) {
+          await batch.commit();
+        }
+        
+        setInitialFreeDelivery(freeDelivery);
+      }
+
       await setDoc(doc(db, 'settings', 'delivery'), {
         insideDhaka,
         outsideDhaka,
         freeDelivery
       }, { merge: true });
+      
       alert('Delivery settings saved successfully!');
     } catch (error) {
       console.error('Error saving settings:', error);
