@@ -44,6 +44,17 @@ interface ChatMessage {
     });
   };
 
+const formatTime = (createdAt: any) => {
+  if (!createdAt) return 'Now';
+  if (typeof createdAt.toDate === 'function') {
+    return createdAt.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+  if (createdAt.seconds) {
+    return new Date(createdAt.seconds * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+  return 'Now';
+};
+
 export default function MessagesManagement() {
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);

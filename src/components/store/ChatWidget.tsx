@@ -37,6 +37,17 @@ interface ChatMessage {
     });
   };
 
+const formatTime = (createdAt: any) => {
+  if (!createdAt) return 'Now';
+  if (typeof createdAt.toDate === 'function') {
+    return createdAt.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+  if (createdAt.seconds) {
+    return new Date(createdAt.seconds * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+  return 'Now';
+};
+
 export default function ChatWidget() {
   const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -188,7 +199,7 @@ export default function ChatWidget() {
                         {renderMessageWithLinks(msg.text)}
                       </div>
                       <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${msg.sender === 'customer' ? 'justify-end w-full' : 'w-full'}`}>
-                        {msg.createdAt?.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) || 'Now'}
+                        {formatTime(msg.createdAt)}
                         {msg.sender === 'customer' && <span className="text-primary text-xs">✓✓</span>}
                       </div>
                     </div>

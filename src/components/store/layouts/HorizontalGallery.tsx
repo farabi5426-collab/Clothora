@@ -5,7 +5,7 @@ interface Product {
   id: string;
   title: string;
   price: number;
-  imageUrl: string;
+  imageUrl: string; imageUrls?: string[];
   category: string;
   stock: number;
   sizes?: string[];

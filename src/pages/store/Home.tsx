@@ -16,7 +16,7 @@ interface Product {
   category: string;
   stock: number;
   description?: string;
-  imageUrls?: string[];
+  imageUrls?: string[]; sizes?: string[];
 }
 
 const HERO_CONTENT = [
