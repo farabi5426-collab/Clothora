@@ -29,8 +29,42 @@ export default function ProductPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { toggleWishlist, isInWishlist } = useWishlistStore();
   useEffect(() => {
-    // if we just loaded product and it has videoUrl, maybe default to video?
-    // setActiveImageIndex(0);
+    if (product) {
+      document.title = `${product.title} | Clothora`;
+
+      const setMetaTag = (property: string, content: string) => {
+        let element = document.querySelector(`meta[property="${property}"]`);
+        if (!element) {
+          element = document.createElement('meta');
+          element.setAttribute('property', property);
+          document.head.appendChild(element);
+        }
+        element.setAttribute('content', content);
+      };
+
+      setMetaTag('og:title', product.title);
+      setMetaTag('og:description', product.description || `Buy ${product.title} at Clothora`);
+      setMetaTag('og:image', product.imageUrl);
+      setMetaTag('og:image:width', '1200');
+      setMetaTag('og:image:height', '630');
+      setMetaTag('og:type', 'product');
+      setMetaTag('og:url', window.location.href);
+
+      const setTwitterTag = (name: string, content: string) => {
+        let element = document.querySelector(`meta[name="${name}"]`);
+        if (!element) {
+          element = document.createElement('meta');
+          element.setAttribute('name', name);
+          document.head.appendChild(element);
+        }
+        element.setAttribute('content', content);
+      };
+      
+      setTwitterTag('twitter:card', 'summary_large_image');
+      setTwitterTag('twitter:title', product.title);
+      setTwitterTag('twitter:description', product.description || `Buy ${product.title} at Clothora`);
+      setTwitterTag('twitter:image', product.imageUrl);
+    }
   }, [product]);
   const [copied, setCopied] = useState(false);
     const { addToCart } = useCartStore();
