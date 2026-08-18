@@ -4,7 +4,8 @@ import { X, Truck, CreditCard, CheckCircle, User, Upload } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { db } from '../../lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDoc, doc } from 'firebase/firestore';
+import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 export default function CheckoutModal({ 
@@ -34,6 +35,29 @@ export default function CheckoutModal({
   });
 
   const total = subtotal - discount + deliveryCharge;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user && isOpen) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setFormData(prev => ({
+              ...prev,
+              name: data.name || prev.name,
+              phone: data.phone || prev.phone,
+              address: data.address || prev.address
+            }));
+          }
+        } catch (e) {
+          console.error('Error fetching profile for checkout', e);
+        }
+      }
+    };
+    fetchProfile();
+  }, [user, isOpen]);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

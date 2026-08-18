@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -11,10 +12,10 @@ export default function Footer() {
           </p>
         </div>
         <div className="md:col-span-8 flex justify-start md:justify-end gap-[48px]">
-          <div className="flex flex-col gap-4">
-            <a href="#" className="text-[16px] text-on-surface-variant hover:text-on-surface uppercase font-bold tracking-[0.1em] transition-colors focus:outline-none focus:ring-2 focus:ring-primary">Terms</a>
-            <a href="#" className="text-[16px] text-on-surface-variant hover:text-on-surface uppercase font-bold tracking-[0.1em] transition-colors focus:outline-none focus:ring-2 focus:ring-primary">Shipping</a>
-            <a href="#" className="text-[16px] text-on-surface-variant hover:text-on-surface uppercase font-bold tracking-[0.1em] transition-colors focus:outline-none focus:ring-2 focus:ring-primary">Contact</a>
+          <div className="flex flex-col gap-4 text-left md:text-right">
+            <Link to="/policies/refund-policy" className="text-[14px] text-on-surface-variant hover:text-primary uppercase font-bold tracking-[0.1em] transition-colors focus:outline-none">Refund Policy</Link>
+            <Link to="/policies/privacy-policy" className="text-[14px] text-on-surface-variant hover:text-primary uppercase font-bold tracking-[0.1em] transition-colors focus:outline-none">Privacy Policy</Link>
+            <Link to="/policies/terms-conditions" className="text-[14px] text-on-surface-variant hover:text-primary uppercase font-bold tracking-[0.1em] transition-colors focus:outline-none">Terms & Conditions</Link>
           </div>
         </div>
       </div>

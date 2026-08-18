@@ -1,101 +1,72 @@
 const fs = require('fs');
-const file = 'src/pages/store/ProductPage.tsx';
-let code = fs.readFileSync(file, 'utf8');
+let code = fs.readFileSync('src/pages/store/ProductPage.tsx', 'utf8');
 
-// 1. Update Product interface
-code = code.replace(
-  "videoUrl?: string;",
-  "videoUrl?: string;\n  sizes?: string[];"
-);
+if(!code.includes("Related Products")) {
+    // Add import for related products query
+    code = code.replace(
+      "import { doc, getDoc } from 'firebase/firestore';",
+      "import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';"
+    );
 
-// 2. Add state
-code = code.replace(
-  "const [copied, setCopied] = useState(false);",
-  "const [copied, setCopied] = useState(false);\n  const [selectedSize, setSelectedSize] = useState<string | null>(null);"
-);
+    // Add state
+    code = code.replace(
+      "const [loading, setLoading] = useState(true);",
+      "const [loading, setLoading] = useState(true);\n  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);"
+    );
 
-// 3. Add Sizes UI
-const sizesUI = `
-            {product.sizes && product.sizes.length > 0 && (
-              <div className="mb-8">
-                <div className="flex justify-between items-end mb-4">
-                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Select Size</span>
+    // Update useEffect to fetch related
+    const fetchRelatedStr = `
+        if (prod.category) {
+          const q = query(collection(db, 'products'), where('category', '==', prod.category), limit(5));
+          const relatedSnap = await getDocs(q);
+          const rel: Product[] = [];
+          relatedSnap.forEach(doc => {
+            if (doc.id !== prod.id) {
+              rel.push({ id: doc.id, ...doc.data() } as Product);
+            }
+          });
+          setRelatedProducts(rel.slice(0, 4));
+        }
+    `;
+    code = code.replace(
+      "setProduct(prod);\n      } else {",
+      "setProduct(prod);\n" + fetchRelatedStr + "\n      } else {"
+    );
+
+    // Add UI at the bottom
+    const relatedUI = `
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-24 border-t-2 border-surface-bright pt-16">
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-8 text-on-surface">You Might Also Like</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {relatedProducts.map(rel => (
+              <Link to={\`/product/\${rel.id}\`} key={rel.id} className="group bg-surface-container-lowest border-2 border-surface-bright p-4 flex flex-col relative transition-transform hover:-translate-y-2 hover:shadow-[8px_8px_0px_var(--color-primary)] duration-200">
+                <div className="w-full aspect-[3/4] bg-surface-container-low mb-4 relative overflow-hidden">
+                  <img src={rel.imageUrl} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  {product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={\`px-6 py-3 text-sm font-bold uppercase tracking-widest border transition-all \${selectedSize === size ? 'bg-primary text-on-primary border-primary shadow-[4px_4px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]' : 'bg-surface-container-low text-on-surface-variant border-outline-variant hover:border-primary hover:text-on-surface'}\`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-`;
-
-code = code.replace(
-  "<div className=\"mt-auto pt-8 border-t border-outline-variant\">",
-  `${sizesUI}\n            <div className="mt-auto pt-8 border-t border-outline-variant">`
-);
-
-// 4. Update Add To Cart logic (two places: BUY NOW and ADD TO CART)
-const oldAddToCart1 = `onClick={() => {
-                    addToCart({
-                      id: product.id,
-                      title: product.title,
-                      price: product.price,
-                      imageUrl: product.imageUrl || '',
-                      costPrice: product.costPrice
-                    }, true);
-                  }}`;
-
-const newAddToCart1 = `onClick={() => {
-                    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-                      toast.error('Please select a size first.');
-                      return;
-                    }
-                    addToCart({
-                      id: product.id,
-                      title: product.title,
-                      price: product.price,
-                      imageUrl: product.imageUrl || '',
-                      costPrice: product.costPrice,
-                      selectedSize: selectedSize || undefined
-                    }, true);
-                  }}`;
-
-code = code.replace(oldAddToCart1, newAddToCart1);
-
-const oldAddToCart2 = `onClick={() => {
-                    addToCart({
-                      id: product.id,
-                      title: product.title,
-                      price: product.price,
-                      imageUrl: product.imageUrl || '',
-                      costPrice: product.costPrice
-                    });
-                    toast.success('Added to cart!');
-                  }}`;
-
-const newAddToCart2 = `onClick={() => {
-                    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-                      toast.error('Please select a size first.');
-                      return;
-                    }
-                    addToCart({
-                      id: product.id,
-                      title: product.title,
-                      price: product.price,
-                      imageUrl: product.imageUrl || '',
-                      costPrice: product.costPrice,
-                      selectedSize: selectedSize || undefined
-                    });
-                    toast.success('Added to cart!');
-                  }}`;
-
-code = code.replace(oldAddToCart2, newAddToCart2);
-
-fs.writeFileSync(file, code);
+                <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface line-clamp-2 mb-2">{rel.title}</h3>
+                <div className="text-lg font-black text-primary mt-auto">৳{rel.price}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}`;
+    
+    // Find the end of the file and replace it
+    const endOfFileRegex = /<\/div>\s*<\/div>\s*<\/div>\s*\);\s*\}/;
+    if (endOfFileRegex.test(code)) {
+      code = code.replace(endOfFileRegex, `</div>\n      </div>\n${relatedUI}`);
+    } else {
+      console.log("Could not find end of file for related products");
+      // Just try to replace the last two closing divs
+      const lastDivs = "</div>\n    </div>\n  );\n}";
+      code = code.replace(lastDivs, `${relatedUI}`);
+    }
+    
+    fs.writeFileSync('src/pages/store/ProductPage.tsx', code);
+    console.log('ProductPage patched');
+}

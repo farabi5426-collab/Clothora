@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, onSnapshot, query, orderBy, updateDoc, doc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ExternalLink, Package, User, CreditCard, Receipt } from 'lucide-react';
+import { X, ExternalLink, Package, User, CreditCard, Receipt, Printer, Image as ImageIcon } from 'lucide-react';
+import { printInvoice, downloadInvoiceImage } from '../../lib/printInvoice';
 
 interface OrderItem {
   id: string;
@@ -44,6 +45,7 @@ interface Order {
 export default function OrdersManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
@@ -202,9 +204,28 @@ export default function OrdersManagement() {
                   <h2 className="text-2xl font-black uppercase tracking-tighter">Order Details</h2>
                   <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">ID: {selectedOrder.id}</p>
                 </div>
-                <button onClick={() => setSelectedOrder(null)} className="p-2 bg-surface-container-high border-2 border-surface-bright hover:bg-surface-bright text-on-surface transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex gap-2">
+                  <button onClick={async () => {
+                    try {
+                      setIsDownloadingImage(true);
+                      await downloadInvoiceImage(selectedOrder);
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setIsDownloadingImage(false);
+                    }
+                  }} 
+                  disabled={isDownloadingImage}
+                  className="p-2 bg-surface-container-highest text-on-surface border-2 border-surface-bright hover:bg-surface-bright transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                    <ImageIcon className="w-4 h-4" /> {isDownloadingImage ? 'Generating...' : 'Download Image'}
+                  </button>
+                  <button onClick={() => printInvoice(selectedOrder)} className="p-2 bg-primary text-on-primary border-2 border-primary hover:bg-primary/90 transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                    <Printer className="w-4 h-4" /> Print Invoice
+                  </button>
+                  <button onClick={() => setSelectedOrder(null)} className="p-2 bg-surface-container-high border-2 border-surface-bright hover:bg-surface-bright text-on-surface transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
               
               <div className="p-6 overflow-y-auto flex-1 space-y-8">

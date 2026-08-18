@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
+import { useWishlistStore } from '../../store/wishlistStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 
@@ -9,6 +10,7 @@ export default function TopNavBar() {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const { items, toggleCart } = useCartStore();
+  const { items: wishlistItems } = useWishlistStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -116,6 +118,19 @@ export default function TopNavBar() {
             </Link>
           )}
 
+                    <Link to="/wishlist" aria-label="favorite" className="text-on-surface hover:text-primary transition-colors relative group hidden sm:block">
+            <span className="material-symbols-outlined group-hover:scale-110 transition-transform">favorite</span>
+            {wishlistItems.length > 0 && (
+              <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                key={wishlistItems.length}
+                className="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-surface"
+              >
+                {wishlistItems.length}
+              </motion.span>
+            )}
+          </Link>
           <button 
             id="cart-icon"
             onClick={toggleCart} 

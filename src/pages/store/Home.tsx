@@ -5,6 +5,8 @@ import { useCartStore } from '../../store/cartStore';
 import { Star, ArrowRight, ShoppingCart, X, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import toast from 'react-hot-toast';
+import { Heart } from 'lucide-react';
+import { useWishlistStore } from '../../store/wishlistStore';
 
 interface Product {
   id: string;
@@ -60,6 +62,12 @@ const REVIEWS = [
 
 const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product) => void, handleAddToCart: (e: React.MouseEvent, p: Product) => void }> = ({ product, openProductDetails, handleAddToCart }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
+  
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleWishlist(product.id);
+  };
 
   const images = product.imageUrls && product.imageUrls.length > 0 
     ? product.imageUrls 
@@ -81,6 +89,12 @@ const ProductCard: React.FC<{ product: Product, openProductDetails: (p: Product)
         className="w-full aspect-[3/4] bg-surface-container-low mb-6 relative overflow-hidden cursor-pointer"
         onClick={() => openProductDetails(product)}
       >
+        <button 
+          onClick={handleWishlistClick}
+          className="absolute top-3 right-3 z-20 p-2 bg-surface-container-lowest/80 backdrop-blur rounded-full hover:bg-surface-container-lowest transition-colors shadow-sm"
+        >
+          <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-primary text-primary' : 'text-on-surface-variant'}`} />
+        </button>
         {images.length > 0 ? (
           <AnimatePresence mode="wait">
             <motion.img 

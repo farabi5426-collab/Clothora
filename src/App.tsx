@@ -21,12 +21,15 @@ import DeliveryManagement from './pages/admin/DeliveryManagement';
 import ThemeManagement from './pages/admin/ThemeManagement';
 import LayoutManagement from './pages/admin/LayoutManagement';
 import BannersManagement from './pages/admin/BannersManagement';
+import SocialLinksManagement from './pages/admin/SocialLinksManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
 import ProductPage from './pages/store/ProductPage';
+import WishlistPage from './pages/store/WishlistPage';
 import TrackOrder from './pages/store/TrackOrder';
 import { Toaster } from 'react-hot-toast';
 import CustomerDashboard from './pages/store/CustomerDashboard';
+import LegalPages from './pages/store/LegalPages';
 import StoreLayout from './layouts/store/StoreLayout';
 
 export default function App() {
@@ -54,6 +57,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/account" element={<CustomerDashboard />} />
+          <Route path="/policies/:policyType" element={<LegalPages />} />
         </Route>
 
         {/* Admin Secured Routes */}
@@ -68,6 +72,7 @@ export default function App() {
           <Route path="themes" element={<ThemeManagement />} />
           <Route path="layouts" element={<LayoutManagement />} />
           <Route path="banners" element={<BannersManagement />} />
+          <Route path="social-links" element={<SocialLinksManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>

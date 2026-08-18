@@ -6,6 +6,7 @@ import Footer from '../../components/store/Footer';
 import CartDrawer from '../../components/store/CartDrawer';
 import NoticeBanner from '../../components/store/NoticeBanner';
 import ChatWidget from '../../components/store/ChatWidget';
+import WhatsAppButton from '../../components/store/WhatsAppButton';
 
 export default function StoreLayout() {
   return (
@@ -48,6 +49,7 @@ export default function StoreLayout() {
       <Footer />
       <CartDrawer />
       <ChatWidget />
+      <WhatsAppButton />
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { useCartStore } from '../../store/cartStore';
-import {  ShoppingCart, ArrowLeft, Copy, Check , Video } from 'lucide-react';
+import {  ShoppingCart, ArrowLeft, Copy, Check , Video, Heart } from 'lucide-react';
+import { useWishlistStore } from '../../store/wishlistStore';
 import { motion } from 'motion/react';
 import toast from 'react-hot-toast';
 
@@ -24,7 +25,9 @@ export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
   useEffect(() => {
     // if we just loaded product and it has videoUrl, maybe default to video?
     // setActiveImageIndex(0);
@@ -39,7 +42,20 @@ export default function ProductPage() {
         const docRef = doc(db, 'products', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProduct({ id: docSnap.id, ...docSnap.data() } as Product);
+          const prod = { id: docSnap.id, ...docSnap.data() } as Product;
+          setProduct(prod);
+          
+          if (prod.category) {
+            const q = query(collection(db, 'products'), where('category', '==', prod.category), limit(5));
+            const relatedSnap = await getDocs(q);
+            const rel = [];
+            relatedSnap.forEach(doc => {
+              if (doc.id !== prod.id) {
+                rel.push({ id: doc.id, ...doc.data() });
+              }
+            });
+            setRelatedProducts(rel.slice(0, 4));
+          }
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -97,6 +113,14 @@ export default function ProductPage() {
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied' : 'Copy Link'}
               </button>
+              {product && (
+                <button
+                  onClick={() => toggleWishlist(product.id)}
+                  className="bg-black/50 backdrop-blur text-on-background flex items-center justify-center border border-outline-variant hover:bg-surface-container-high transition-colors px-3 py-2 text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+                >
+                  <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-primary text-primary' : ''}`} />
+                </button>
+              )}
             </div>
             <div className="w-full aspect-[3/4] relative border border-outline-variant mt-10 sm:mt-0 bg-surface-container-lowest">
               {activeImageIndex === -1 && product.videoUrl ? (
@@ -206,6 +230,24 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-24 border-t border-outline-variant pt-16">
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-8 text-on-surface">You Might Also Like</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {relatedProducts.map(rel => (
+              <Link to={`/product/${rel.id}`} key={rel.id} className="group bg-surface-container-lowest border border-outline-variant p-4 flex flex-col relative transition-transform hover:-translate-y-2 hover:shadow-[8px_8px_0px_var(--color-primary)] duration-200">
+                <div className="w-full aspect-[3/4] bg-surface-container-low mb-4 relative overflow-hidden">
+                  <img src={rel.imageUrl} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface line-clamp-2 mb-2">{rel.title}</h3>
+                <div className="text-lg font-black text-primary mt-auto">৳{rel.price}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
