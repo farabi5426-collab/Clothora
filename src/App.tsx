@@ -14,6 +14,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductsManagement from './pages/admin/ProductsManagement';
 import OrdersManagement from './pages/admin/OrdersManagement';
+import InvoiceGenerator from './pages/admin/InvoiceGenerator';
 import MessagesManagement from './pages/admin/MessagesManagement';
 import NoticesManagement from './pages/admin/NoticesManagement';
 import PromoCodesManagement from './pages/admin/PromoCodesManagement';
@@ -65,6 +66,7 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<ProductsManagement />} />
           <Route path="orders" element={<OrdersManagement />} />
+          <Route path="invoice-generator" element={<InvoiceGenerator />} />
           <Route path="messages" element={<MessagesManagement />} />
           <Route path="notices" element={<NoticesManagement />} />
           <Route path="promo-codes" element={<PromoCodesManagement />} />

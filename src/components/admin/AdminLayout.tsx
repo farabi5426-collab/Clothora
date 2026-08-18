@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { Package, LayoutDashboard, ShoppingCart, LogOut, MessageSquare, Bell, Ticket, Truck, Palette, Video, Link as LinkIcon } from 'lucide-react';
+import { Package, LayoutDashboard, ShoppingCart, LogOut, MessageSquare, Bell, Ticket, Truck, Palette, Video, Link as LinkIcon, FileText } from 'lucide-react';
 
 export default function AdminLayout() {
   const { user, loading, logout } = useAuthStore();
@@ -31,6 +31,7 @@ export default function AdminLayout() {
     { name: 'Banners', href: '/admin/banners', icon: Video },
     { name: 'Layouts', href: '/admin/layouts', icon: LayoutDashboard },
     { name: 'Social Links', href: '/admin/social-links', icon: LinkIcon },
+    { name: 'Invoice Gen', href: '/admin/invoice-generator', icon: FileText },
   ];
 
   return (
