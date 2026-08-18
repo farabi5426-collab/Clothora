@@ -106,9 +106,10 @@ export default function ChatWidget() {
       return;
     }
     
+    const finalName = user ? regName : `${regName} (G)`;
     await setDoc(doc(db, 'chats', chatId), {
       userId: chatId,
-      customerName: regName,
+      customerName: finalName,
       customerPhone: regPhone,
       lastMessage: 'Chat started',
       updatedAt: serverTimestamp(),
@@ -127,13 +128,11 @@ export default function ChatWidget() {
     setInputText('');
 
     // Ensure chat doc exists/updated
+    // We only update message metadata here so we don't overwrite existing customerName/Phone
     await setDoc(doc(db, 'chats', chatId), {
-      userId: chatId,
-      customerName: user?.displayName || regName || 'Guest',
-      customerPhone: regPhone || 'N/A',
       lastMessage: textToSend,
       updatedAt: serverTimestamp(),
-      unreadAdmin: 1 // We increment unreadAdmin count or just set it to > 0. In real world we'd use FieldValue.increment(1)
+      unreadAdmin: 1 
     }, { merge: true });
 
     // Add message
