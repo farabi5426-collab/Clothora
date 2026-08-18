@@ -357,12 +357,8 @@ export default function InvoiceGenerator() {
                           
                           <div className="flex items-center gap-1">
                             <span className="text-xs text-on-surface-variant">৳</span>
-                            <input 
-                              type="number" 
-                              value={item.price}
-                              onChange={(e) => updateItem(item.cartItemId, 'price', Number(e.target.value))}
-                              className="w-16 bg-surface border-b-2 border-surface-bright p-1 text-sm font-bold outline-none focus:border-primary text-right"
-                            />
+                            <span className="text-sm font-bold text-primary">{(Number(item.price) * item.quantity).toLocaleString()}</span>
+                            <span className="text-[10px] text-on-surface-variant ml-1">(৳{item.price} x {item.quantity})</span>
                           </div>
                         </div>
                       </div>
