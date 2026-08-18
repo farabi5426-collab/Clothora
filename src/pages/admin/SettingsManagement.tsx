@@ -3,7 +3,12 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
-export default function SettingsManagement() {
+// Import the other sections
+import ThemeManagement from './ThemeManagement';
+import LayoutManagement from './LayoutManagement';
+import SocialLinksManagement from './SocialLinksManagement';
+
+function GeneralSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
@@ -39,7 +44,6 @@ export default function SettingsManagement() {
     } catch (error) {
       console.error('Error updating setting:', error);
       toast.error('Failed to update setting');
-      // Revert on fail
       setSettings(prev => ({ ...prev, [key]: !newValue }));
     } finally {
       setSaving(false);
@@ -80,6 +84,48 @@ export default function SettingsManagement() {
             <div className="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
           </label>
         </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SettingsManagement() {
+  const [activeTab, setActiveTab] = useState<'general' | 'themes' | 'layouts' | 'social'>('general');
+
+  const tabs = [
+    { id: 'general', label: 'General' },
+    { id: 'themes', label: 'Themes' },
+    { id: 'layouts', label: 'Layouts' },
+    { id: 'social', label: 'Social Links' }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Settings Navigation */}
+      <div className="border-b border-outline-variant">
+        <nav className="flex space-x-8">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`pb-4 text-sm font-bold uppercase tracking-widest border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="pt-2">
+        {activeTab === 'general' && <GeneralSettings />}
+        {activeTab === 'themes' && <ThemeManagement />}
+        {activeTab === 'layouts' && <LayoutManagement />}
+        {activeTab === 'social' && <SocialLinksManagement />}
       </div>
     </div>
   );

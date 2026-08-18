@@ -19,10 +19,7 @@ import MessagesManagement from './pages/admin/MessagesManagement';
 import NoticesManagement from './pages/admin/NoticesManagement';
 import PromoCodesManagement from './pages/admin/PromoCodesManagement';
 import DeliveryManagement from './pages/admin/DeliveryManagement';
-import ThemeManagement from './pages/admin/ThemeManagement';
-import LayoutManagement from './pages/admin/LayoutManagement';
 import BannersManagement from './pages/admin/BannersManagement';
-import SocialLinksManagement from './pages/admin/SocialLinksManagement';
 import SettingsManagement from './pages/admin/SettingsManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
@@ -73,10 +70,7 @@ export default function App() {
           <Route path="notices" element={<NoticesManagement />} />
           <Route path="promo-codes" element={<PromoCodesManagement />} />
           <Route path="delivery" element={<DeliveryManagement />} />
-          <Route path="themes" element={<ThemeManagement />} />
-          <Route path="layouts" element={<LayoutManagement />} />
           <Route path="banners" element={<BannersManagement />} />
-          <Route path="social-links" element={<SocialLinksManagement />} />
           <Route path="settings" element={<SettingsManagement />} />
         </Route>
       </Routes>

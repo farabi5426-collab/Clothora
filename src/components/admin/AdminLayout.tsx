@@ -27,10 +27,7 @@ export default function AdminLayout() {
     { name: 'Notices', href: '/admin/notices', icon: Bell },
     { name: 'Promo Codes', href: '/admin/promo-codes', icon: Ticket },
     { name: 'Delivery', href: '/admin/delivery', icon: Truck },
-    { name: 'Themes', href: '/admin/themes', icon: Palette },
     { name: 'Banners', href: '/admin/banners', icon: Video },
-    { name: 'Layouts', href: '/admin/layouts', icon: LayoutDashboard },
-    { name: 'Social Links', href: '/admin/social-links', icon: LinkIcon },
     { name: 'Invoice Gen', href: '/admin/invoice-generator', icon: FileText },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
