@@ -21,6 +21,8 @@ interface Order {
   customerDetails: {
     name: string;
     phone: string;
+    district?: string;
+    upazila?: string;
     address: string;
   };
   items: OrderItem[];
@@ -263,6 +265,8 @@ export default function OrdersManagement() {
                      <div className="space-y-2 text-sm font-bold uppercase tracking-wide">
                         <p className="text-on-surface"><span className="text-on-surface-variant">Name:</span> {selectedOrder.customerDetails?.name || 'Unknown'}</p>
                         <p className="text-on-surface"><span className="text-on-surface-variant">Phone:</span> {selectedOrder.customerDetails?.phone || 'N/A'}</p>
+                        {selectedOrder.customerDetails?.district && <p className="text-on-surface"><span className="text-on-surface-variant">District:</span> {selectedOrder.customerDetails.district}</p>}
+                        {selectedOrder.customerDetails?.upazila && <p className="text-on-surface"><span className="text-on-surface-variant">Upazila:</span> {selectedOrder.customerDetails.upazila}</p>}
                         <p className="text-on-surface"><span className="text-on-surface-variant">Address:</span> {selectedOrder.customerDetails?.address || 'N/A'}</p>
                      </div>
                   </div>

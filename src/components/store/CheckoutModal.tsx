@@ -7,6 +7,11 @@ import { db } from '../../lib/firebase';
 import { collection, addDoc, getDoc, doc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
+import districtsData from '../../data/bd-districts.json';
+import upazilasData from '../../data/bd-upazilas.json';
+
+const districts = districtsData as any[];
+const upazilas = upazilasData as any[];
 
 export default function CheckoutModal({ 
   isOpen, 
@@ -31,6 +36,8 @@ export default function CheckoutModal({
   const [formData, setFormData] = useState({
     name: user?.displayName || '',
     phone: '',
+    districtId: '',
+    upazilaId: '',
     address: ''
   });
 
@@ -43,12 +50,18 @@ export default function CheckoutModal({
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
-            setFormData(prev => ({
-              ...prev,
-              name: data.name || prev.name,
-              phone: data.phone || prev.phone,
-              address: data.address || prev.address
-            }));
+            setFormData(prev => {
+              const dId = districts.find(d => d.name === data.district)?.id || prev.districtId;
+              const uId = upazilas.find(u => u.name === data.upazila)?.id || prev.upazilaId;
+              return {
+                ...prev,
+                name: data.name || prev.name,
+                phone: data.phone || prev.phone,
+                districtId: dId,
+                upazilaId: uId,
+                address: data.address || prev.address
+              };
+            });
           }
         } catch (e) {
           console.error('Error fetching profile for checkout', e);
@@ -61,7 +74,7 @@ export default function CheckoutModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.address) {
+    if (!formData.name || !formData.phone || !formData.districtId || !formData.upazilaId || !formData.address) {
       toast.error('Please fill in all delivery details.');
       return;
     }
@@ -75,11 +88,16 @@ export default function CheckoutModal({
     try {
       
 
+      const districtName = districts.find(d => d.id === formData.districtId)?.name || '';
+      const upazilaName = upazilas.find(u => u.id === formData.upazilaId)?.name || '';
+
       await addDoc(collection(db, 'orders'), {
         customerId: user?.uid || 'guest',
         customerDetails: {
           name: formData.name || 'Guest',
           phone: formData.phone || '',
+          district: districtName,
+          upazila: upazilaName,
           address: formData.address || ''
         },
         items: items.map(item => ({
@@ -154,6 +172,28 @@ export default function CheckoutModal({
                   </h3>
                   <input required placeholder="FULL NAME" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme" />
                   <input required placeholder="PHONE NUMBER" type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme" />
+                  <div className="relative">
+                    <select required value={formData.districtId} onChange={e => setFormData({...formData, districtId: e.target.value, upazilaId: ''})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme appearance-none cursor-pointer">
+                      <option value="" disabled>SELECT DISTRICT</option>
+                      {districts.map(d => (
+                        <option key={d.id} value={d.id}>{d.name} - {d.bn_name}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <select required value={formData.upazilaId} onChange={e => setFormData({...formData, upazilaId: e.target.value})} disabled={!formData.districtId} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme appearance-none cursor-pointer disabled:opacity-50">
+                      <option value="" disabled>SELECT UPAZILA / THANA</option>
+                      {upazilas.filter(u => u.district_id === formData.districtId).map(u => (
+                        <option key={u.id} value={u.id}>{u.name} - {u.bn_name}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                  </div>
                   <textarea required placeholder="DETAILED ADDRESS" rows={3} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none resize-none transition-colors uppercase rounded-theme" />
                 </div>
                 <button onClick={() => setStep(2)} className="w-full bg-primary text-on-primary p-[16px] text-[16px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all">
