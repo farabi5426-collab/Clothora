@@ -30,6 +30,7 @@ export default function CheckoutModal({
   const { user } = useAuthStore();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [requireDistrictUpazila, setRequireDistrictUpazila] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
   const [bkashTrxId, setBkashTrxId] = useState('');
   
@@ -44,38 +45,50 @@ export default function CheckoutModal({
   const total = subtotal - discount + deliveryCharge;
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (user && isOpen) {
+    const fetchSettingsAndProfile = async () => {
+      if (isOpen) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const data = userDoc.data();
-            setFormData(prev => {
-              const dId = districts.find(d => d.name === data.district)?.id || prev.districtId;
-              const uId = upazilas.find(u => u.name === data.upazila)?.id || prev.upazilaId;
-              return {
-                ...prev,
-                name: data.name || prev.name,
-                phone: data.phone || prev.phone,
-                districtId: dId,
-                upazilaId: uId,
-                address: data.address || prev.address
-              };
-            });
+          const configDoc = await getDoc(doc(db, 'settings', 'storeConfig'));
+          if (configDoc.exists() && configDoc.data().requireDistrictUpazila !== undefined) {
+            setRequireDistrictUpazila(configDoc.data().requireDistrictUpazila);
           }
         } catch (e) {
-          console.error('Error fetching profile for checkout', e);
+          console.error('Error fetching settings', e);
+        }
+
+        if (user) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+              const data = userDoc.data();
+              setFormData(prev => {
+                const dId = districts.find(d => d.name === data.district)?.id || prev.districtId;
+                const uId = upazilas.find(u => u.name === data.upazila)?.id || prev.upazilaId;
+                return {
+                  ...prev,
+                  name: data.name || prev.name,
+                  phone: data.phone || prev.phone,
+                  districtId: dId,
+                  upazilaId: uId,
+                  address: data.address || prev.address
+                };
+              });
+            }
+          } catch (e) {
+            console.error('Error fetching profile for checkout', e);
+          }
         }
       }
     };
-    fetchProfile();
+    fetchSettingsAndProfile();
   }, [user, isOpen]);
   
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.districtId || !formData.upazilaId || !formData.address) {
-      toast.error('Please fill in all delivery details.');
+    const isDistrictUpazilaValid = requireDistrictUpazila ? (formData.districtId && formData.upazilaId) : true;
+    if (!formData.name || !formData.phone || !isDistrictUpazilaValid || !formData.address) {
+      toast.error('Please fill in all required delivery details.');
       return;
     }
 
@@ -172,28 +185,34 @@ export default function CheckoutModal({
                   </h3>
                   <input required placeholder="FULL NAME" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme" />
                   <input required placeholder="PHONE NUMBER" type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme" />
-                  <div className="relative">
-                    <select required value={formData.districtId} onChange={e => setFormData({...formData, districtId: e.target.value, upazilaId: ''})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme appearance-none cursor-pointer">
-                      <option value="" disabled>SELECT DISTRICT</option>
-                      {districts.map(d => (
-                        <option key={d.id} value={d.id}>{d.name} - {d.bn_name}</option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
-                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <select required value={formData.upazilaId} onChange={e => setFormData({...formData, upazilaId: e.target.value})} disabled={!formData.districtId} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme appearance-none cursor-pointer disabled:opacity-50">
-                      <option value="" disabled>SELECT UPAZILA / THANA</option>
-                      {upazilas.filter(u => u.district_id === formData.districtId).map(u => (
-                        <option key={u.id} value={u.id}>{u.name} - {u.bn_name}</option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
-                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                    </div>
-                  </div>
+                  
+                  {requireDistrictUpazila && (
+                    <>
+                      <div className="relative">
+                        <select required value={formData.districtId} onChange={e => setFormData({...formData, districtId: e.target.value, upazilaId: ''})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme appearance-none cursor-pointer">
+                          <option value="" disabled>SELECT DISTRICT</option>
+                          {districts.map(d => (
+                            <option key={d.id} value={d.id}>{d.name} - {d.bn_name}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <select required value={formData.upazilaId} onChange={e => setFormData({...formData, upazilaId: e.target.value})} disabled={!formData.districtId} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none transition-colors uppercase rounded-theme appearance-none cursor-pointer disabled:opacity-50">
+                          <option value="" disabled>SELECT UPAZILA / THANA</option>
+                          {upazilas.filter(u => u.district_id === formData.districtId).map(u => (
+                            <option key={u.id} value={u.id}>{u.name} - {u.bn_name}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  
                   <textarea required placeholder="DETAILED ADDRESS" rows={3} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full bg-surface border-2 border-surface-bright p-[16px] text-[14px] font-bold text-on-surface focus:border-primary outline-none resize-none transition-colors uppercase rounded-theme" />
                 </div>
                 <button onClick={() => setStep(2)} className="w-full bg-primary text-on-primary p-[16px] text-[16px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all">

@@ -23,6 +23,7 @@ import ThemeManagement from './pages/admin/ThemeManagement';
 import LayoutManagement from './pages/admin/LayoutManagement';
 import BannersManagement from './pages/admin/BannersManagement';
 import SocialLinksManagement from './pages/admin/SocialLinksManagement';
+import SettingsManagement from './pages/admin/SettingsManagement';
 import Login from './components/auth/Login';
 import Home from './pages/store/Home';
 import ProductPage from './pages/store/ProductPage';
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="layouts" element={<LayoutManagement />} />
           <Route path="banners" element={<BannersManagement />} />
           <Route path="social-links" element={<SocialLinksManagement />} />
+          <Route path="settings" element={<SettingsManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>
