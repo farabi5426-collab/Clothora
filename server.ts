@@ -48,7 +48,8 @@ async function startServer() {
         const product = docSnap.data();
         const title = product.title + ' | Clothora';
         const description = product.description || `Buy ${product.title} at Clothora`;
-        const imageUrl = product.imageUrl || '';
+        const rawImageUrl = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '');
+        const imageUrl = rawImageUrl.startsWith('http') ? rawImageUrl : ('https://' + req.get('host') + (rawImageUrl.startsWith('/') ? '' : '/') + rawImageUrl);
         const url = 'https://' + req.get('host') + req.originalUrl;
         
         const metaTags = `
