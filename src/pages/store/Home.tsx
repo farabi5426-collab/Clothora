@@ -298,7 +298,7 @@ export default function Home() {
 
   // Simulate Best Sellers and New Arrivals by splitting the array
   const bestSellers = filteredProducts.slice(0, 4);
-  const newArrivals = filteredProducts.slice(4, 12);
+  const remainingProducts = filteredProducts.slice(4);
 
   const renderProductCard = (product: Product) => (
     <ProductCard 
@@ -468,15 +468,15 @@ export default function Home() {
           </div>
         )}
 
-        {/* New Arrivals */}
-        {activeCategory === 'All' && newArrivals.length > 0 && (
+        {/* More Drops */}
+        {activeCategory === 'All' && remainingProducts.length > 0 && (
           <div>
             <div className="flex justify-between items-end mb-10 border-b border-outline-variant pb-4">
               <div>
                 <h2 className="text-3xl md:text-4xl font-black text-on-background uppercase tracking-tighter leading-none flex items-center gap-3">
-                  ✨ New Arrivals
+                  ✨ More Drops
                 </h2>
-                <p className="text-xs text-primary font-bold uppercase tracking-[0.1em] mt-2">Fresh From The Vault</p>
+                <p className="text-xs text-primary font-bold uppercase tracking-[0.1em] mt-2">Explore the full collection</p>
               </div>
             </div>
             {loading ? (
@@ -487,7 +487,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                {newArrivals.map(renderProductCard)}
+                {remainingProducts.map(renderProductCard)}
               </div>
             )}
           </div>
