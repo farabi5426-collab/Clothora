@@ -43,7 +43,7 @@ export default function AdminLayout() {
             Clothora <span className="text-primary text-[10px] uppercase tracking-[0.3em] ml-3 mt-1 not-italic">Admin</span>
           </Link>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 flex md:flex-col overflow-x-auto md:overflow-visible">
+        <nav className="flex-1 px-4 py-6 space-y-2 flex md:flex-col overflow-x-auto md:overflow-y-auto overflow-y-hidden">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (

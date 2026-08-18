@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import { Heart, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { useCartStore } from '../../store/cartStore';
@@ -15,20 +15,28 @@ export default function WishlistPage() {
 
   useEffect(() => {
     const fetchWishlistProducts = async () => {
-      if (items.length === 0) {
+      const validItems = items.filter(Boolean);
+      if (validItems.length === 0) {
         setProducts([]);
         setLoading(false);
         return;
       }
       
       try {
-        // Firestore 'in' query supports up to 10 items.
-        // For simplicity, chunking isn't implemented here. Assuming < 10 for demo.
-        const chunkedItems = items.slice(0, 10);
-        const q = query(collection(db, 'products'), where('__name__', 'in', chunkedItems));
-        const snap = await getDocs(q);
-        const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setProducts(fetched);
+        const chunkedItems = [];
+        for (let i = 0; i < validItems.length; i += 10) {
+          chunkedItems.push(validItems.slice(i, i + 10));
+        }
+
+        let allFetched: any[] = [];
+        for (const chunk of chunkedItems) {
+          const q = query(collection(db, 'products'), where(documentId(), 'in', chunk));
+          const snap = await getDocs(q);
+          const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          allFetched = [...allFetched, ...fetched];
+        }
+
+        setProducts(allFetched);
       } catch (err) {
         console.error("Error fetching wishlist", err);
       } finally {
@@ -67,7 +75,7 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map(product => (
               <div key={product.id} className="group bg-surface-container-lowest border-2 border-surface-bright p-4 flex flex-col relative transition-transform hover:-translate-y-2 hover:shadow-[8px_8px_0px_var(--color-primary)] duration-200">
-                <Link to={\`/product/\${product.id}\`} className="w-full aspect-[3/4] bg-surface-container-low mb-4 relative overflow-hidden block">
+                <Link to={`/product/${product.id}`} className="w-full aspect-[3/4] bg-surface-container-low mb-4 relative overflow-hidden block">
                   <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </Link>
                 <button 
@@ -77,7 +85,7 @@ export default function WishlistPage() {
                 >
                   <Heart className="w-5 h-5 fill-primary text-primary" />
                 </button>
-                <Link to={\`/product/\${product.id}\`}>
+                <Link to={`/product/${product.id}`}>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface line-clamp-2 mb-2 group-hover:text-primary transition-colors">{product.title}</h3>
                 </Link>
                 <div className="text-lg font-black text-primary mt-auto mb-4">৳{product.price}</div>
@@ -92,7 +100,7 @@ export default function WishlistPage() {
                       sizes: product.sizes || [],
                       imageUrls: product.imageUrls || []
                     }, false);
-                    toast.success(\`\${product.title} added to cart\`);
+                    toast.success(`${product.title} added to cart`);
                   }}
                   disabled={product.stock <= 0}
                   className="w-full bg-surface-container-high text-on-surface py-3 text-xs font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border-2 border-transparent hover:border-on-surface"

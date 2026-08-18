@@ -55,6 +55,7 @@ export default function App() {
         <Route element={<StoreLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/account" element={<CustomerDashboard />} />
