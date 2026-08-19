@@ -73,7 +73,16 @@ async function startServer() {
         `;
         
         // Remove existing default meta if possible, then inject our dynamic ones
-        html = html.replace('<title>Clothora</title>', metaTags);
+        
+        // Remove existing default meta tags
+        html = html.replace(/<title>.*<\/title>/g, '');
+        html = html.replace(/<meta name="description".*?>/g, '');
+        html = html.replace(/<meta property="og:.*?".*?>/g, '');
+        html = html.replace(/<meta name="twitter:.*?".*?>/g, '');
+        
+        // Inject new tags before </head>
+        html = html.replace('</head>', metaTags + '\n  </head>');
+
       }
       
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
