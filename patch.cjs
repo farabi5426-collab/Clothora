@@ -1,96 +1,103 @@
 const fs = require('fs');
-let code = fs.readFileSync('src/pages/admin/PromoCodesManagement.tsx', 'utf8');
 
-// Interface
-code = code.replace(
-  "discountPercent: number;",
-  "discountPercent?: number;\n  discountAmount?: number;"
-);
+function patchChatWidget() {
+  let code = fs.readFileSync('src/components/store/ChatWidget.tsx', 'utf8');
 
-// State
-code = code.replace(
-  "code: '', discountPercent: '', minOrderAmount: '', maxUsers: '', expiryDate: ''",
-  "code: '', discountPercent: '', discountAmount: '', minOrderAmount: '', maxUsers: '', expiryDate: ''"
-);
+  // 1. Remove auto-scroll on every snapshot
+  const originalSnapshot = `setMessages(msgs);
+      setTimeout(scrollToBottom, 100);
+    });`;
+  if (code.includes(originalSnapshot)) {
+    code = code.replace(originalSnapshot, `setMessages(msgs);\n    });`);
+    console.log("ChatWidget: Patched snapshot scroll.");
+  } else {
+    console.log("ChatWidget: Snapshot scroll not found, trying regex...");
+    code = code.replace(/setMessages\(msgs\);\s*setTimeout\(scrollToBottom,\s*100\);\s*}\);/g, 'setMessages(msgs);\n    });');
+  }
 
-// Handle Submit
-code = code.replace(
-  /const handleSubmit = async \(e: React\.FormEvent\) => \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?try \{[\s\S]*?await addDoc\(collection\(db, 'promoCodes'\), \{/,
-  `const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.discountPercent && !formData.discountAmount) {
-      alert('Please provide either a discount percentage or a flat discount amount.');
-      return;
+  // Add scroll on messages.length change
+  const depInsert = `const chatId = user ? user.uid : getChatId();`;
+  if (code.includes(depInsert)) {
+    code = code.replace(
+      depInsert,
+      `${depInsert}\n\n  useEffect(() => {\n    scrollToBottom();\n  }, [messages.length]);`
+    );
+    console.log("ChatWidget: Added messages.length effect.");
+  }
+
+  // 2. Extract MessageBubble
+  const bubbleStart = code.indexOf('const MessageBubble = ({ msg }: { msg: ChatMessage }) => {');
+  const bubbleEnd = code.indexOf('return (', bubbleStart);
+  
+  if (bubbleStart !== -1 && bubbleEnd !== -1) {
+    let bubbleCode = code.substring(bubbleStart, bubbleEnd);
+    code = code.substring(0, bubbleStart) + code.substring(bubbleEnd);
+    
+    bubbleCode = bubbleCode.replace(
+      'const MessageBubble = ({ msg }: { msg: ChatMessage }) => {',
+      'const MessageBubble = React.memo(({ msg, activeReactionMsg, setActiveReactionMsg, handleReaction, setReplyingTo }: any) => {'
+    );
+    
+    code = code.replace('export default function ChatWidget() {', bubbleCode + '\nexport default function ChatWidget() {');
+    
+    code = code.replace(
+      '{messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)}',
+      '{messages.map((msg) => <MessageBubble key={msg.id} msg={msg} activeReactionMsg={activeReactionMsg} setActiveReactionMsg={setActiveReactionMsg} handleReaction={handleReaction} setReplyingTo={setReplyingTo} />)}'
+    );
+    console.log("ChatWidget: Extracted MessageBubble.");
+  }
+
+  fs.writeFileSync('src/components/store/ChatWidget.tsx', code);
+}
+
+function patchMessagesManagement() {
+  let code = fs.readFileSync('src/pages/admin/MessagesManagement.tsx', 'utf8');
+
+  // 1. Remove auto-scroll on every snapshot
+  if (code.includes('setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: \'smooth\' }), 100);')) {
+    code = code.replace(
+      /setTimeout\(\(\)\s*=>\s*messagesEndRef\.current\?\.scrollIntoView\(\{ behavior:\s*'smooth'\s*\}\),\s*100\);/g,
+      ''
+    );
+    console.log("Admin: Patched snapshot scroll.");
+  }
+
+  // Add scroll on messages.length change
+  const depInsert = `const selectedChat = chats.find(c => c.id === selectedChatId) || null;`;
+  if (code.includes(depInsert)) {
+    if (!code.includes('messagesEndRef.current?.scrollIntoView({ behavior: \'smooth\' });\n  }, [messages.length]);')) {
+      code = code.replace(
+        depInsert,
+        `${depInsert}\n\n  useEffect(() => {\n    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });\n  }, [messages.length]);`
+      );
+      console.log("Admin: Added messages.length effect.");
     }
-    try {
-      await addDoc(collection(db, 'promoCodes'), {`
-);
+  }
 
-code = code.replace(
-  "discountPercent: Number(formData.discountPercent),",
-  "discountPercent: formData.discountPercent ? Number(formData.discountPercent) : 0,\n        discountAmount: formData.discountAmount ? Number(formData.discountAmount) : 0,"
-);
+  // 2. Extract MessageBubble
+  const bubbleStart = code.indexOf('const MessageBubble = ({ msg }: { msg: ChatMessage }) => {');
+  const bubbleEnd = code.indexOf('return (', bubbleStart);
+  
+  if (bubbleStart !== -1 && bubbleEnd !== -1) {
+    let bubbleCode = code.substring(bubbleStart, bubbleEnd);
+    code = code.substring(0, bubbleStart) + code.substring(bubbleEnd);
+    
+    bubbleCode = bubbleCode.replace(
+      'const MessageBubble = ({ msg }: { msg: ChatMessage }) => {',
+      'const MessageBubble = React.memo(({ msg, activeReactionMsg, setActiveReactionMsg, handleReaction, setReplyingTo, selectedChat }: any) => {'
+    );
+    
+    code = code.replace('export default function MessagesManagement() {', bubbleCode + '\nexport default function MessagesManagement() {');
+    
+    code = code.replace(
+      '{messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}',
+      '{messages.map(msg => <MessageBubble key={msg.id} msg={msg} activeReactionMsg={activeReactionMsg} setActiveReactionMsg={setActiveReactionMsg} handleReaction={handleReaction} setReplyingTo={setReplyingTo} selectedChat={selectedChat} />)}'
+    );
+    console.log("Admin: Extracted MessageBubble.");
+  }
 
-code = code.replace(
-  "setFormData({ code: '', discountPercent: '', minOrderAmount: '', maxUsers: '', expiryDate: '' });",
-  "setFormData({ code: '', discountPercent: '', discountAmount: '', minOrderAmount: '', maxUsers: '', expiryDate: '' });"
-);
+  fs.writeFileSync('src/pages/admin/MessagesManagement.tsx', code);
+}
 
-// Table Render
-code = code.replace(
-  '<td className="p-4 font-bold">{promo.discountPercent}%</td>',
-  '<td className="p-4 font-bold">{promo.discountPercent && promo.discountPercent > 0 ? `${promo.discountPercent}%` : `৳ ${promo.discountAmount}`}</td>'
-);
-
-// Form
-const oldForm = `              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Discount (%)</label>
-                  <input required type="number" min="1" max="100" value={formData.discountPercent} onChange={e => setFormData({...formData, discountPercent: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Min Order (৳)</label>
-                  <input required type="number" value={formData.minOrderAmount} onChange={e => setFormData({...formData, minOrderAmount: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Max Users</label>
-                  <input required type="number" min="1" value={formData.maxUsers} onChange={e => setFormData({...formData, maxUsers: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Expiry Date</label>
-                  <input required type="date" value={formData.expiryDate} onChange={e => setFormData({...formData, expiryDate: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-              </div>`;
-
-const newForm = `              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Discount (%)</label>
-                  <input type="number" min="1" max="100" value={formData.discountPercent} onChange={e => setFormData({...formData, discountPercent: e.target.value, discountAmount: ''})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" placeholder="e.g. 10" />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Discount Amount (৳)</label>
-                  <input type="number" min="1" value={formData.discountAmount} onChange={e => setFormData({...formData, discountAmount: e.target.value, discountPercent: ''})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" placeholder="e.g. 100" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Min Order (৳)</label>
-                  <input required type="number" value={formData.minOrderAmount} onChange={e => setFormData({...formData, minOrderAmount: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Max Users</label>
-                  <input required type="number" min="1" value={formData.maxUsers} onChange={e => setFormData({...formData, maxUsers: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Expiry Date</label>
-                  <input required type="date" value={formData.expiryDate} onChange={e => setFormData({...formData, expiryDate: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
-                </div>
-              </div>`;
-
-code = code.replace(oldForm, newForm);
-
-fs.writeFileSync('src/pages/admin/PromoCodesManagement.tsx', code);
+patchChatWidget();
+patchMessagesManagement();

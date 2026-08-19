@@ -15,7 +15,7 @@ interface ChatMessage {
   text: string;
   sender: 'customer' | 'admin';
   createdAt: any;
-  reactions?: string[];
+  reactions?: Record<string, string>;
   replyTo?: { id: string; text: string; sender: string };
 }
 
@@ -46,6 +46,68 @@ const formatTime = (createdAt: any) => {
   return 'Now';
 };
 
+const MessageBubble = React.memo(({ msg, activeReactionMsg, setActiveReactionMsg, handleReaction, setReplyingTo }: any) => {
+    const isMe = msg.sender === 'customer';
+    const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
+    
+    
+  return (
+      <div className={`flex gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
+        {!isMe && (
+          <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-black text-sm">C</div>
+        )}
+        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
+          {activeReactionMsg === msg.id && (
+            <div className={`absolute z-50 -top-12 ${isMe ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
+              {REACTION_EMOJIS.map(emoji => (
+                <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-[22px] hover:scale-125 transition-transform animate-dance inline-block origin-bottom">{emoji}</button>
+              ))}
+              <button 
+                onClick={() => { setReplyingTo(msg); setActiveReactionMsg(null); }}
+                className="w-8 h-8 bg-surface-container-low text-on-surface rounded-full flex items-center justify-center hover:bg-surface-bright transition-colors ml-1 border border-outline-variant"
+              >
+                <Reply className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          
+          <motion.div 
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.x > 50 || info.offset.x < -50) {
+                setReplyingTo(msg);
+              }
+            }}
+            onContextMenu={(e) => { e.preventDefault(); setActiveReactionMsg(msg.id); }}
+            {...longPressEvent} 
+            className={`p-4 text-[13px] leading-relaxed rounded-none shadow-sm cursor-pointer select-none relative ${isMe ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}
+          >
+            {msg.replyTo && (
+              <div className={`mb-2 p-2 rounded text-xs border-l-4 ${isMe ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}`}>
+                <span className="font-bold uppercase tracking-widest block mb-0.5 opacity-80">{msg.replyTo.sender === 'customer' ? 'You' : 'Clothora'}</span>
+                <span className="line-clamp-1 opacity-90">{msg.replyTo.text}</span>
+              </div>
+            )}
+            {renderMessageWithLinks(msg.text)}
+          </motion.div>
+
+          {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+            <div className={`absolute -bottom-3 ${isMe ? 'left-0' : 'right-0'} bg-surface-container-low border border-outline-variant rounded-full px-1.5 py-0.5 text-[14px] flex gap-1 shadow-sm min-h-[24px] items-center`}>
+              {Object.values(msg.reactions).map((r, i) => <span key={r + i} className="animate-pop-in inline-block origin-bottom">{r}</span>)}
+            </div>
+          )}
+          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isMe ? 'justify-end w-full' : 'w-full'}`}>
+            {formatTime(msg.createdAt)}
+            {isMe && <span className="text-primary text-xs">✓✓</span>}
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+
 export default function ChatWidget() {
   const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -64,6 +126,10 @@ export default function ChatWidget() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const chatId = user ? user.uid : getChatId();
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -93,7 +159,6 @@ export default function ChatWidget() {
       const msgs: ChatMessage[] = [];
       snapshot.forEach((doc) => msgs.push({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as ChatMessage));
       setMessages(msgs);
-      setTimeout(scrollToBottom, 100);
     });
 
     return () => {
@@ -141,10 +206,13 @@ export default function ChatWidget() {
       const msgRef = doc(db, 'chats', chatId, 'messages', msgId);
       const msg = messages.find(m => m.id === msgId);
       if (!msg) return;
-      const currentReactions = msg.reactions || [];
-      const newReactions = currentReactions.includes(emoji) 
-        ? currentReactions.filter(r => r !== emoji)
-        : [...currentReactions, emoji];
+      const currentReactions = msg.reactions || {};
+      const newReactions = { ...currentReactions };
+      if (newReactions['customer'] === emoji) {
+        delete newReactions['customer'];
+      } else {
+        newReactions['customer'] = emoji;
+      }
       await updateDoc(msgRef, { reactions: newReactions });
       setActiveReactionMsg(null);
     } catch (error) {
@@ -186,66 +254,6 @@ export default function ChatWidget() {
     setTimeout(scrollToBottom, 50);
   };
 
-  const MessageBubble = ({ msg }: { msg: ChatMessage }) => {
-    const isMe = msg.sender === 'customer';
-    const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
-    
-    return (
-      <div className={`flex gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
-        {!isMe && (
-          <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-black text-sm">C</div>
-        )}
-        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
-          {activeReactionMsg === msg.id && (
-            <div className={`absolute z-50 -top-12 ${isMe ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
-              {REACTION_EMOJIS.map(emoji => (
-                <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-xl hover:scale-125 transition-transform">{emoji}</button>
-              ))}
-              <button 
-                onClick={() => { setReplyingTo(msg); setActiveReactionMsg(null); }}
-                className="w-8 h-8 bg-surface-container-low text-on-surface rounded-full flex items-center justify-center hover:bg-surface-bright transition-colors ml-1 border border-outline-variant"
-              >
-                <Reply className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-          
-          <motion.div 
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              if (info.offset.x > 50 || info.offset.x < -50) {
-                setReplyingTo(msg);
-              }
-            }}
-            onContextMenu={(e) => { e.preventDefault(); setActiveReactionMsg(msg.id); }}
-            {...longPressEvent} 
-            className={`p-4 text-[13px] leading-relaxed rounded-none shadow-sm cursor-pointer select-none relative ${isMe ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}
-          >
-            {msg.replyTo && (
-              <div className={`mb-2 p-2 rounded text-xs border-l-4 ${isMe ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}`}>
-                <span className="font-bold uppercase tracking-widest block mb-0.5 opacity-80">{msg.replyTo.sender === 'customer' ? 'You' : 'Clothora'}</span>
-                <span className="line-clamp-1 opacity-90">{msg.replyTo.text}</span>
-              </div>
-            )}
-            {renderMessageWithLinks(msg.text)}
-          </motion.div>
-
-          {msg.reactions && msg.reactions.length > 0 && (
-            <div className={`absolute -bottom-3 ${isMe ? 'left-0' : 'right-0'} bg-surface-container-low border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm`}>
-              {msg.reactions.map((r, i) => <span key={i}>{r}</span>)}
-            </div>
-          )}
-          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isMe ? 'justify-end w-full' : 'w-full'}`}>
-            {formatTime(msg.createdAt)}
-            {isMe && <span className="text-primary text-xs">✓✓</span>}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100]">
       {isOpen ? (
@@ -282,7 +290,7 @@ export default function ChatWidget() {
               </div>
             ) : (
               <>
-                {messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)}
+                {messages.map((msg) => <MessageBubble key={msg.id} msg={msg} activeReactionMsg={activeReactionMsg} setActiveReactionMsg={setActiveReactionMsg} handleReaction={handleReaction} setReplyingTo={setReplyingTo} />)}
                 <div ref={messagesEndRef} />
                 {isTypingAdmin && (
                   <div className="flex gap-3 justify-start mb-2">

@@ -24,7 +24,7 @@ interface ChatMessage {
   text: string;
   sender: 'customer' | 'admin';
   createdAt: any;
-  reactions?: string[];
+  reactions?: Record<string, string>;
   replyTo?: { id: string; text: string; sender: string };
 }
 
@@ -55,6 +55,70 @@ const formatTime = (createdAt: any) => {
   return 'Now';
 };
 
+const MessageBubble = React.memo(({ msg, activeReactionMsg, setActiveReactionMsg, handleReaction, setReplyingTo, selectedChat }: any) => {
+    const isAdmin = msg.sender === 'admin';
+    const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
+    
+    
+  return (
+      <div className={`flex gap-3 ${isAdmin ? 'justify-end' : 'justify-start'}`}>
+        {!isAdmin && (
+          <div className="w-8 h-8 bg-surface-container-low flex-shrink-0 flex items-center justify-center text-on-surface font-black text-sm uppercase">
+            {selectedChat?.customerName?.charAt(0) || 'C'}
+          </div>
+        )}
+        <div className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
+          {activeReactionMsg === msg.id && (
+            <div className={`absolute z-50 -top-12 ${isAdmin ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
+              {REACTION_EMOJIS.map(emoji => (
+                <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-[22px] hover:scale-125 transition-transform animate-dance inline-block origin-bottom">{emoji}</button>
+              ))}
+              <button 
+                onClick={() => { setReplyingTo(msg); setActiveReactionMsg(null); }}
+                className="w-8 h-8 bg-surface-container-low text-on-surface rounded-full flex items-center justify-center hover:bg-surface-bright transition-colors ml-1 border border-outline-variant"
+              >
+                <Reply className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          
+          <motion.div 
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.x > 50 || info.offset.x < -50) {
+                setReplyingTo(msg);
+              }
+            }}
+            onContextMenu={(e) => { e.preventDefault(); setActiveReactionMsg(msg.id); }}
+            {...longPressEvent} 
+            className={`p-4 text-[13px] leading-relaxed rounded-theme shadow-sm cursor-pointer select-none relative ${isAdmin ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}
+          >
+            {msg.replyTo && (
+              <div className={`mb-2 p-2 rounded text-xs border-l-4 ${isAdmin ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}`}>
+                <span className="font-bold uppercase tracking-widest block mb-0.5 opacity-80">{msg.replyTo.sender === 'admin' ? 'You' : selectedChat?.customerName || 'Customer'}</span>
+                <span className="line-clamp-1 opacity-90">{msg.replyTo.text}</span>
+              </div>
+            )}
+            {renderMessageWithLinks(msg.text)}
+          </motion.div>
+          
+          {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+            <div className={`absolute -bottom-3 ${isAdmin ? 'left-0' : 'right-0'} bg-surface border border-outline-variant rounded-full px-1.5 py-0.5 text-[14px] flex gap-1 shadow-sm min-h-[24px] items-center`}>
+              {Object.values(msg.reactions).map((r, i) => <span key={r + i} className="animate-pop-in inline-block origin-bottom">{r}</span>)}
+            </div>
+          )}
+          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isAdmin ? 'justify-end w-full' : 'w-full'}`}>
+            {formatTime(msg.createdAt)}
+            {isAdmin && <span className="text-primary text-xs">✓✓</span>}
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+
 export default function MessagesManagement() {
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -70,8 +134,14 @@ export default function MessagesManagement() {
   const selectedChat = chats.find(c => c.id === selectedChatId) || null;
 
   useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages.length]);
+
+  useEffect(() => {
     if (selectedChat?.isTypingCustomer) {
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
   }, [selectedChat?.isTypingCustomer]);
 
@@ -97,7 +167,6 @@ export default function MessagesManagement() {
       const msgs: ChatMessage[] = [];
       snapshot.forEach((doc) => msgs.push({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as ChatMessage));
       setMessages(msgs);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     });
     return () => unsubscribe();
   }, [selectedChatId]);
@@ -119,10 +188,13 @@ export default function MessagesManagement() {
       const msgRef = doc(db, 'chats', selectedChatId, 'messages', msgId);
       const msg = messages.find(m => m.id === msgId);
       if (!msg) return;
-      const currentReactions = msg.reactions || [];
-      const newReactions = currentReactions.includes(emoji) 
-        ? currentReactions.filter(r => r !== emoji)
-        : [...currentReactions, emoji];
+      const currentReactions = msg.reactions || {};
+      const newReactions = { ...currentReactions };
+      if (newReactions['admin'] === emoji) {
+        delete newReactions['admin'];
+      } else {
+        newReactions['admin'] = emoji;
+      }
       await updateDoc(msgRef, { reactions: newReactions });
       setActiveReactionMsg(null);
     } catch (error) {
@@ -168,68 +240,6 @@ export default function MessagesManagement() {
     });
     
     setReplyingTo(null);
-  };
-
-  const MessageBubble = ({ msg }: { msg: ChatMessage }) => {
-    const isAdmin = msg.sender === 'admin';
-    const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
-    
-    return (
-      <div className={`flex gap-3 ${isAdmin ? 'justify-end' : 'justify-start'}`}>
-        {!isAdmin && (
-          <div className="w-8 h-8 bg-surface-container-low flex-shrink-0 flex items-center justify-center text-on-surface font-black text-sm uppercase">
-            {selectedChat?.customerName?.charAt(0) || 'C'}
-          </div>
-        )}
-        <div className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
-          {activeReactionMsg === msg.id && (
-            <div className={`absolute z-50 -top-12 ${isAdmin ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
-              {REACTION_EMOJIS.map(emoji => (
-                <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-xl hover:scale-125 transition-transform">{emoji}</button>
-              ))}
-              <button 
-                onClick={() => { setReplyingTo(msg); setActiveReactionMsg(null); }}
-                className="w-8 h-8 bg-surface-container-low text-on-surface rounded-full flex items-center justify-center hover:bg-surface-bright transition-colors ml-1 border border-outline-variant"
-              >
-                <Reply className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-          
-          <motion.div 
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(e, info) => {
-              if (info.offset.x > 50 || info.offset.x < -50) {
-                setReplyingTo(msg);
-              }
-            }}
-            onContextMenu={(e) => { e.preventDefault(); setActiveReactionMsg(msg.id); }}
-            {...longPressEvent} 
-            className={`p-4 text-[13px] leading-relaxed rounded-theme shadow-sm cursor-pointer select-none relative ${isAdmin ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}
-          >
-            {msg.replyTo && (
-              <div className={`mb-2 p-2 rounded text-xs border-l-4 ${isAdmin ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}`}>
-                <span className="font-bold uppercase tracking-widest block mb-0.5 opacity-80">{msg.replyTo.sender === 'admin' ? 'You' : selectedChat?.customerName || 'Customer'}</span>
-                <span className="line-clamp-1 opacity-90">{msg.replyTo.text}</span>
-              </div>
-            )}
-            {renderMessageWithLinks(msg.text)}
-          </motion.div>
-          
-          {msg.reactions && msg.reactions.length > 0 && (
-            <div className={`absolute -bottom-3 ${isAdmin ? 'left-0' : 'right-0'} bg-surface border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm`}>
-              {msg.reactions.map((r, i) => <span key={i}>{r}</span>)}
-            </div>
-          )}
-          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isAdmin ? 'justify-end w-full' : 'w-full'}`}>
-            {formatTime(msg.createdAt)}
-            {isAdmin && <span className="text-primary text-xs">✓✓</span>}
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -282,7 +292,7 @@ export default function MessagesManagement() {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-6 bg-surface flex flex-col gap-6" onClick={(e) => { if (activeReactionMsg) { e.stopPropagation(); setActiveReactionMsg(null); } }}>
-                {messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
+                {messages.map(msg => <MessageBubble key={msg.id} msg={msg} activeReactionMsg={activeReactionMsg} setActiveReactionMsg={setActiveReactionMsg} handleReaction={handleReaction} setReplyingTo={setReplyingTo} selectedChat={selectedChat} />)}
                 <div ref={messagesEndRef} />
                 
                 {selectedChat.isTypingCustomer && (
