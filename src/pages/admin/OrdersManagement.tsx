@@ -31,9 +31,7 @@ interface Order {
   deliveryCharge?: number;
   totalAmount: number;
   paymentMethod?: string;
-  bkashDetails?: {
-    transactionId: string;
-  };
+  bkashDetails?: { transactionId: string; advanceAmount?: number; isPaymentVerified?: boolean; };
   status: string;
   trackingId?: string;
   createdAt: any;
@@ -91,6 +89,28 @@ export default function OrdersManagement() {
     }
   };
 
+  
+  const handleTogglePaymentStatus = async (orderId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      await updateDoc(doc(db, 'orders', orderId), {
+        'bkashDetails.isPaymentVerified': newStatus
+      });
+      setSelectedOrder(prev => prev && prev.id === orderId ? {
+        ...prev,
+        bkashDetails: { ...prev.bkashDetails, transactionId: prev.bkashDetails?.transactionId || '', isPaymentVerified: newStatus }
+      } : prev);
+      setOrders(prevOrders => prevOrders.map(order => 
+        order.id === orderId 
+          ? { ...order, bkashDetails: { ...order.bkashDetails, transactionId: order.bkashDetails?.transactionId || '', isPaymentVerified: newStatus } }
+          : order
+      ));
+    } catch (error) {
+      console.error('Error toggling payment status:', error);
+      alert('Failed to update payment status');
+    }
+  };
+  
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       if (newStatus === 'Shipped') {
@@ -159,11 +179,16 @@ export default function OrdersManagement() {
                   <div className="text-xs font-bold uppercase text-on-surface mb-1">
                     {order.paymentMethod === 'bkash' ? 'bKash' : 'Cash On Delivery'}
                   </div>
-                  {order.paymentMethod === 'bkash' && order.bkashDetails && (
+                  {order.bkashDetails && order.bkashDetails.transactionId && (
                     <div className="flex flex-col gap-1 text-[10px]">
-                      {order.bkashDetails.transactionId && (
-                        <div className="text-primary font-bold">TrxID/Num: {order.bkashDetails.transactionId}</div>
-                      )}
+                      <div className="flex flex-col gap-1 mt-1">
+                        <div className="text-primary font-bold">TrxID: {order.bkashDetails.transactionId}</div>
+                        {order.bkashDetails.isPaymentVerified ? (
+                          <span className="bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full text-[8px] font-bold w-fit uppercase border border-green-500/20">PAID</span>
+                        ) : (
+                          <span className="bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded-full text-[8px] font-bold w-fit uppercase border border-yellow-500/20">UNVERIFIED</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </td>
@@ -280,10 +305,37 @@ export default function OrdersManagement() {
                         <p className="text-on-surface">
                           <span className="text-on-surface-variant">Method:</span> {selectedOrder.paymentMethod === 'bkash' ? 'bKash' : 'Cash On Delivery'}
                         </p>
-                        {selectedOrder.paymentMethod === 'bkash' && selectedOrder.bkashDetails && (
-                          <p className="text-on-surface">
-                            <span className="text-on-surface-variant">TrxID/Number:</span> {selectedOrder.bkashDetails.transactionId || 'N/A'}
-                          </p>
+                        {selectedOrder.bkashDetails && selectedOrder.bkashDetails.transactionId && (
+                          <div className="text-on-surface flex items-center justify-between gap-4 border-2 border-surface-bright p-3 mt-2 rounded-theme bg-surface-container-low">
+                            <div>
+                              <span className="text-on-surface-variant text-xs block mb-1">TrxID / Number:</span> 
+                              <span className="text-lg text-primary">{selectedOrder.bkashDetails.transactionId}</span>
+                              <div className="mt-1">
+                                {selectedOrder.bkashDetails.isPaymentVerified ? (
+                                  <span className="bg-green-500/20 text-green-500 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest inline-flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">check_circle</span> Payment Verified</span>
+                                ) : (
+                                  <span className="bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Pending Verification</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              {selectedOrder.bkashDetails.isPaymentVerified ? (
+                                <button 
+                                  onClick={() => handleTogglePaymentStatus(selectedOrder.id, true)}
+                                  className="bg-surface-container-high hover:bg-surface-bright text-on-surface-variant border border-surface-bright px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-theme whitespace-nowrap"
+                                >
+                                  Mark Unverified
+                                </button>
+                              ) : (
+                                <button 
+                                  onClick={() => handleTogglePaymentStatus(selectedOrder.id, false)}
+                                  className="bg-primary hover:bg-primary-container text-on-primary px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors rounded-theme whitespace-nowrap"
+                                >
+                                  Verify Payment
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         )}
                         <p className="text-on-surface"><span className="text-on-surface-variant">Date:</span> {formatDate(selectedOrder.createdAt)}</p>
                      </div>
