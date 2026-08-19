@@ -204,7 +204,6 @@ export default function Home() {
       title: product.title,
       price: product.price,
       imageUrl: product.imageUrl || '',
-      costPrice: product.costPrice,
       sizes: product.sizes || [], imageUrls: product.imageUrls || []
     });
 

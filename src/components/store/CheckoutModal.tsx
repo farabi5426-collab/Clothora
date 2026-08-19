@@ -121,7 +121,6 @@ export default function CheckoutModal({
           imageUrl: item.imageUrl || '',
           selectedSize: item.selectedSize || '',
           selectedColor: item.selectedColor || '',
-          costPrice: item.costPrice || 0,
         })),
         subtotal: subtotal || 0,
         discount: discount || 0,

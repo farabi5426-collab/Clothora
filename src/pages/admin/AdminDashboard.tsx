@@ -8,7 +8,7 @@ export default function AdminDashboard() {
     products: 0,
     orders: 0,
     revenue: 0,
-    netProfit: 0
+    profit: 0
   });
 
   useEffect(() => {
@@ -20,18 +20,15 @@ export default function AdminDashboard() {
     // Listen to orders count, calculate revenue and net profit
     const unsubscribeOrders = onSnapshot(query(collection(db, 'orders')), (snapshot) => {
       let totalRev = 0;
-      let totalCost = 0;
+      let totalDelivery = 0;
       snapshot.forEach(doc => {
         const data = doc.data();
         if (data.status === 'Delivered') {
-          const deliveryCharge = data.deliveryCharge || 0;
-          const orderRevenue = (data.totalAmount || 0) - deliveryCharge;
-          totalRev += orderRevenue;
-          const itemsCost = (data.items || []).reduce((sum: number, item: any) => sum + ((item.costPrice || 0) * (item.quantity || 1)), 0);
-          totalCost += itemsCost;
+          totalRev += (data.totalAmount || 0);
+          totalDelivery += (data.deliveryCharge || 0);
         }
       });
-      setStats(prev => ({ ...prev, orders: snapshot.size, revenue: totalRev, netProfit: totalRev - totalCost }));
+      setStats(prev => ({ ...prev, orders: snapshot.size, revenue: totalRev, profit: totalRev - totalDelivery }));
     });
 
     return () => {
@@ -84,12 +81,12 @@ export default function AdminDashboard() {
 
         <div className="bg-surface-container-lowest border border-outline-variant p-6">
           <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Net Profit</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Profit</h3>
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
           <div className="pt-6 flex items-baseline gap-2">
             <span className="text-xl font-bold text-primary">৳</span>
-            <p className="text-4xl font-black text-on-background">{stats.netProfit.toLocaleString()}</p>
+            <p className="text-4xl font-black text-on-background">{stats.profit.toLocaleString()}</p>
           </div>
         </div>
       </div>

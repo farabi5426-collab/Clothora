@@ -95,8 +95,7 @@ export default function SplitScreen({ products, loading }: { products: Product[]
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-      costPrice: product.costPrice,
-      sizes: product.sizes || [], imageUrls: product.imageUrls || []
+                       sizes: product.sizes || [], imageUrls: product.imageUrls || []
                   }, true);
                 }}
                   className="bg-surface-container-high text-on-surface hover:bg-primary hover:text-on-primary w-[40px] h-[40px] flex items-center justify-center transition-colors border-2 border-surface-bright hover:border-primary rounded-theme"

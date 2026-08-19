@@ -61,8 +61,7 @@ export default function Lookbook({ products, loading }: { products: Product[], l
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-      costPrice: product.costPrice,
-      sizes: product.sizes || [], imageUrls: product.imageUrls || []
+                       sizes: product.sizes || [], imageUrls: product.imageUrls || []
                   }, true);
                 }}
               className="bg-primary text-on-primary px-[48px] py-[24px] text-[18px] font-black uppercase tracking-[0.1em] shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 rounded-theme"

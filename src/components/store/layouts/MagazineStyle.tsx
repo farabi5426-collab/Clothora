@@ -80,8 +80,7 @@ export default function MagazineStyle({ products, loading }: { products: Product
                        title: featured.title,
                        price: featured.price,
                        imageUrl: featured.imageUrl || '',
-      costPrice: featured.costPrice,
-      sizes: featured.sizes || [], imageUrls: featured.imageUrls || []
+                       sizes: featured.sizes || [], imageUrls: featured.imageUrls || []
                   }, true);
             }}
             className="w-full bg-primary text-on-primary py-[24px] text-[18px] font-black uppercase tracking-[0.1em] shadow-[6px_6px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_var(--color-on-primary)] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-[16px] rounded-theme"
@@ -112,8 +111,7 @@ export default function MagazineStyle({ products, loading }: { products: Product
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-      costPrice: product.costPrice,
-      sizes: product.sizes || [], imageUrls: product.imageUrls || []
+                       sizes: product.sizes || [], imageUrls: product.imageUrls || []
                   }, true);
                 }}
                 className="w-[64px] h-[64px] bg-primary text-on-primary rounded-full flex items-center justify-center shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] transition-all disabled:opacity-50"
