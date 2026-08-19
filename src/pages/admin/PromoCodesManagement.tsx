@@ -6,7 +6,8 @@ import { Plus, Trash2, X } from 'lucide-react';
 interface PromoCode {
   id: string;
   code: string;
-  discountPercent: number;
+  discountPercent?: number;
+  discountAmount?: number;
   minOrderAmount: number;
   maxUsers: number;
   expiryDate: string;
@@ -18,7 +19,7 @@ export default function PromoCodesManagement() {
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    code: '', discountPercent: '', minOrderAmount: '', maxUsers: '', expiryDate: ''
+    code: '', discountPercent: '', discountAmount: '', minOrderAmount: '', maxUsers: '', expiryDate: ''
   });
 
   useEffect(() => {
@@ -33,10 +34,15 @@ export default function PromoCodesManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.discountPercent && !formData.discountAmount) {
+      alert('Please provide either a discount percentage or a flat discount amount.');
+      return;
+    }
     try {
       await addDoc(collection(db, 'promoCodes'), {
         code: formData.code.toUpperCase(),
-        discountPercent: Number(formData.discountPercent),
+        discountPercent: formData.discountPercent ? Number(formData.discountPercent) : 0,
+        discountAmount: formData.discountAmount ? Number(formData.discountAmount) : 0,
         minOrderAmount: Number(formData.minOrderAmount),
         maxUsers: Number(formData.maxUsers),
         expiryDate: formData.expiryDate,
@@ -44,7 +50,7 @@ export default function PromoCodesManagement() {
         isActive: true
       });
       setIsModalOpen(false);
-      setFormData({ code: '', discountPercent: '', minOrderAmount: '', maxUsers: '', expiryDate: '' });
+      setFormData({ code: '', discountPercent: '', discountAmount: '', minOrderAmount: '', maxUsers: '', expiryDate: '' });
     } catch (error) {
       console.error('Error adding promo code:', error);
       alert('Failed to save promo code.');
@@ -99,7 +105,7 @@ export default function PromoCodesManagement() {
             {promoCodes.map((promo) => (
               <tr key={promo.id} className="border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors">
                 <td className="p-4 font-black text-primary tracking-widest text-lg">{promo.code}</td>
-                <td className="p-4 font-bold">{promo.discountPercent}%</td>
+                <td className="p-4 font-bold">{promo.discountPercent && promo.discountPercent > 0 ? `${promo.discountPercent}%` : `৳ ${promo.discountAmount}`}</td>
                 <td className="p-4">৳ {promo.minOrderAmount}</td>
                 <td className="p-4">{promo.maxUsers}</td>
                 <td className="p-4 text-xs uppercase tracking-widest text-on-surface-variant">{promo.expiryDate}</td>
@@ -144,19 +150,25 @@ export default function PromoCodesManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Discount (%)</label>
-                  <input required type="number" min="1" max="100" value={formData.discountPercent} onChange={e => setFormData({...formData, discountPercent: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
+                  <input type="number" min="1" max="100" value={formData.discountPercent} onChange={e => setFormData({...formData, discountPercent: e.target.value, discountAmount: ''})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" placeholder="e.g. 10" />
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Min Order (৳)</label>
-                  <input required type="number" value={formData.minOrderAmount} onChange={e => setFormData({...formData, minOrderAmount: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
+                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Discount Amount (৳)</label>
+                  <input type="number" min="1" value={formData.discountAmount} onChange={e => setFormData({...formData, discountAmount: e.target.value, discountPercent: ''})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" placeholder="e.g. 100" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Min Order (৳)</label>
+                  <input required type="number" value={formData.minOrderAmount} onChange={e => setFormData({...formData, minOrderAmount: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
+                </div>
+                <div>
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Max Users</label>
                   <input required type="number" min="1" value={formData.maxUsers} onChange={e => setFormData({...formData, maxUsers: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
                 </div>
-                <div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Expiry Date</label>
                   <input required type="date" value={formData.expiryDate} onChange={e => setFormData({...formData, expiryDate: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none" />
                 </div>
