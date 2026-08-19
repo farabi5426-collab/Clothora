@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Package, ShoppingCart, TrendingUp, Plus, DollarSign, Calendar } from 'lucide-react';
+import { Package, ShoppingCart, TrendingUp, Plus, DollarSign, Calendar, Download, Image as ImageIcon, FileText } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { collection, onSnapshot, query, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import { downloadDashboardImage, downloadDashboardPDF } from '../../lib/printDashboard';
 
 interface Expense {
   id: string;
@@ -16,6 +17,7 @@ export default function AdminDashboard() {
   const [expenseAmount, setExpenseAmount] = useState('');
   const [expenseReason, setExpenseReason] = useState('');
   const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [stats, setStats] = useState({
     products: 0,
@@ -106,6 +108,38 @@ export default function AdminDashboard() {
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Dashboard Overview</h1>
           <p className="text-xs text-on-surface-variant uppercase tracking-widest">Store Performance Metrics</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={async () => {
+              setIsExporting(true);
+              try {
+                await downloadDashboardImage({ stats, expenses, totalExpense, monthlyExpenses, finalNetProfit });
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+            disabled={isExporting}
+            className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors text-on-surface disabled:opacity-50"
+          >
+            <ImageIcon className="w-4 h-4 text-primary" />
+            Image
+          </button>
+          <button 
+            onClick={async () => {
+              setIsExporting(true);
+              try {
+                await downloadDashboardPDF({ stats, expenses, totalExpense, monthlyExpenses, finalNetProfit });
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+            disabled={isExporting}
+            className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors text-on-surface disabled:opacity-50"
+          >
+            <FileText className="w-4 h-4 text-primary" />
+            PDF
+          </button>
         </div>
       </div>
 
