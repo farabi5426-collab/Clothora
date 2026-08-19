@@ -1,4 +1,6 @@
-import toast from 'react-hot-toast';
+const fs = require('fs');
+
+const code = `import toast from 'react-hot-toast';
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -30,7 +32,7 @@ interface ChatMessage {
 
 const renderMessageWithLinks = (text: string) => {
   if (!text) return null;
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urlRegex = /(https?:\\/\\/[^\\s]+)/g;
   const parts = text.split(urlRegex);
   return parts.map((part, i) => {
     if (part.match(urlRegex)) {
@@ -169,15 +171,15 @@ export default function MessagesManagement() {
     const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
     
     return (
-      <div className={`flex gap-3 ${isAdmin ? 'justify-end' : 'justify-start'}`}>
+      <div className={\`flex gap-3 \${isAdmin ? 'justify-end' : 'justify-start'}\`}>
         {!isAdmin && (
           <div className="w-8 h-8 bg-surface-container-low flex-shrink-0 flex items-center justify-center text-on-surface font-black text-sm uppercase">
             {selectedChat?.customerName?.charAt(0) || 'C'}
           </div>
         )}
-        <div className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
+        <div className={\`flex flex-col \${isAdmin ? 'items-end' : 'items-start'} max-w-[85%] relative\`}>
           {activeReactionMsg === msg.id && (
-            <div className={`absolute z-50 -top-12 ${isAdmin ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
+            <div className={\`absolute z-50 -top-12 \${isAdmin ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in\`}>
               {REACTION_EMOJIS.map(emoji => (
                 <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-xl hover:scale-125 transition-transform">{emoji}</button>
               ))}
@@ -201,10 +203,10 @@ export default function MessagesManagement() {
             }}
             onContextMenu={(e) => { e.preventDefault(); setActiveReactionMsg(msg.id); }}
             {...longPressEvent} 
-            className={`p-4 text-[13px] leading-relaxed rounded-theme shadow-sm cursor-pointer select-none relative ${isAdmin ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}
+            className={\`p-4 text-[13px] leading-relaxed rounded-theme shadow-sm cursor-pointer select-none relative \${isAdmin ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}\`}
           >
             {msg.replyTo && (
-              <div className={`mb-2 p-2 rounded text-xs border-l-4 ${isAdmin ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}`}>
+              <div className={\`mb-2 p-2 rounded text-xs border-l-4 \${isAdmin ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}\`}>
                 <span className="font-bold uppercase tracking-widest block mb-0.5 opacity-80">{msg.replyTo.sender === 'admin' ? 'You' : selectedChat?.customerName || 'Customer'}</span>
                 <span className="line-clamp-1 opacity-90">{msg.replyTo.text}</span>
               </div>
@@ -213,11 +215,11 @@ export default function MessagesManagement() {
           </motion.div>
           
           {msg.reactions && msg.reactions.length > 0 && (
-            <div className={`absolute -bottom-3 ${isAdmin ? 'left-0' : 'right-0'} bg-surface border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm`}>
+            <div className={\`absolute -bottom-3 \${isAdmin ? 'left-0' : 'right-0'} bg-surface border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm\`}>
               {msg.reactions.map((r, i) => <span key={i}>{r}</span>)}
             </div>
           )}
-          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isAdmin ? 'justify-end w-full' : 'w-full'}`}>
+          <div className={\`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 \${isAdmin ? 'justify-end w-full' : 'w-full'}\`}>
             {formatTime(msg.createdAt)}
             {isAdmin && <span className="text-primary text-xs">✓✓</span>}
           </div>
@@ -235,7 +237,7 @@ export default function MessagesManagement() {
       
       <div className="flex-1 bg-surface-container-lowest border border-outline-variant flex overflow-hidden">
         {/* Sidebar */}
-        <div className={`w-full md:w-1/3 border-r border-outline-variant flex flex-col ${selectedChatId ? "hidden md:flex" : "flex"}`}>
+        <div className={\`w-full md:w-1/3 border-r border-outline-variant flex flex-col \${selectedChatId ? "hidden md:flex" : "flex"}\`}>
           <div className="p-4 border-b border-outline-variant bg-surface-container-low">
             <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Active Chats</h2>
           </div>
@@ -244,7 +246,7 @@ export default function MessagesManagement() {
               <div 
                 key={chat.id} 
                 onClick={() => setSelectedChatId(chat.id)}
-                className={`p-4 border-b border-outline-variant cursor-pointer transition-colors ${selectedChatId === chat.id ? 'bg-primary/10 border-l-4 border-l-[#ff4e00]' : 'hover:bg-surface-container-low border-l-4 border-l-transparent'}`}
+                className={\`p-4 border-b border-outline-variant cursor-pointer transition-colors \${selectedChatId === chat.id ? 'bg-primary/10 border-l-4 border-l-[#ff4e00]' : 'hover:bg-surface-container-low border-l-4 border-l-transparent'}\`}
               >
                 <div className="flex justify-between items-start mb-1">
                   <h3 className="font-bold text-sm uppercase text-on-background truncate">{chat.customerName}</h3>
@@ -259,7 +261,7 @@ export default function MessagesManagement() {
         </div>
 
         {/* Chat Area */}
-        <div className={`flex-1 flex flex-col bg-background ${!selectedChatId ? "hidden md:flex" : "flex"}`}>
+        <div className={\`flex-1 flex flex-col bg-background \${!selectedChatId ? "hidden md:flex" : "flex"}\`}>
           {selectedChat ? (
             <>
               {/* Chat Header */}
@@ -335,3 +337,5 @@ export default function MessagesManagement() {
     </div>
   );
 }
+`;
+fs.writeFileSync('src/pages/admin/MessagesManagement.tsx', code);

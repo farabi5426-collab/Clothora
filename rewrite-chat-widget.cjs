@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -21,7 +23,7 @@ interface ChatMessage {
 
 const renderMessageWithLinks = (text: string) => {
   if (!text) return null;
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urlRegex = /(https?:\\/\\/[^\\s]+)/g;
   const parts = text.split(urlRegex);
   return parts.map((part, i) => {
     if (part.match(urlRegex)) {
@@ -99,12 +101,12 @@ export default function ChatWidget() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regName || !regPhone) return;
-    const phoneStr = regPhone.replace(/[\s-]/g, '');
-    if (!/^(?:\+88|88)?01[3-9]\d{8}$/.test(phoneStr) && !/^\+?[0-9]{10,15}$/.test(phoneStr)) {
+    const phoneStr = regPhone.replace(/[\\s-]/g, '');
+    if (!/^(?:\\+88|88)?01[3-9]\\d{8}$/.test(phoneStr) && !/^\\+?[0-9]{10,15}$/.test(phoneStr)) {
       toast.error('Please enter a valid phone number');
       return;
     }
-    const finalName = user ? regName : `${regName} (G)`;
+    const finalName = user ? regName : \`\${regName} (G)\`;
     setDoc(doc(db, 'chats', chatId), {
       userId: chatId,
       customerName: finalName,
@@ -185,13 +187,13 @@ export default function ChatWidget() {
     const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
     
     return (
-      <div className={`flex gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
+      <div className={\`flex gap-3 \${isMe ? 'justify-end' : 'justify-start'}\`}>
         {!isMe && (
           <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-black text-sm">C</div>
         )}
-        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
+        <div className={\`flex flex-col \${isMe ? 'items-end' : 'items-start'} max-w-[85%] relative\`}>
           {activeReactionMsg === msg.id && (
-            <div className={`absolute z-50 -top-12 ${isMe ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
+            <div className={\`absolute z-50 -top-12 \${isMe ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in\`}>
               {REACTION_EMOJIS.map(emoji => (
                 <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-xl hover:scale-125 transition-transform">{emoji}</button>
               ))}
@@ -215,10 +217,10 @@ export default function ChatWidget() {
             }}
             onContextMenu={(e) => { e.preventDefault(); setActiveReactionMsg(msg.id); }}
             {...longPressEvent} 
-            className={`p-4 text-[13px] leading-relaxed rounded-none shadow-sm cursor-pointer select-none relative ${isMe ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}
+            className={\`p-4 text-[13px] leading-relaxed rounded-none shadow-sm cursor-pointer select-none relative \${isMe ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}\`}
           >
             {msg.replyTo && (
-              <div className={`mb-2 p-2 rounded text-xs border-l-4 ${isMe ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}`}>
+              <div className={\`mb-2 p-2 rounded text-xs border-l-4 \${isMe ? 'bg-primary-container text-on-primary border-on-primary/50' : 'bg-surface-container-highest text-on-surface border-primary'}\`}>
                 <span className="font-bold uppercase tracking-widest block mb-0.5 opacity-80">{msg.replyTo.sender === 'customer' ? 'You' : 'Clothora'}</span>
                 <span className="line-clamp-1 opacity-90">{msg.replyTo.text}</span>
               </div>
@@ -227,11 +229,11 @@ export default function ChatWidget() {
           </motion.div>
 
           {msg.reactions && msg.reactions.length > 0 && (
-            <div className={`absolute -bottom-3 ${isMe ? 'left-0' : 'right-0'} bg-surface-container-low border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm`}>
+            <div className={\`absolute -bottom-3 \${isMe ? 'left-0' : 'right-0'} bg-surface-container-low border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm\`}>
               {msg.reactions.map((r, i) => <span key={i}>{r}</span>)}
             </div>
           )}
-          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isMe ? 'justify-end w-full' : 'w-full'}`}>
+          <div className={\`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 \${isMe ? 'justify-end w-full' : 'w-full'}\`}>
             {formatTime(msg.createdAt)}
             {isMe && <span className="text-primary text-xs">✓✓</span>}
           </div>
@@ -340,3 +342,5 @@ export default function ChatWidget() {
     </div>
   );
 }
+`;
+fs.writeFileSync('src/components/store/ChatWidget.tsx', code);
