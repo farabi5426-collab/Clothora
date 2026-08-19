@@ -101,7 +101,8 @@ export default function HorizontalGallery({ products, loading }: { products: Pro
                        title: product.title,
                        price: product.price,
                        imageUrl: product.imageUrl || '',
-                       sizes: product.sizes || [], imageUrls: product.imageUrls || []
+      costPrice: product.costPrice,
+      sizes: product.sizes || [], imageUrls: product.imageUrls || []
                   }, true);
                 }}
                   className="w-[56px] h-[56px] bg-primary text-on-primary flex items-center justify-center shadow-[4px_4px_0px_var(--color-on-primary)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_var(--color-on-primary)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-theme"

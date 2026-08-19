@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { initializeFirestore, setLogLevel } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, setLogLevel } from 'firebase/firestore';
 
 const getEnv = (key: string, fallback: string) => {
   // Try to get from import.meta.env (Vite)
@@ -23,7 +23,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = initializeFirestore(app, { experimentalForceLongPolling: true }, "ai-studio-clothora-036904d7-3e54-49fd-8153-c3b75b405ae1");
+
+
+let dbInstance;
+try {
+  dbInstance = initializeFirestore(app, {}, "ai-studio-clothora-036904d7-3e54-49fd-8153-c3b75b405ae1");
+} catch (e) {
+  dbInstance = getFirestore(app, "ai-studio-clothora-036904d7-3e54-49fd-8153-c3b75b405ae1");
+}
+export const db = dbInstance;
+
 export const googleProvider = new GoogleAuthProvider();
 
 // Suppress Firestore offline warnings which can spam the console in constrained environments

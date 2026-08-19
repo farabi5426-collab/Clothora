@@ -24,7 +24,9 @@ export default function AdminDashboard() {
       snapshot.forEach(doc => {
         const data = doc.data();
         if (data.status === 'Delivered') {
-          totalRev += (data.totalAmount || 0);
+          const deliveryCharge = data.deliveryCharge || 0;
+          const orderRevenue = (data.totalAmount || 0) - deliveryCharge;
+          totalRev += orderRevenue;
           const itemsCost = (data.items || []).reduce((sum: number, item: any) => sum + ((item.costPrice || 0) * (item.quantity || 1)), 0);
           totalCost += itemsCost;
         }
