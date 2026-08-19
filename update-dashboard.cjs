@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+let content = fs.readFileSync('src/pages/admin/AdminDashboard.tsx', 'utf8');
+
+const imports = `import React, { useState, useEffect } from 'react';
 import { Package, ShoppingCart, TrendingUp, Plus, DollarSign, Calendar } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { collection, onSnapshot, query, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
@@ -8,43 +12,27 @@ interface Expense {
   amount: number;
   reason: string;
   date: any;
-}
+}`;
 
-export default function AdminDashboard() {
-  
+content = content.replace(
+  /import React, \{ useState, useEffect \} from 'react';\nimport \{ Package, ShoppingCart, TrendingUp \} from 'lucide-react';\nimport \{ db \} from '\.\.\/\.\.\/lib\/firebase';\nimport \{ collection, onSnapshot, query \} from 'firebase\/firestore';/,
+  imports
+);
+
+
+const stateAdditions = `
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expenseAmount, setExpenseAmount] = useState('');
   const [expenseReason, setExpenseReason] = useState('');
   const [isAddingExpense, setIsAddingExpense] = useState(false);
+`;
 
-  const [stats, setStats] = useState({
-    products: 0,
-    orders: 0,
-    revenue: 0,
-    profit: 0
-  });
+content = content.replace(
+  /const \[stats, setStats\] = useState\(\{/g,
+  stateAdditions + '\n  const [stats, setStats] = useState({'
+);
 
-  useEffect(() => {
-    // Listen to products count
-    const unsubscribeProducts = onSnapshot(query(collection(db, 'products')), (snapshot) => {
-      setStats(prev => ({ ...prev, products: snapshot.size }));
-    });
-
-    // Listen to orders count, calculate revenue and net profit
-    const unsubscribeOrders = onSnapshot(query(collection(db, 'orders')), (snapshot) => {
-      let totalRev = 0;
-      let totalDelivery = 0;
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.status === 'Delivered') {
-          totalRev += (data.totalAmount || 0);
-          totalDelivery += (data.deliveryCharge || 0);
-        }
-      });
-      setStats(prev => ({ ...prev, orders: snapshot.size, revenue: totalRev, profit: totalRev - totalDelivery }));
-    });
-
-    
+const fetchAdditions = `
     // Listen to expenses
     const unsubscribeExpenses = onSnapshot(query(collection(db, 'expenses'), orderBy('date', 'desc')), (snapshot) => {
       const expList: Expense[] = [];
@@ -53,15 +41,20 @@ export default function AdminDashboard() {
       });
       setExpenses(expList);
     });
+`;
 
-    return () => {
-      unsubscribeProducts();
-      unsubscribeOrders();
-      unsubscribeExpenses();
-    };
-  }, []);
+content = content.replace(
+  /return \(\) => \{/g,
+  fetchAdditions + '\n    return () => {'
+);
 
-  
+content = content.replace(
+  /unsubscribeOrders\(\);/g,
+  'unsubscribeOrders();\n      unsubscribeExpenses();'
+);
+
+
+const logicAdditions = `
 
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,10 +76,7 @@ export default function AdminDashboard() {
     }
   };
 
-  
   const totalExpense = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-  const finalNetProfit = stats.profit - totalExpense;
-
   
   const monthlyExpenses = expenses.reduce((acc, exp) => {
     let dateObj = new Date();
@@ -99,61 +89,15 @@ export default function AdminDashboard() {
     acc[monthYear] = (acc[monthYear] || 0) + (exp.amount || 0);
     return acc;
   }, {} as Record<string, number>);
+`;
 
-  return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Dashboard Overview</h1>
-          <p className="text-xs text-on-surface-variant uppercase tracking-widest">Store Performance Metrics</p>
-        </div>
-      </div>
+content = content.replace(
+  /return \(\n    <div className="space-y-8">/g,
+  logicAdditions + '\n  return (\n    <div className="space-y-8">'
+);
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-surface-container-lowest border border-outline-variant p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Products</h3>
-            <Package className="w-5 h-5 text-primary" />
-          </div>
-          <div className="pt-6">
-            <p className="text-4xl font-black text-on-background">{stats.products}</p>
-          </div>
-        </div>
 
-        <div className="bg-surface-container-lowest border border-outline-variant p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Orders</h3>
-            <ShoppingCart className="w-5 h-5 text-primary" />
-          </div>
-          <div className="pt-6">
-            <p className="text-4xl font-black text-on-background">{stats.orders}</p>
-          </div>
-        </div>
-        
-        <div className="bg-surface-container-lowest border border-outline-variant p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Revenue</h3>
-            <TrendingUp className="w-5 h-5 text-green-500" />
-          </div>
-          <div className="pt-6 flex items-baseline gap-2">
-            <span className="text-xl font-bold text-green-500">৳</span>
-            <p className="text-4xl font-black text-on-background">{stats.revenue.toLocaleString()}</p>
-          </div>
-        </div>
-
-        <div className="bg-surface-container-lowest border border-outline-variant p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Profit</h3>
-            <TrendingUp className="w-5 h-5 text-primary" />
-          </div>
-          <div className="pt-6 flex items-baseline gap-2">
-            <span className="text-xl font-bold text-primary">৳</span>
-            <p className="text-4xl font-black text-on-background">{stats.profit.toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-
+const uiAdditions = `
       {/* Expenses Section */}
       <div className="bg-surface-container-lowest border border-outline-variant p-6 mt-8">
         <div className="flex items-center justify-between pb-4 border-b border-outline-variant mb-6">
@@ -164,8 +108,7 @@ export default function AdminDashboard() {
           <DollarSign className="w-6 h-6 text-primary" />
         </div>
 
-        <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Add Expense Form & Totals */}
           <div className="lg:col-span-1 space-y-6">
             <form onSubmit={handleAddExpense} className="space-y-4 bg-surface-container-low p-4 border border-outline-variant rounded-none">
@@ -232,7 +175,7 @@ export default function AdminDashboard() {
           <div className="lg:col-span-2">
             <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Expense History</h3>
             <div className="bg-surface border border-outline-variant">
-              <div className="custom-scrollbar">
+              <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
                 {expenses.length > 0 ? (
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-surface-container-lowest sticky top-0 z-10 border-b border-outline-variant">
@@ -270,25 +213,16 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Final Net Profit Section */}
-      <div className="bg-surface-container-lowest border border-outline-variant p-6 mt-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-black uppercase tracking-wider text-on-background">Net Profit</h2>
-            <p className="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Total Profit after all Business Expenses</p>
-          </div>
-          <div className="text-right">
-            <span className="text-xl font-bold mr-2 text-primary">৳</span>
-            <span className={`text-5xl font-black ${finalNetProfit < 0 ? 'text-red-500' : 'text-on-background'}`}>
-              {finalNetProfit.toLocaleString()}
-            </span>
-          </div>
         </div>
       </div>
     </div>
   );
 }
+`;
+
+content = content.replace(
+  /    <\/div>\n  \);\n\}\n$/,
+  uiAdditions
+);
+
+fs.writeFileSync('src/pages/admin/AdminDashboard.tsx', content);
