@@ -5,12 +5,16 @@ import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, updateDoc,
 import { useAuthStore } from '../../store/authStore';
 import { getChatId } from '../../lib/chatUtils';
 import { Send, X, MessageSquareText, MessageSquare } from 'lucide-react';
+import { useLongPress } from '../../lib/useLongPress';
+
+const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
 interface ChatMessage {
   id: string;
   text: string;
   sender: 'customer' | 'admin';
   createdAt: any;
+  reactions?: string[];
 }
 
 
@@ -53,6 +57,9 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
+  const [isTypingAdmin, setIsTypingAdmin] = useState(false);
+  const [activeReactionMsg, setActiveReactionMsg] = useState<string | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Registration state for anonymous users before they can chat
   const [isRegistered, setIsRegistered] = useState(false);
@@ -76,6 +83,7 @@ export default function ChatWidget() {
     const unsubscribeChat = onSnapshot(chatDocRef, (docSnap) => {
       if (docSnap.exists()) {
         setIsRegistered(true);
+        setIsTypingAdmin(!!docSnap.data()?.isTypingAdmin);
         if (docSnap.data().unreadCustomer > 0) {
           // Reset unread count for customer
           updateDoc(chatDocRef, { unreadCustomer: 0 }).catch(console.error);
@@ -123,11 +131,75 @@ export default function ChatWidget() {
     setIsRegistered(true);
   };
 
+  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputText(e.target.value);
+    if (!isRegistered) return;
+    
+    updateDoc(doc(db, 'chats', chatId), { isTypingCustomer: true }).catch(console.error);
+    
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      updateDoc(doc(db, 'chats', chatId), { isTypingCustomer: false }).catch(console.error);
+    }, 1500);
+  };
+  
+  const handleReaction = async (msgId: string, emoji: string) => {
+    try {
+      const msgRef = doc(db, 'chats', chatId, 'messages', msgId);
+      const msg = messages.find(m => m.id === msgId);
+      if (!msg) return;
+      const currentReactions = msg.reactions || [];
+      const newReactions = currentReactions.includes(emoji) 
+        ? currentReactions.filter(r => r !== emoji)
+        : [...currentReactions, emoji];
+      await updateDoc(msgRef, { reactions: newReactions });
+      setActiveReactionMsg(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const MessageBubble = ({ msg }: { msg: ChatMessage }) => {
+    const isMe = msg.sender === 'customer';
+    const longPressEvent = useLongPress(() => setActiveReactionMsg(msg.id), () => {}, { delay: 400 });
+    
+    return (
+      <div className={`flex gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
+        {!isMe && (
+          <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-black text-sm">C</div>
+        )}
+        <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] relative`}>
+          {activeReactionMsg === msg.id && (
+            <div className={`absolute z-50 -top-12 ${isMe ? 'right-0' : 'left-0'} bg-surface-container-highest border border-outline-variant shadow-xl rounded-full px-3 py-2 flex gap-2 animate-bounce-in`}>
+              {REACTION_EMOJIS.map(emoji => (
+                <button key={emoji} onClick={() => handleReaction(msg.id, emoji)} className="text-xl hover:scale-125 transition-transform">{emoji}</button>
+              ))}
+            </div>
+          )}
+          <div {...longPressEvent} className={`p-4 text-[13px] leading-relaxed rounded-none shadow-sm cursor-pointer select-none ${isMe ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface'}`}>
+            {renderMessageWithLinks(msg.text)}
+          </div>
+          {msg.reactions && msg.reactions.length > 0 && (
+            <div className={`absolute -bottom-3 ${isMe ? 'left-0' : 'right-0'} bg-surface-container-low border border-outline-variant rounded-full px-1.5 py-0.5 text-xs flex gap-1 shadow-sm`}>
+              {msg.reactions.map((r, i) => <span key={i}>{r}</span>)}
+            </div>
+          )}
+          <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${isMe ? 'justify-end w-full' : 'w-full'}`}>
+            {formatTime(msg.createdAt)}
+            {isMe && <span className="text-primary text-xs">✓✓</span>}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
     const textToSend = inputText.trim();
+    updateDoc(doc(db, 'chats', chatId), { isTypingCustomer: false }).catch(console.error);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     setInputText('');
 
     // Ensure chat doc exists/updated
@@ -175,7 +247,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto p-5 bg-background flex flex-col gap-6">
+          <div className="flex-1 overflow-y-auto p-5 bg-background flex flex-col gap-6" onClick={(e) => { if (activeReactionMsg) { e.stopPropagation(); setActiveReactionMsg(null); } }}>
             {!isRegistered ? (
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
                 <div className="w-16 h-16 bg-primary text-on-primary flex items-center justify-center rounded-none mb-4">
@@ -191,29 +263,18 @@ export default function ChatWidget() {
               </div>
             ) : (
               <>
-                {messages.map((msg) => (
-                  <div key={msg.id} className={`flex gap-3 ${msg.sender === 'customer' ? 'justify-end' : 'justify-start'}`}>
-                    {msg.sender === 'admin' && (
-                      <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-black text-sm">
-                        C
-                      </div>
-                    )}
-                    <div className={`flex flex-col ${msg.sender === 'customer' ? 'items-end' : 'items-start'} max-w-[85%]`}>
-                      <div className={`p-4 text-[13px] leading-relaxed rounded-none shadow-sm ${
-                        msg.sender === 'customer' 
-                          ? 'bg-primary text-on-primary' 
-                          : 'bg-surface-container-low text-on-surface'
-                      }`}>
-                        {renderMessageWithLinks(msg.text)}
-                      </div>
-                      <div className={`text-[10px] text-on-surface-variant mt-1.5 flex items-center gap-1.5 ${msg.sender === 'customer' ? 'justify-end w-full' : 'w-full'}`}>
-                        {formatTime(msg.createdAt)}
-                        {msg.sender === 'customer' && <span className="text-primary text-xs">✓✓</span>}
-                      </div>
+                {messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)}
+                <div ref={messagesEndRef} />
+                {isTypingAdmin && (
+                  <div className="flex gap-3 justify-start mb-2">
+                    <div className="w-8 h-8 bg-primary flex-shrink-0 flex items-center justify-center text-on-primary font-black text-sm">C</div>
+                    <div className="bg-surface-container-low p-4 py-5 rounded-none flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full typing-dot"></div>
+                      <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full typing-dot"></div>
+                      <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full typing-dot"></div>
                     </div>
                   </div>
-                ))}
-                <div ref={messagesEndRef} />
+                )}
               </>
             )}
           </div>
@@ -226,7 +287,7 @@ export default function ChatWidget() {
                   type="text" 
                   placeholder="Type your message..." 
                   value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
+                  onChange={handleTyping}
                   className="flex-1 bg-surface-container-low p-3.5 text-sm text-on-background outline-none rounded-none placeholder:text-on-surface-variant"
                 />
                 <button type="submit" disabled={!inputText.trim()} className="bg-primary text-on-primary w-12 flex flex-shrink-0 items-center justify-center rounded-none hover:bg-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
