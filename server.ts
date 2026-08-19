@@ -46,8 +46,20 @@ async function startServer() {
 
       if (docSnap.exists()) {
         const product = docSnap.data();
-        const title = product.title + ' | Clothora';
-        const description = product.description || `Buy ${product.title} at Clothora`;
+        
+        const escapeHtml = (str) => {
+          if (!str) return '';
+          return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/\n/g, ' ')
+            .replace(/\r/g, ' ');
+        };
+        const title = escapeHtml(product.title + ' | Clothora');
+        const description = escapeHtml(product.description || `Buy ${product.title} at Clothora`).substring(0, 200);
+
         const rawImageUrl = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '');
         const imageUrl = rawImageUrl.startsWith('http') ? rawImageUrl : ('https://' + req.get('host') + (rawImageUrl.startsWith('/') ? '' : '/') + rawImageUrl);
         const url = 'https://' + req.get('host') + req.originalUrl;
