@@ -70,6 +70,12 @@ export default function ChatWidget() {
   };
 
   useEffect(() => {
+    if (isTypingAdmin) {
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [isTypingAdmin]);
+
+  useEffect(() => {
     if (!isOpen) return;
     const chatDocRef = doc(db, 'chats', chatId);
     const unsubscribeChat = onSnapshot(chatDocRef, (docSnap) => {

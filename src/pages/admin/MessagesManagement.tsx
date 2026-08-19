@@ -70,6 +70,12 @@ export default function MessagesManagement() {
   const selectedChat = chats.find(c => c.id === selectedChatId) || null;
 
   useEffect(() => {
+    if (selectedChat?.isTypingCustomer) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  }, [selectedChat?.isTypingCustomer]);
+
+  useEffect(() => {
     const q = query(collection(db, 'chats'), orderBy('updatedAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const chatList: ChatSession[] = [];
