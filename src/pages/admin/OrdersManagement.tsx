@@ -148,7 +148,7 @@ export default function OrdersManagement() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Orders</h1>
           <p className="text-xs text-on-surface-variant uppercase tracking-widest">Customer purchases</p>
@@ -226,12 +226,12 @@ export default function OrdersManagement() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-surface-container-lowest border-2 border-surface-bright w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
             >
-              <div className="p-6 border-b-2 border-surface-bright flex items-center justify-between bg-surface">
+              <div className="p-6 border-b-2 border-surface-bright flex flex-col sm:flex-row sm:items-center justify-between bg-surface gap-4">
                 <div>
                   <h2 className="text-2xl font-black uppercase tracking-tighter">Order Details</h2>
                   <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">ID: {selectedOrder.id}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button onClick={async () => {
                     try {
                       setIsDownloadingImage(true);

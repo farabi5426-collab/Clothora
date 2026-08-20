@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { Send, User, Reply, CornerDownRight, X } from 'lucide-react';
+import { Send, User, Reply, CornerDownRight, X, ArrowLeft } from 'lucide-react';
 import { useLongPress } from '../../lib/useLongPress';
 import { motion } from 'motion/react';
 
@@ -280,7 +280,7 @@ export default function MessagesManagement() {
             <>
               {/* Chat Header */}
               <div className="p-4 border-b border-outline-variant bg-surface-container-low flex items-center gap-4">
-                <button onClick={() => setSelectedChatId(null)} className="md:hidden text-on-surface-variant hover:text-on-background mr-2"><span className="material-symbols-outlined">arrow_back</span></button>
+                <button onClick={() => setSelectedChatId(null)} className="md:hidden text-on-surface-variant hover:text-on-background mr-2"><ArrowLeft className="w-6 h-6" /></button>
                 <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center border border-outline-variant text-on-background">
                   <User className="w-5 h-5" />
                 </div>

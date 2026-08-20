@@ -77,7 +77,7 @@ export default function NoticesManagement() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Notices</h1>
           <p className="text-xs text-on-surface-variant uppercase tracking-widest">Store announcements</p>
@@ -125,7 +125,7 @@ export default function NoticesManagement() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant w-full max-w-lg p-4 sm:p-8 max-h-[90vh] overflow-y-auto relative">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-xl font-black uppercase tracking-widest">Create Notice</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-on-surface-variant hover:text-on-background">
                 <X className="w-6 h-6" />

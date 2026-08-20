@@ -148,7 +148,7 @@ export default function InvoiceGenerator() {
             <h2 className="text-lg font-bold uppercase tracking-widest mb-4 border-b-2 border-surface-bright pb-2">Invoice Details</h2>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Order ID</label>
                   <input
@@ -206,7 +206,7 @@ export default function InvoiceGenerator() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Delivery Charge (৳)</label>
@@ -242,7 +242,7 @@ export default function InvoiceGenerator() {
 
           {/* PRODUCT SELECTOR */}
           <div className="bg-surface-container-lowest p-6 border-2 border-surface-bright">
-            <h2 className="text-lg font-bold uppercase tracking-widest mb-4 border-b-2 border-surface-bright pb-2 flex items-center justify-between">
+            <h2 className="text-lg font-bold uppercase tracking-widest mb-4 border-b-2 border-surface-bright pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               Select Products
             </h2>
             
@@ -293,7 +293,7 @@ export default function InvoiceGenerator() {
         {/* RIGHT COLUMN - SELECTED ITEMS & TOTALS */}
         <div className="space-y-6">
           <div className="bg-surface-container-lowest p-6 border-2 border-surface-bright flex flex-col h-full">
-            <h2 className="text-lg font-bold uppercase tracking-widest mb-4 border-b-2 border-surface-bright pb-2 flex items-center justify-between">
+            <h2 className="text-lg font-bold uppercase tracking-widest mb-4 border-b-2 border-surface-bright pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <span>Invoice Items ({selectedItems.length})</span>
             </h2>
 
@@ -314,7 +314,7 @@ export default function InvoiceGenerator() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                     
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
                       <div className="w-16 h-20 bg-surface-container-highest overflow-hidden shrink-0">
                         {item.imageUrl ? (
                           <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
@@ -325,7 +325,7 @@ export default function InvoiceGenerator() {
                       <div className="flex-1">
                         <p className="text-sm font-bold pr-6">{item.title}</p>
                         
-                        <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                           <input 
                             type="text" 
                             placeholder="Size" 
@@ -400,7 +400,7 @@ export default function InvoiceGenerator() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button 
                 onClick={handleDownloadImage}
                 disabled={isGenerating || selectedItems.length === 0}

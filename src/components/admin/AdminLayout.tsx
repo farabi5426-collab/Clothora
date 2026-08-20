@@ -35,13 +35,13 @@ export default function AdminLayout() {
   return (
     <div className="h-screen w-full bg-background text-on-background font-sans flex flex-col md:flex-row overflow-hidden">
       {/* Sidebar */}
-      <div className="w-full md:w-64 bg-background md:bg-surface-container-lowest border-b md:border-b-0 md:border-r border-outline-variant flex flex-col flex-shrink-0">
+      <div className="w-full md:w-64 bg-surface-container-lowest border-b md:border-b-0 md:border-r border-outline-variant flex flex-col flex-shrink-0">
         <div className="h-20 flex items-center px-6 border-b border-outline-variant">
           <Link to="/" className="text-2xl font-black tracking-tighter uppercase italic text-on-background flex items-center">
             Clothora <span className="text-primary text-[10px] uppercase tracking-[0.3em] ml-3 mt-1 not-italic">Admin</span>
           </Link>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 flex md:flex-col overflow-x-auto md:overflow-y-auto overflow-y-hidden">
+        <nav className="md:flex-1 px-4 md:py-6 py-4 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto overflow-y-hidden custom-scrollbar">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (

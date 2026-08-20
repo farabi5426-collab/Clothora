@@ -104,12 +104,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Dashboard Overview</h1>
           <p className="text-xs text-on-surface-variant uppercase tracking-widest">Store Performance Metrics</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button 
             onClick={async () => {
               setIsExporting(true);
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
 
       {/* Expenses Section */}
       <div className="bg-surface-container-lowest border border-outline-variant p-6 mt-8">
-        <div className="flex items-center justify-between pb-4 border-b border-outline-variant mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-outline-variant mb-6 gap-4">
           <div>
             <h2 className="text-xl font-black uppercase tracking-wider text-on-background">Business Expenses</h2>
             <p className="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Track and manage your store costs</p>
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
           <div className="lg:col-span-2">
             <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Expense History</h3>
             <div className="bg-surface border border-outline-variant">
-              <div className="custom-scrollbar">
+              <div className="custom-scrollbar overflow-x-auto overflow-y-auto max-h-[400px]">
                 {expenses.length > 0 ? (
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-surface-container-lowest sticky top-0 z-10 border-b border-outline-variant">
@@ -310,12 +310,12 @@ export default function AdminDashboard() {
 
       {/* Final Net Profit Section */}
       <div className="bg-surface-container-lowest border border-outline-variant p-6 mt-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-black uppercase tracking-wider text-on-background">Net Profit</h2>
             <p className="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Total Profit after all Business Expenses</p>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <span className="text-xl font-bold mr-2 text-primary">৳</span>
             <span className={`text-5xl font-black ${finalNetProfit < 0 ? 'text-red-500' : 'text-on-background'}`}>
               {finalNetProfit.toLocaleString()}

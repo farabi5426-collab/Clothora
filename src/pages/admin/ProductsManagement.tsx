@@ -255,7 +255,7 @@ export default function ProductsManagement() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Products</h1>
           <p className="text-xs text-on-surface-variant uppercase tracking-widest">Manage your inventory</p>
@@ -315,14 +315,14 @@ export default function ProductsManagement() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant w-full max-w-2xl p-4 sm:p-8 max-h-[90vh] overflow-y-auto relative">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-xl font-black uppercase tracking-widest">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-on-surface-variant hover:text-on-background">
                 <X className="w-6 h-6" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Title</label>
                   <input required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none transition-colors" />
@@ -345,7 +345,7 @@ export default function ProductsManagement() {
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Category</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <select required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="flex-1 bg-surface-container-low border border-outline-variant p-3 text-on-background focus:border-primary outline-none transition-colors ">
                       <option value="" disabled>Select Category</option>
                       {categories.map(cat => (
@@ -411,7 +411,7 @@ export default function ProductsManagement() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs uppercase tracking-widest text-on-surface-variant mb-2">Add Image via URL</label>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <input 
                           id="addUrlInput" 
                           placeholder="https://..." 
@@ -519,7 +519,7 @@ export default function ProductsManagement() {
       {isCategoryModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant w-full max-w-md p-6 relative">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-xl font-black uppercase tracking-widest">Manage Categories</h2>
               <button type="button" onClick={() => setIsCategoryModalOpen(false)} className="text-on-surface-variant hover:text-on-background">
                 <X className="w-6 h-6" />

@@ -91,7 +91,7 @@ export default function SocialLinksManagement() {
             <MessageCircle className="w-6 h-6" />
           </div>
           <div className="flex-1 space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <label className="font-bold uppercase tracking-widest text-on-surface">WhatsApp Number</label>
               <button 
                 onClick={() => handleToggle('whatsapp')}
@@ -116,7 +116,7 @@ export default function SocialLinksManagement() {
             <Facebook className="w-6 h-6" />
           </div>
           <div className="flex-1 space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <label className="font-bold uppercase tracking-widest text-on-surface">Facebook URL</label>
               <button 
                 onClick={() => handleToggle('facebook')}
@@ -141,7 +141,7 @@ export default function SocialLinksManagement() {
             <Instagram className="w-6 h-6" />
           </div>
           <div className="flex-1 space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <label className="font-bold uppercase tracking-widest text-on-surface">Instagram URL</label>
               <button 
                 onClick={() => handleToggle('instagram')}
