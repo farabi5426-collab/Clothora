@@ -17,6 +17,8 @@ interface Product {
   stock: number;
   description?: string;
   imageUrls?: string[]; sizes?: string[];
+  costPrice?: number;
+  noColorVariations?: boolean;
 }
 
 const HERO_CONTENT = [
@@ -204,7 +206,7 @@ export default function Home() {
       title: product.title,
       price: product.price,
       imageUrl: product.imageUrl || '',
-      sizes: product.sizes || [], imageUrls: product.imageUrls || []
+      sizes: product.sizes || [], imageUrls: product.imageUrls || [], noColorVariations: product.noColorVariations || false
     });
 
     // Get click coordinates
@@ -648,7 +650,7 @@ export default function Home() {
                           price: selectedProduct.price,
                           imageUrl: selectedProduct.imageUrl || '',
                           costPrice: selectedProduct.costPrice,
-                          sizes: selectedProduct.sizes || [], imageUrls: selectedProduct.imageUrls || []
+                          sizes: selectedProduct.sizes || [], imageUrls: selectedProduct.imageUrls || [], noColorVariations: selectedProduct.noColorVariations || false
                         }, true);
                         setSelectedProduct(null);
                       }}
@@ -666,7 +668,7 @@ export default function Home() {
                           price: selectedProduct.price,
                           imageUrl: selectedProduct.imageUrl || '',
                           costPrice: selectedProduct.costPrice,
-                          sizes: selectedProduct.sizes || [], imageUrls: selectedProduct.imageUrls || []
+                          sizes: selectedProduct.sizes || [], imageUrls: selectedProduct.imageUrls || [], noColorVariations: selectedProduct.noColorVariations || false
                         }, false);
                         toast.success(`${selectedProduct.title} added to cart`);
                         setSelectedProduct(null);

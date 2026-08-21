@@ -98,7 +98,8 @@ export default function WishlistPage() {
                       imageUrl: product.imageUrl || '',
                       costPrice: product.costPrice,
                       sizes: product.sizes || [],
-                      imageUrls: product.imageUrls || []
+                      imageUrls: product.imageUrls || [],
+                      noColorVariations: product.noColorVariations || false
                     }, false);
                     toast.success(`${product.title} added to cart`);
                   }}
