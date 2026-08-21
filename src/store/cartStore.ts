@@ -12,6 +12,7 @@ export interface CartItem {
   imageUrls?: string[];
   selectedColor?: string;
   cartItemId?: string;
+  noColorVariations?: boolean;
 }
 
 interface CartStore {

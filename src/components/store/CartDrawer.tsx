@@ -156,11 +156,11 @@ export default function CartDrawer() {
               </div>
 
                                           {/* Color/Design Selection Box */}
-              {items.some(item => item.imageUrls && item.imageUrls.length > 1) && (
+              {items.some(item => !item.noColorVariations && item.imageUrls && item.imageUrls.length > 1) && (
                 <div className="bg-surface-container border-2 border-surface-bright p-[16px] rounded-theme">
                   <label className="block text-[12px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-[12px]">SELECT COLOR/DESIGN</label>
                   <div className="space-y-4">
-                    {items.filter(item => item.imageUrls && item.imageUrls.length > 1).map(item => (
+                    {items.filter(item => !item.noColorVariations && item.imageUrls && item.imageUrls.length > 1).map(item => (
                       <div key={item.cartItemId || item.id}>
                         <div className="flex justify-between items-center mb-2">
                            <p className="text-[14px] font-bold text-on-surface line-clamp-1 pr-4">{item.title}</p>
@@ -279,7 +279,7 @@ export default function CartDrawer() {
               <button 
                 onClick={() => {
                   const itemsNeedingSize = items.filter(item => item.sizes && item.sizes.length > 0 && !item.selectedSize);
-                  const itemsNeedingColor = items.filter(item => item.imageUrls && item.imageUrls.length > 1 && !item.selectedColor);
+                  const itemsNeedingColor = items.filter(item => !item.noColorVariations && item.imageUrls && item.imageUrls.length > 1 && !item.selectedColor);
                   if (itemsNeedingColor.length > 0) {
                     toast.error('Please select color/design for all products');
                     return;

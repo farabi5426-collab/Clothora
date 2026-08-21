@@ -17,6 +17,7 @@ interface Product {
   sizes?: string[];
   videoUrl?: string;
   showInBanner?: boolean;
+  noColorVariations?: boolean;
 }
 
 export default function ProductsManagement() {
@@ -29,7 +30,8 @@ export default function ProductsManagement() {
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[], sizes: [] as string[], videoUrl: '', showInBanner: false
+    title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [] as string[], sizes: [] as string[], videoUrl: '', showInBanner: false,
+    noColorVariations: false
   });
 
   useEffect(() => {
@@ -178,6 +180,7 @@ export default function ProductsManagement() {
           imageUrls: finalImageUrls || [],
           videoUrl: finalVideoUrl || '',
           showInBanner: Boolean(currentFormData.showInBanner),
+          noColorVariations: Boolean(currentFormData.noColorVariations),
           sizes: currentFormData.sizes || []
         };
         
@@ -215,6 +218,7 @@ export default function ProductsManagement() {
       imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : []),
       videoUrl: product.videoUrl || '',
       showInBanner: product.showInBanner || false,
+      noColorVariations: product.noColorVariations || false,
       sizes: product.sizes || []
     });
     setEditingId(product.id);
@@ -247,7 +251,7 @@ export default function ProductsManagement() {
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [], sizes: [], videoUrl: '', showInBanner: false });
+    setFormData({ title: '', description: '', price: '', costPrice: '', stock: '', category: '', imageUrl: '', imageUrls: [], sizes: [], videoUrl: '', showInBanner: false, noColorVariations: false });
     setEditingId(null);
     setSelectedVideo(null);
     setSelectedFiles([]);
@@ -509,7 +513,22 @@ export default function ProductsManagement() {
                   </div>
                 </div>
               </div>
-              <button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-primary p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2">
+              
+              <div className="bg-surface-container-low border border-outline-variant p-4 mt-4">
+                  <div className="flex items-center gap-2">
+                     <input 
+                        type="checkbox" 
+                        id="noColorVariations"
+                        checked={formData.noColorVariations || false}
+                        onChange={e => setFormData({...formData, noColorVariations: e.target.checked})}
+                        className="w-4 h-4 accent-primary"
+                     />
+                     <label htmlFor="noColorVariations" className="text-xs uppercase tracking-widest text-on-background font-bold cursor-pointer">
+                        No Color Variations (Single Variant Product)
+                     </label>
+                  </div>
+              </div>
+<button type="submit" className="w-full bg-primary hover:bg-primary-container text-on-primary p-4 text-xs font-bold uppercase tracking-widest mt-6 transition-colors flex items-center justify-center gap-2">
                 {editingId ? 'Update Product' : 'Save Product'}
               </button>
             </form>
